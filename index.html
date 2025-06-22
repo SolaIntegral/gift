@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GIFT - 大切な人へ健康を贈る</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 </head>
 <body>
     <!-- ヘッダー -->
     <header class="header">
         <div class="header-content">
-            <a href="index.html" class="logo">🎁 GIFT</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="about.html">GIFTについて</a></li>
-                    <li><a href="send_gifts.html">ギフトを送る</a></li>
-                    <li><a href="mypage.html">マイページ</a></li>
-                </ul>
-            </nav>
+            <a href="index.html" class="logo">GIFT</a>
+            <div style="width: 60px;"></div> <!-- 中央揃えのためのスペーサー -->
         </div>
     </header>
 
@@ -25,113 +20,130 @@
     <main class="main-content">
         <!-- ヒーローセクション -->
         <section class="hero">
-            <h1>大切な人へ健康を贈る</h1>
-            <p>健康診断を通じて、普段伝えられない気持ちを伝え、絆を深めませんか？</p>
-            <div class="hero-buttons">
-                <a href="about.html" class="btn btn-secondary">GIFTについて知りたい</a>
-                <a href="send_gifts.html" class="btn btn-success">GIFTを送りたい</a>
-                <a href="mypage.html" class="btn btn-warning">使われたか知りたい</a>
+            <div class="hero-content">
+                <h1>大切な人へ<br>健康を贈る</h1>
+                <p>健康診断をギフトとして贈ることで、<br>大切な人の健康をサポートしませんか？</p>
+                <div class="hero-buttons">
+                    <a href="send_gifts.html" class="btn">ギフトを贈る</a>
+                    <a href="about.html" class="btn btn-secondary">サービスについて</a>
+                </div>
             </div>
         </section>
 
-        <!-- 特徴セクション -->
-        <section class="features">
+        <!-- サービスの特徴 -->
+        <section class="card">
+            <h2>GIFTの特徴</h2>
             <div class="grid grid-3">
-                <div class="card">
+                <div class="flow-card">
                     <div class="icon">💝</div>
-                    <h2>思いを形に</h2>
-                    <p>大切な人への想いを、健康という形で表現できます。言葉では伝えにくい気持ちも、ギフトを通じて伝わります。</p>
+                    <h4>簡単ギフト</h4>
+                    <p>数クリックで大切な人へ健康診断を贈ることができます</p>
                 </div>
-                <div class="card">
+                <div class="flow-card">
                     <div class="icon">🏥</div>
-                    <h2>専門的な健康診断</h2>
-                    <p>信頼できる医療機関と提携し、質の高い健康診断サービスを提供します。早期発見・早期治療をサポートします。</p>
+                    <h4>信頼できる医療機関</h4>
+                    <p>全国の提携医療機関で安心して健康診断を受けられます</p>
                 </div>
-                <div class="card">
-                    <div class="icon">🤝</div>
-                    <h2>絆を深める</h2>
-                    <p>健康診断を通じて、お互いの健康への関心が高まり、より深い絆を築くことができます。</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 使い方セクション -->
-        <section class="how-to">
-            <h2 class="section-title">GIFTの使い方</h2>
-            <div class="step-indicator">
-                <div class="step active">
-                    <div class="step-number">1</div>
-                    <span>ギフトを選択</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <span>相手の情報を入力</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <span>決済完了</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <span>ギフト送信</span>
+                <div class="flow-card">
+                    <div class="icon">📱</div>
+                    <h4>スマート管理</h4>
+                    <p>アプリで簡単に履歴管理と予約確認ができます</p>
                 </div>
             </div>
         </section>
 
-        <!-- ギフト例セクション -->
-        <section class="gift-examples">
-            <h2 class="section-title">人気のギフト</h2>
+        <!-- 人気のギフト -->
+        <section class="card">
+            <h2>人気のギフト</h2>
             <div class="grid grid-3">
                 <div class="gift-card">
-                    <div class="icon">🏥</div>
-                    <h3>人間ドックギフト</h3>
-                    <p>総合的な健康診断で、全身の健康状態をチェック</p>
-                    <div class="price">¥50,000</div>
-                </div>
-                <div class="gift-card">
-                    <div class="icon">👨‍⚕️</div>
-                    <h3>健康相談チケット</h3>
-                    <p>専門医による健康相談で、不安を解消</p>
+                    <div class="icon">💊</div>
+                    <h3>健康診断パックA</h3>
+                    <p>基本的な健康チェック</p>
                     <div class="price">¥15,000</div>
                 </div>
                 <div class="gift-card">
-                    <div class="icon">🥗</div>
-                    <h3>栄養指導セッション</h3>
-                    <p>管理栄養士による栄養指導で、健康的な食生活を</p>
-                    <div class="price">¥8,000</div>
+                    <div class="icon">❤️</div>
+                    <h3>健康診断パックB</h3>
+                    <p>詳細な健康診断</p>
+                    <div class="price">¥25,000</div>
+                </div>
+                <div class="gift-card">
+                    <div class="icon">🌟</div>
+                    <h3>健康診断パックC</h3>
+                    <p>プレミアム健康診断</p>
+                    <div class="price">¥35,000</div>
                 </div>
             </div>
             <div class="text-center" style="margin-top: 2rem;">
-                <a href="send_gifts.html" class="btn btn-success">もっと見る</a>
+                <a href="send_gifts.html" class="btn">すべてのギフトを見る</a>
             </div>
         </section>
 
-        <!-- お客様の声セクション -->
-        <section class="testimonials">
-            <h2 class="section-title">お客様の声</h2>
-            <div class="grid grid-2">
-                <div class="card">
-                    <p>"母に人間ドックギフトを贈りました。普段は健康診断を受けようとしない母が、私からのギフトということで喜んで受けてくれました。"</p>
-                    <div class="testimonial-author">
-                        <strong>田中花子さん</strong> (30代・会社員)
-                    </div>
+        <!-- 利用の流れ -->
+        <section class="card">
+            <h2>利用の流れ</h2>
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span>ギフト選択</span>
                 </div>
-                <div class="card">
-                    <p>"夫に健康相談チケットを贈りました。仕事が忙しくて自分の健康を後回しにしていた夫が、改めて健康の大切さを実感してくれました。"</p>
-                    <div class="testimonial-author">
-                        <strong>佐藤美咲さん</strong> (40代・主婦)
-                    </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>受取人情報入力</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>決済</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>ギフト送信完了</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- お客様の声 -->
+        <section class="card">
+            <h2>お客様の声</h2>
+            <div class="grid grid-2">
+                <div class="card" style="background: var(--color-background-light);">
+                    <p>"母の日に健康診断を贈りました。母がとても喜んでくれて、私も安心できました。"</p>
+                    <small>- 田中さん (30代)</small>
+                </div>
+                <div class="card" style="background: var(--color-background-light);">
+                    <p>"夫の誕生日に贈りました。健康への意識が高まり、家族みんなで健康管理をするようになりました。"</p>
+                    <small>- 佐藤さん (40代)</small>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- フッターナビゲーション -->
+    <nav class="footer-nav">
+        <div class="footer-nav-content">
+            <a href="index.html" class="footer-nav-item active">
+                <div class="footer-nav-icon">🏠</div>
+                <div class="footer-nav-text">ホーム</div>
+            </a>
+            <a href="send_gifts.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🎁</div>
+                <div class="footer-nav-text">ギフト</div>
+            </a>
+            <a href="mypage.html" class="footer-nav-item">
+                <div class="footer-nav-icon">👤</div>
+                <div class="footer-nav-text">マイページ</div>
+            </a>
+            <a href="history_send.html" class="footer-nav-item">
+                <div class="footer-nav-icon">📋</div>
+                <div class="footer-nav-text">履歴</div>
+            </a>
+        </div>
+    </nav>
+
     <!-- フッター -->
     <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 GIFT. All rights reserved.</p>
-            <p>大切な人へ健康を贈る - GIFT</p>
-        </div>
+        <p>&copy; 2024 GIFT. All rights reserved.</p>
     </footer>
 
     <script src="js/script.js"></script>

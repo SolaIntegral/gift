@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ギフト相談 - GIFT</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 </head>
 <body>
     <!-- ヘッダー -->
     <header class="header">
         <div class="header-content">
-            <a href="index.html" class="logo">🎁 GIFT</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="about.html">GIFTについて</a></li>
-                    <li><a href="send_gifts.html">ギフトを送る</a></li>
-                    <li><a href="mypage.html">マイページ</a></li>
-                </ul>
-            </nav>
+            <a href="index.html" class="logo">GIFT</a>
+            <div style="width: 60px;"></div> <!-- 中央揃えのためのスペーサー -->
         </div>
     </header>
 
@@ -25,380 +20,445 @@
     <main class="main-content">
         <!-- ヒーローセクション -->
         <section class="hero">
-            <h1>ギフト相談</h1>
-            <p>簡単な質問にお答えいただき、相手に最適なギフトをご提案します</p>
+            <div class="hero-content">
+                <h1>ギフト相談</h1>
+                <p>簡単な質問にお答えいただき、<br>最適なギフトをご提案いたします</p>
+            </div>
         </section>
 
-        <!-- 質問フォームセクション -->
-        <section class="question-form" id="question-form">
-            <div class="card">
-                <h2>相手について教えてください</h2>
-                <p>以下の質問にお答えいただき、最適なギフトをご提案いたします</p>
+        <!-- ステップインジケーター -->
+        <section class="card">
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span>質問回答</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>ギフト提案</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>受取人情報入力</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>決済</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 質問フォーム -->
+        <section class="card" id="question-form">
+            <h2>受取人について教えてください</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--color-text-secondary);">
+                以下の質問にお答えいただき、最適なギフトをご提案いたします
+            </p>
+            
+            <form id="suggestion-form">
+                <div class="form-group">
+                    <label for="recipient-relationship">受取人との関係 *</label>
+                    <select id="recipient-relationship" name="relationship" class="form-control" required>
+                        <option value="">選択してください</option>
+                        <option value="family">家族（両親、祖父母など）</option>
+                        <option value="partner">パートナー（配偶者、恋人など）</option>
+                        <option value="friend">友人</option>
+                        <option value="colleague">同僚・上司</option>
+                        <option value="business">取引先</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
                 
-                <form id="suggestion-form">
-                    <div class="form-group">
-                        <label>相手の年齢層は？</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="age-20-30" name="age" value="20-30" required>
-                                <label for="age-20-30">20代〜30代</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="age-40-50" name="age" value="40-50">
-                                <label for="age-40-50">40代〜50代</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="age-60" name="age" value="60+">
-                                <label for="age-60">60代以上</label>
-                            </div>
+                <div class="form-group">
+                    <label for="recipient-age">受取人の年齢 *</label>
+                    <select id="recipient-age" name="age" class="form-control" required>
+                        <option value="">選択してください</option>
+                        <option value="20-29">20代</option>
+                        <option value="30-39">30代</option>
+                        <option value="40-49">40代</option>
+                        <option value="50-59">50代</option>
+                        <option value="60-69">60代</option>
+                        <option value="70-79">70代</option>
+                        <option value="80+">80代以上</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="health-concern">健康への関心事 *</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-general" name="health-concerns" value="general">
+                            <label for="concern-general">一般的な健康チェック</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-heart" name="health-concerns" value="heart">
+                            <label for="concern-heart">心臓・循環器系</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-cancer" name="health-concerns" value="cancer">
+                            <label for="concern-cancer">がん検診</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-bone" name="health-concerns" value="bone">
+                            <label for="concern-bone">骨・関節</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-nutrition" name="health-concerns" value="nutrition">
+                            <label for="concern-nutrition">栄養・食事</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="concern-stress" name="health-concerns" value="stress">
+                            <label for="concern-stress">ストレス・メンタルヘルス</label>
                         </div>
                     </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="budget">予算 *</label>
+                    <select id="budget" name="budget" class="form-control" required>
+                        <option value="">選択してください</option>
+                        <option value="low">〜10,000円</option>
+                        <option value="medium">10,000円〜25,000円</option>
+                        <option value="high">25,000円〜50,000円</option>
+                        <option value="premium">50,000円以上</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="occasion">贈る機会</label>
+                    <select id="occasion" name="occasion" class="form-control">
+                        <option value="">選択してください</option>
+                        <option value="birthday">誕生日</option>
+                        <option value="anniversary">記念日</option>
+                        <option value="christmas">クリスマス</option>
+                        <option value="valentine">バレンタイン</option>
+                        <option value="mothers-day">母の日</option>
+                        <option value="fathers-day">父の日</option>
+                        <option value="thanks">感謝の気持ち</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn">ギフトを提案してもらう</button>
+                </div>
+            </form>
+        </section>
 
-                    <div class="form-group">
-                        <label>重視する健康分野は？</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="health-prevention" name="healthFocus" value="prevention" required>
-                                <label for="health-prevention">病気の予防・早期発見</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="health-lifestyle" name="healthFocus" value="lifestyle">
-                                <label for="health-lifestyle">生活習慣の改善</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="health-mental" name="healthFocus" value="mental">
-                                <label for="health-mental">メンタルヘルス</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="health-specific" name="healthFocus" value="specific">
-                                <label for="health-specific">特定の症状・悩み</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>予算は？</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="budget-low" name="budget" value="low" required>
-                                <label for="budget-low">〜¥10,000</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="budget-medium" name="budget" value="medium">
-                                <label for="budget-medium">¥10,000〜¥30,000</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="budget-high" name="budget" value="high">
-                                <label for="budget-high">¥30,000〜</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>相手との関係は？</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="relation-family" name="relation" value="family" required>
-                                <label for="relation-family">家族（両親、祖父母、配偶者など）</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="relation-friend" name="relation" value="friend">
-                                <label for="relation-friend">友人・知人</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="relation-colleague" name="relation" value="colleague">
-                                <label for="relation-colleague">同僚・ビジネス関係</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>相手の現在の健康状態は？</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="health-good" name="currentHealth" value="good" required>
-                                <label for="health-good">健康で特に問題なし</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="health-concern" name="currentHealth" value="concern">
-                                <label for="health-concern">少し気になることがある</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="health-treatment" name="currentHealth" value="treatment">
-                                <label for="health-treatment">治療中または経過観察中</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>相手の生活スタイルは？</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lifestyle-busy" name="lifestyle" value="busy">
-                                <label for="lifestyle-busy">仕事が忙しい</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lifestyle-stress" name="lifestyle" value="stress">
-                                <label for="lifestyle-stress">ストレスが多い</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lifestyle-sedentary" name="lifestyle" value="sedentary">
-                                <label for="lifestyle-sedentary">運動不足</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lifestyle-diet" name="lifestyle" value="diet">
-                                <label for="lifestyle-diet">食生活が乱れがち</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="lifestyle-sleep" name="lifestyle" value="sleep">
-                                <label for="lifestyle-sleep">睡眠不足</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-success">ギフトを提案してもらう</button>
-                    </div>
-                </form>
+        <!-- ギフト提案結果 -->
+        <section class="card" id="suggestions-section" style="display: none;">
+            <h2>おすすめのギフト</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--color-text-secondary);">
+                受取人に最適なギフトをご提案いたします
+            </p>
+            
+            <div id="suggestions-container">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+            
+            <div class="text-center" style="margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="showQuestionForm()">質問をやり直す</button>
             </div>
         </section>
 
-        <!-- 提案結果セクション -->
-        <section class="suggestions" id="suggestions-container" style="display: none;">
-            <!-- JavaScriptで動的に生成 -->
+        <!-- 受取人情報入力フォーム -->
+        <section class="card" id="recipient-form" style="display: none;">
+            <h2>受取人情報を入力してください</h2>
+            <form id="gift-form">
+                <div class="form-group">
+                    <label for="recipient-name">受取人氏名 *</label>
+                    <input type="text" id="recipient-name" name="recipient-name" class="form-control" required placeholder="例: 田中太郎">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipient-email">メールアドレス *</label>
+                    <input type="email" id="recipient-email" name="recipient-email" class="form-control" required placeholder="例: tanaka@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipient-phone">電話番号</label>
+                    <input type="tel" id="recipient-phone" name="recipient-phone" class="form-control" placeholder="例: 090-1234-5678">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">メッセージ</label>
+                    <textarea id="message" name="message" class="form-control" rows="4" placeholder="受取人へのメッセージを入力してください（任意）"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="delivery-date">希望受取日</label>
+                    <input type="date" id="delivery-date" name="delivery-date" class="form-control" min="">
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn">次へ進む</button>
+                </div>
+            </form>
         </section>
 
-        <!-- 参考情報セクション -->
-        <section class="reference-info">
-            <div class="card">
-                <h2>ギフト選びのポイント</h2>
+        <!-- 決済情報 -->
+        <section class="card" id="payment-form" style="display: none;">
+            <h2>決済情報を入力してください</h2>
+            <form id="payment-form-content">
+                <div class="form-group">
+                    <label for="card-number">カード番号 *</label>
+                    <input type="text" id="card-number" name="card-number" class="form-control" required placeholder="1234 5678 9012 3456">
+                </div>
+                
                 <div class="grid grid-2">
-                    <div>
-                        <h3>🎯 年齢別のポイント</h3>
-                        <ul>
-                            <li><strong>20代〜30代:</strong> 生活習慣の改善やストレスケアがおすすめ</li>
-                            <li><strong>40代〜50代:</strong> 定期的な健康チェックや生活習慣病予防</li>
-                            <li><strong>60代以上:</strong> 総合的な健康診断や専門的な健康相談</li>
-                        </ul>
+                    <div class="form-group">
+                        <label for="expiry-date">有効期限 *</label>
+                        <input type="text" id="expiry-date" name="expiry-date" class="form-control" required placeholder="MM/YY">
                     </div>
-                    <div>
-                        <h3>💝 関係別のポイント</h3>
-                        <ul>
-                            <li><strong>家族:</strong> 感謝の気持ちを込めた総合的な健康診断</li>
-                            <li><strong>友人:</strong> 気軽に受けられる健康相談や専門サービス</li>
-                            <li><strong>ビジネス:</strong> フォーマルで実用的な健康診断</li>
-                        </ul>
+                    <div class="form-group">
+                        <label for="cvv">セキュリティコード *</label>
+                        <input type="text" id="cvv" name="cvv" class="form-control" required placeholder="123">
                     </div>
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="card-name">カード名義人 *</label>
+                    <input type="text" id="card-name" name="card-name" class="form-control" required placeholder="TARO TANAKA">
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn">決済を完了する</button>
+                </div>
+            </form>
         </section>
 
-        <!-- よくある質問セクション -->
-        <section class="faq-section">
-            <h2 class="section-title">よくある質問</h2>
-            <div class="grid grid-2">
-                <div class="card">
-                    <h3>Q. 提案されたギフトが合わない場合は？</h3>
-                    <p>A. 提案されたギフト以外にも、すべてのギフトから選択できます。お気に入りのギフトをお選びください。</p>
-                </div>
-                <div class="card">
-                    <h3>Q. 複数のギフトを組み合わせることはできますか？</h3>
-                    <p>A. はい、複数のギフトを同時に送ることができます。カート機能をご利用ください。</p>
-                </div>
-                <div class="card">
-                    <h3>Q. 予算を変更したい場合は？</h3>
-                    <p>A. フォームを再度送信するか、直接ギフト一覧からお選びいただけます。</p>
-                </div>
-                <div class="card">
-                    <h3>Q. 相手の情報がわからない場合は？</h3>
-                    <p>A. 基本的な情報（名前、メールアドレス）があれば送信可能です。詳細は後から追加できます。</p>
+        <!-- 完了メッセージ -->
+        <section class="card" id="completion-message" style="display: none;">
+            <div style="text-align: center; padding: 2rem;">
+                <div class="icon" style="font-size: 4rem; color: var(--color-green-light);">✅</div>
+                <h2>ギフト送信完了！</h2>
+                <p style="font-size: 1.1rem; margin: 1rem 0;">
+                    大切な人への健康ギフトが正常に送信されました。
+                </p>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    受取人にメールで通知が送信されます。
+                </p>
+                <div class="hero-buttons">
+                    <a href="mypage.html" class="btn">マイページへ</a>
+                    <a href="send_gifts.html" class="btn btn-secondary">別のギフトを贈る</a>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- フッターナビゲーション -->
+    <nav class="footer-nav">
+        <div class="footer-nav-content">
+            <a href="index.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🏠</div>
+                <div class="footer-nav-text">ホーム</div>
+            </a>
+            <a href="send_gifts.html" class="footer-nav-item active">
+                <div class="footer-nav-icon">🎁</div>
+                <div class="footer-nav-text">ギフト</div>
+            </a>
+            <a href="mypage.html" class="footer-nav-item">
+                <div class="footer-nav-icon">👤</div>
+                <div class="footer-nav-text">マイページ</div>
+            </a>
+            <a href="history_send.html" class="footer-nav-item">
+                <div class="footer-nav-icon">📋</div>
+                <div class="footer-nav-text">履歴</div>
+            </a>
+        </div>
+    </nav>
+
     <!-- フッター -->
     <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 GIFT. All rights reserved.</p>
-            <p>大切な人へ健康を贈る - GIFT</p>
-        </div>
+        <p>&copy; 2024 GIFT. All rights reserved.</p>
     </footer>
 
     <script src="js/script.js"></script>
     <script>
-        // ページ読み込み時の初期化
+        // ギフト提案データ
+        const giftSuggestions = {
+            'health-conscious': {
+                name: '健康診断パックA',
+                icon: '💊',
+                description: '基本的な健康チェックで、血圧、血糖値、コレステロールなどを検査します',
+                price: 15000,
+                reason: '一般的な健康管理に最適です'
+            },
+            'busy-person': {
+                name: '健康診断パックB',
+                icon: '❤️',
+                description: '詳細な健康診断で、心電図や胸部X線も含まれます',
+                price: 25000,
+                reason: '忙しい方でも効率的に健康チェックができます'
+            },
+            'elderly': {
+                name: '健康診断パックC',
+                icon: '🌟',
+                description: 'プレミアム健康診断で、腫瘍マーカーや骨密度検査も含まれます',
+                price: 35000,
+                reason: '年齢に応じた詳細な検査で安心できます'
+            },
+            'nutrition-focused': {
+                name: '栄養指導セッション',
+                icon: '🥗',
+                description: '管理栄養士による栄養指導で、健康的な食生活をサポートします',
+                price: 5000,
+                reason: '食事面での健康管理を重視される方に最適です'
+            },
+            'stress-management': {
+                name: 'ストレスケアセッション',
+                icon: '🧘‍♀️',
+                description: '心理カウンセラーによる相談で、ストレス管理とメンタルヘルスをサポートします',
+                price: 12000,
+                reason: 'ストレス管理やメンタルヘルスに関心のある方に最適です'
+            },
+            'consultation': {
+                name: '健康相談チケット',
+                icon: '👨‍⚕️',
+                description: '専門医による健康相談で、健康に関する不安や疑問を解決します',
+                price: 8000,
+                reason: '健康に関する相談やアドバイスが必要な方に最適です'
+            }
+        };
+
+        // ページ固有のJavaScript
         document.addEventListener('DOMContentLoaded', function() {
-            initGiftSuggestion();
-        });
-
-        // ギフト提案の初期化
-        function initGiftSuggestion() {
-            const form = document.getElementById('suggestion-form');
-            if (!form) return;
-
-            form.addEventListener('submit', function(e) {
+            // 日付の最小値を今日に設定
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('delivery-date').min = today;
+            
+            // 質問フォーム送信処理
+            document.getElementById('suggestion-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-
-                const formData = new FormData(form);
-                const answers = {
-                    age: formData.get('age'),
-                    healthFocus: formData.get('healthFocus'),
-                    budget: formData.get('budget'),
-                    relation: formData.get('relation'),
-                    currentHealth: formData.get('currentHealth'),
-                    lifestyle: formData.getAll('lifestyle')
-                };
-
-                console.log('回答データ:', answers);
-
-                const suggestions = suggestGifts(answers);
+                
+                const formData = new FormData(this);
+                const answers = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    if (key === 'health-concerns') {
+                        if (!answers[key]) answers[key] = [];
+                        answers[key].push(value);
+                    } else {
+                        answers[key] = value;
+                    }
+                }
+                
+                // ギフト提案を生成
+                const suggestions = generateSuggestions(answers);
                 displaySuggestions(suggestions);
             });
-        }
+            
+            // 受取人情報フォーム送信処理
+            document.getElementById('gift-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 決済フォームを表示
+                document.getElementById('payment-form').style.display = 'block';
+                document.getElementById('recipient-form').style.display = 'none';
+                
+                // スクロール
+                document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 決済フォーム送信処理
+            document.getElementById('payment-form-content').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 完了メッセージを表示
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('completion-message').style.display = 'block';
+                
+                // スクロール
+                document.getElementById('completion-message').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
 
-        // ギフト提案ロジック（拡張版）
-        function suggestGifts(answers) {
+        // ギフト提案生成
+        function generateSuggestions(answers) {
             const suggestions = [];
-            let baseGifts = [];
-
-            // 年齢による基本提案
-            if (answers.age === '20-30') {
-                baseGifts.push(giftData.gifts[2], giftData.gifts[4]); // 栄養指導、ストレスケア
-            } else if (answers.age === '40-50') {
-                baseGifts.push(giftData.gifts[0], giftData.gifts[3]); // 人間ドック、運動指導
+            
+            // 年齢に基づく提案
+            if (answers.age === '60-69' || answers.age === '70-79' || answers.age === '80+') {
+                suggestions.push(giftSuggestions['elderly']);
+            } else if (answers.age === '20-29' || answers.age === '30-39') {
+                suggestions.push(giftSuggestions['health-conscious']);
             } else {
-                baseGifts.push(giftData.gifts[1], giftData.gifts[5]); // 健康相談、睡眠改善
+                suggestions.push(giftSuggestions['busy-person']);
             }
-
-            // 健康分野による追加提案
-            if (answers.healthFocus === 'prevention') {
-                baseGifts.push(giftData.gifts[0]); // 人間ドック
-            } else if (answers.healthFocus === 'lifestyle') {
-                baseGifts.push(giftData.gifts[2], giftData.gifts[3]); // 栄養指導、運動指導
-            } else if (answers.healthFocus === 'mental') {
-                baseGifts.push(giftData.gifts[4], giftData.gifts[5]); // ストレスケア、睡眠改善
+            
+            // 健康への関心事に基づく提案
+            if (answers['health-concerns'] && answers['health-concerns'].includes('nutrition')) {
+                suggestions.push(giftSuggestions['nutrition-focused']);
             }
-
-            // 予算によるフィルタリング
-            let filteredGifts = baseGifts;
+            
+            if (answers['health-concerns'] && answers['health-concerns'].includes('stress')) {
+                suggestions.push(giftSuggestions['stress-management']);
+            }
+            
+            // 予算に基づく調整
             if (answers.budget === 'low') {
-                filteredGifts = baseGifts.filter(gift => gift.price <= 10000);
-            } else if (answers.budget === 'medium') {
-                filteredGifts = baseGifts.filter(gift => gift.price > 10000 && gift.price <= 30000);
+                suggestions.push(giftSuggestions['consultation']);
             }
-
-            // 生活スタイルによる調整
-            if (answers.lifestyle.includes('stress')) {
-                filteredGifts.push(giftData.gifts[4]); // ストレスケア
-            }
-            if (answers.lifestyle.includes('sedentary')) {
-                filteredGifts.push(giftData.gifts[3]); // 運動指導
-            }
-            if (answers.lifestyle.includes('diet')) {
-                filteredGifts.push(giftData.gifts[2]); // 栄養指導
-            }
-            if (answers.lifestyle.includes('sleep')) {
-                filteredGifts.push(giftData.gifts[5]); // 睡眠改善
-            }
-
+            
             // 重複を除去
-            const uniqueGifts = filteredGifts.filter((item, index, self) => 
-                index === self.findIndex(t => t.id === item.id)
+            const uniqueSuggestions = suggestions.filter((suggestion, index, self) => 
+                index === self.findIndex(s => s.name === suggestion.name)
             );
-
-            return uniqueGifts.slice(0, 3); // 最大3つまで
+            
+            return uniqueSuggestions.slice(0, 3); // 最大3つまで
         }
 
-        // 提案ギフト表示
+        // 提案表示
         function displaySuggestions(suggestions) {
             const container = document.getElementById('suggestions-container');
-            const questionForm = document.getElementById('question-form');
             
-            if (!container) return;
-
-            if (suggestions.length === 0) {
-                container.innerHTML = `
-                    <div class="card text-center">
-                        <h2>申し訳ございません</h2>
-                        <p>条件に合うギフトが見つかりませんでした。</p>
-                        <p>すべてのギフトからお選びいただけます。</p>
-                        <a href="send_gifts_nonhelp.html" class="btn btn-success">すべてのギフトを見る</a>
+            const suggestionsHTML = suggestions.map(suggestion => `
+                <div class="gift-card" onclick="selectSuggestedGift('${suggestion.name}')">
+                    <div class="icon">${suggestion.icon}</div>
+                    <h3>${suggestion.name}</h3>
+                    <p>${suggestion.description}</p>
+                    <div class="price">¥${suggestion.price.toLocaleString()}</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-orange-primary);">
+                        <strong>おすすめ理由:</strong> ${suggestion.reason}
                     </div>
-                `;
-            } else {
-                const suggestionsHTML = suggestions.map(gift => `
-                    <div class="gift-card" data-gift-id="${gift.id}" onclick="selectGift(${gift.id})">
-                        <div class="icon">${gift.icon}</div>
-                        <h3>${gift.name}</h3>
-                        <p>${gift.description}</p>
-                        <div class="price">¥${gift.price.toLocaleString()}</div>
-                    </div>
-                `).join('');
-
-                container.innerHTML = `
-                    <div class="card">
-                        <h2>おすすめのギフト</h2>
-                        <p>あなたの回答をもとに、以下のギフトをおすすめします</p>
-                        <div class="grid grid-3">
-                            ${suggestionsHTML}
-                        </div>
-                        <div class="suggestion-actions">
-                            <button class="btn btn-success" onclick="proceedWithSelection()">選択したギフトで進む</button>
-                            <button class="btn btn-secondary" onclick="showAllGifts()">すべてのギフトを見る</button>
-                            <button class="btn btn-warning" onclick="resetForm()">もう一度相談する</button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 質問フォームを隠して提案結果を表示
-            questionForm.style.display = 'none';
-            container.style.display = 'block';
-            container.scrollIntoView({ behavior: 'smooth' });
+                </div>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="grid grid-3">
+                    ${suggestionsHTML}
+                </div>
+            `;
+            
+            // 提案セクションを表示
+            document.getElementById('question-form').style.display = 'none';
+            document.getElementById('suggestions-section').style.display = 'block';
+            
+            // スクロール
+            document.getElementById('suggestions-section').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 選択したギフトで進む
-        function proceedWithSelection() {
-            if (selectedGift) {
-                navigateTo('send_gifts_nonhelp.html');
-            } else {
-                showAlert('ギフトを選択してください', 'warning');
-            }
+        // 提案されたギフトを選択
+        function selectSuggestedGift(giftName) {
+            // 受取人情報フォームを表示
+            document.getElementById('recipient-form').style.display = 'block';
+            document.getElementById('suggestions-section').style.display = 'none';
+            
+            // スクロール
+            document.getElementById('recipient-form').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // すべてのギフトを見る
-        function showAllGifts() {
-            navigateTo('send_gifts_nonhelp.html');
-        }
-
-        // フォームをリセット
-        function resetForm() {
+        // 質問フォームを再表示
+        function showQuestionForm() {
+            document.getElementById('suggestions-section').style.display = 'none';
             document.getElementById('question-form').style.display = 'block';
-            document.getElementById('suggestions-container').style.display = 'none';
+            
+            // フォームをリセット
             document.getElementById('suggestion-form').reset();
-            selectedGift = null;
+            
+            // スクロール
+            document.getElementById('question-form').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
-
-    <style>
-        .suggestion-actions {
-            text-align: center;
-            margin-top: 2rem;
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .form-actions {
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-    </style>
 </body>
 </html> 

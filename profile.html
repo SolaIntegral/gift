@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール - GIFT</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 </head>
 <body>
     <!-- ヘッダー -->
     <header class="header">
         <div class="header-content">
-            <a href="index.html" class="logo">🎁 GIFT</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="about.html">GIFTについて</a></li>
-                    <li><a href="send_gifts.html">ギフトを送る</a></li>
-                    <li><a href="mypage.html">マイページ</a></li>
-                </ul>
-            </nav>
+            <a href="index.html" class="logo">GIFT</a>
+            <div style="width: 60px;"></div> <!-- 中央揃えのためのスペーサー -->
         </div>
     </header>
 
@@ -25,291 +20,456 @@
     <main class="main-content">
         <!-- ヒーローセクション -->
         <section class="hero">
-            <h1>プロフィール</h1>
-            <p>あなたの登録情報を確認・編集できます</p>
-        </section>
-
-        <!-- プロフィール情報 -->
-        <section class="profile-info">
-            <div class="card">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <div class="avatar-icon">👤</div>
-                    </div>
-                    <div class="profile-title">
-                        <h2>プロフィール情報</h2>
-                        <p>登録されている情報を確認できます</p>
-                    </div>
-                </div>
-
-                <div id="profile-container">
-                    <!-- JavaScriptで動的に生成 -->
-                </div>
+            <div class="hero-content">
+                <h1>プロフィール</h1>
+                <p>アカウント情報の確認・編集ができます</p>
             </div>
         </section>
 
-        <!-- アカウント設定 -->
-        <section class="account-settings">
-            <div class="card">
-                <h2>アカウント設定</h2>
+        <!-- プロフィール情報 -->
+        <section class="card">
+            <h2>基本情報</h2>
+            <form id="profile-form">
                 <div class="grid grid-2">
-                    <div class="setting-item">
-                        <div class="icon">🔐</div>
-                        <h3>パスワード変更</h3>
-                        <p>セキュリティのため、定期的にパスワードを変更することをお勧めします。</p>
-                        <button class="btn btn-secondary">パスワード変更</button>
+                    <div class="form-group">
+                        <label for="first-name">姓 *</label>
+                        <input type="text" id="first-name" name="first-name" class="form-control" value="田中" required>
                     </div>
-                    <div class="setting-item">
-                        <div class="icon">🔔</div>
-                        <h3>通知設定</h3>
-                        <p>メール通知やプッシュ通知の設定を管理できます。</p>
-                        <button class="btn btn-secondary">通知設定</button>
+                    <div class="form-group">
+                        <label for="last-name">名 *</label>
+                        <input type="text" id="last-name" name="last-name" class="form-control" value="太郎" required>
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label for="email">メールアドレス *</label>
+                    <input type="email" id="email" name="email" class="form-control" value="tanaka@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">電話番号</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" value="090-1234-5678" placeholder="例: 090-1234-5678">
+                </div>
+                
+                <div class="form-group">
+                    <label for="birth-date">生年月日</label>
+                    <input type="date" id="birth-date" name="birth-date" class="form-control" value="1990-01-01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">性別</label>
+                    <select id="gender" name="gender" class="form-control">
+                        <option value="">選択してください</option>
+                        <option value="male" selected>男性</option>
+                        <option value="female">女性</option>
+                        <option value="other">その他</option>
+                        <option value="prefer-not-to-say">回答しない</option>
+                    </select>
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn">基本情報を更新</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- パスワード変更 -->
+        <section class="card">
+            <h2>パスワード変更</h2>
+            <form id="password-form">
+                <div class="form-group">
+                    <label for="current-password">現在のパスワード *</label>
+                    <input type="password" id="current-password" name="current-password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new-password">新しいパスワード *</label>
+                    <input type="password" id="new-password" name="new-password" class="form-control" required>
+                    <small style="color: var(--color-text-secondary);">8文字以上で、英数字を含めてください</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">新しいパスワード（確認） *</label>
+                    <input type="password" id="confirm-password" name="confirm-password" class="form-control" required>
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-secondary">パスワードを変更</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 通知設定 -->
+        <section class="card">
+            <h2>通知設定</h2>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-email" name="notify-email" checked>
+                    <label for="notify-email">メール通知</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-push" name="notify-push" checked>
+                    <label for="notify-push">プッシュ通知</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-promotion" name="notify-promotion">
+                    <label for="notify-promotion">プロモーション情報</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-newsletter" name="notify-newsletter">
+                    <label for="notify-newsletter">ニュースレター</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-gift-updates" name="notify-gift-updates" checked>
+                    <label for="notify-gift-updates">ギフト状況の更新</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="notify-reminders" name="notify-reminders" checked>
+                    <label for="notify-reminders">健康チェックのリマインダー</label>
+                </div>
+            </div>
+            <div class="text-center" style="margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="saveNotificationSettings()">通知設定を保存</button>
             </div>
         </section>
 
         <!-- プライバシー設定 -->
-        <section class="privacy-settings">
-            <div class="card">
-                <h2>プライバシー設定</h2>
-                <div class="grid grid-2">
-                    <div class="setting-item">
-                        <div class="icon">👁️</div>
-                        <h3>プロフィール表示</h3>
-                        <p>他のユーザーに表示する情報を設定できます。</p>
-                        <div class="form-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" checked>
-                                <span>プロフィールを公開する</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <div class="icon">📊</div>
-                        <h3>データ使用</h3>
-                        <p>サービス改善のためのデータ使用について設定できます。</p>
-                        <div class="form-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" checked>
-                                <span>匿名データの使用を許可する</span>
-                            </label>
-                        </div>
-                    </div>
+        <section class="card">
+            <h2>プライバシー設定</h2>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="profile-public" name="profile-public">
+                    <label for="profile-public">プロフィールを公開する</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="gift-history-public" name="gift-history-public">
+                    <label for="gift-history-public">ギフト履歴を公開する</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="allow-friend-requests" name="allow-friend-requests" checked>
+                    <label for="allow-friend-requests">友達リクエストを許可する</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="show-online-status" name="show-online-status" checked>
+                    <label for="show-online-status">オンラインステータスを表示する</label>
                 </div>
             </div>
-        </section>
-
-        <!-- 連携サービス -->
-        <section class="connected-services">
-            <div class="card">
-                <h2>連携サービス</h2>
-                <div class="grid grid-2">
-                    <div class="service-item">
-                        <div class="icon">📧</div>
-                        <h3>メール連携</h3>
-                        <p>Gmail、Outlookなどのメールサービスと連携できます。</p>
-                        <button class="btn btn-success">連携する</button>
-                    </div>
-                    <div class="service-item">
-                        <div class="icon">📱</div>
-                        <h3>SNS連携</h3>
-                        <p>Facebook、TwitterなどのSNSと連携できます。</p>
-                        <button class="btn btn-secondary">連携する</button>
-                    </div>
-                </div>
+            <div class="text-center" style="margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="savePrivacySettings()">プライバシー設定を保存</button>
             </div>
         </section>
 
         <!-- アカウント管理 -->
-        <section class="account-management">
-            <div class="card">
-                <h2>アカウント管理</h2>
-                <div class="grid grid-2">
-                    <div class="management-item">
-                        <div class="icon">📥</div>
-                        <h3>データエクスポート</h3>
-                        <p>あなたのデータをダウンロードできます。</p>
-                        <button class="btn btn-secondary">エクスポート</button>
-                    </div>
-                    <div class="management-item">
-                        <div class="icon">🗑️</div>
-                        <h3>アカウント削除</h3>
-                        <p>アカウントを完全に削除できます。この操作は取り消せません。</p>
-                        <button class="btn btn-warning">アカウント削除</button>
-                    </div>
+        <section class="card">
+            <h2>アカウント管理</h2>
+            <div class="grid grid-2">
+                <div class="choice-card" onclick="showDeleteAccountModal()">
+                    <div class="icon">🗑️</div>
+                    <h3>アカウント削除</h3>
+                    <p>アカウントを完全に削除します（取り消し不可）</p>
+                </div>
+                <div class="choice-card" onclick="showDataExportModal()">
+                    <div class="icon">📤</div>
+                    <h3>データエクスポート</h3>
+                    <p>アカウントデータをCSVファイルでダウンロード</p>
                 </div>
             </div>
         </section>
 
-        <!-- アクション -->
-        <section class="profile-actions">
-            <div class="card text-center">
-                <h2>プロフィールを更新しましたか？</h2>
-                <p>変更を保存するか、マイページに戻ってください</p>
-                <div class="action-buttons">
-                    <button class="btn btn-success">変更を保存</button>
-                    <a href="mypage.html" class="btn btn-secondary">マイページに戻る</a>
+        <!-- 連携アカウント -->
+        <section class="card">
+            <h2>連携アカウント</h2>
+            <div class="grid grid-2">
+                <div style="background: var(--color-background-light); padding: 1.5rem; border-radius: var(--border-radius-md);">
+                    <h3>Google</h3>
+                    <p>連携済み</p>
+                    <button class="btn btn-secondary" onclick="disconnectGoogle()">連携解除</button>
+                </div>
+                <div style="background: var(--color-background-light); padding: 1.5rem; border-radius: var(--border-radius-md);">
+                    <h3>Apple</h3>
+                    <p>未連携</p>
+                    <button class="btn" onclick="connectApple()">連携する</button>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- フッターナビゲーション -->
+    <nav class="footer-nav">
+        <div class="footer-nav-content">
+            <a href="index.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🏠</div>
+                <div class="footer-nav-text">ホーム</div>
+            </a>
+            <a href="send_gifts.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🎁</div>
+                <div class="footer-nav-text">ギフト</div>
+            </a>
+            <a href="mypage.html" class="footer-nav-item active">
+                <div class="footer-nav-icon">👤</div>
+                <div class="footer-nav-text">マイページ</div>
+            </a>
+            <a href="history_send.html" class="footer-nav-item">
+                <div class="footer-nav-icon">📋</div>
+                <div class="footer-nav-text">履歴</div>
+            </a>
+        </div>
+    </nav>
+
     <!-- フッター -->
     <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 GIFT. All rights reserved.</p>
-            <p>大切な人へ健康を贈る - GIFT</p>
-        </div>
+        <p>&copy; 2024 GIFT. All rights reserved.</p>
     </footer>
+
+    <!-- モーダル -->
+    <div id="delete-account-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>アカウント削除の確認</h3>
+            <p>アカウントを削除すると、すべてのデータが完全に削除され、復元できません。</p>
+            <p>本当に削除しますか？</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="deleteAccount()">削除する</button>
+                <button class="btn btn-secondary" onclick="closeModal('delete-account-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="data-export-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>データエクスポート</h3>
+            <p>アカウントデータをCSVファイルでダウンロードします。</p>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="export-profile" checked>
+                    <label for="export-profile">プロフィール情報</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="export-history" checked>
+                    <label for="export-history">ギフト履歴</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="export-settings" checked>
+                    <label for="export-settings">設定情報</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="exportData()">エクスポート</button>
+                <button class="btn btn-secondary" onclick="closeModal('data-export-modal')">キャンセル</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/script.js"></script>
     <script>
-        // ページ読み込み時の初期化
+        // ページ固有のJavaScript
         document.addEventListener('DOMContentLoaded', function() {
-            displayProfile();
+            // プロフィールフォーム送信処理
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const profileData = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    profileData[key] = value;
+                }
+                
+                // プロフィール情報を保存（実際のアプリではサーバーに送信）
+                localStorage.setItem('profileData', JSON.stringify(profileData));
+                
+                showSuccessMessage('プロフィール情報を更新しました');
+            });
+            
+            // パスワードフォーム送信処理
+            document.getElementById('password-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // パスワード検証
+                if (newPassword.length < 8) {
+                    showErrorMessage('パスワードは8文字以上で入力してください');
+                    return;
+                }
+                
+                if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                    showErrorMessage('パスワードは英数字を含めてください');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showErrorMessage('新しいパスワードが一致しません');
+                    return;
+                }
+                
+                // パスワード変更処理（実際のアプリではサーバーに送信）
+                showSuccessMessage('パスワードを変更しました');
+                
+                // フォームをリセット
+                this.reset();
+            });
+            
+            // 保存された設定を読み込み
+            loadSavedSettings();
         });
 
-        // プロフィール表示
-        function displayProfile() {
-            const profile = giftData.userProfile;
-            const profileContainer = document.getElementById('profile-container');
+        // 通知設定保存
+        function saveNotificationSettings() {
+            const settings = {
+                email: document.getElementById('notify-email').checked,
+                push: document.getElementById('notify-push').checked,
+                promotion: document.getElementById('notify-promotion').checked,
+                newsletter: document.getElementById('notify-newsletter').checked,
+                giftUpdates: document.getElementById('notify-gift-updates').checked,
+                reminders: document.getElementById('notify-reminders').checked
+            };
             
-            if (profileContainer) {
-                profileContainer.innerHTML = `
-                    <div class="profile-details">
-                        <div class="form-group">
-                            <label>お名前</label>
-                            <div class="profile-field">${profile.name}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>メールアドレス</label>
-                            <div class="profile-field">${profile.email}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>電話番号</label>
-                            <div class="profile-field">${profile.phone}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>住所</label>
-                            <div class="profile-field">${profile.address}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>アカウント作成日</label>
-                            <div class="profile-field">2023年4月15日</div>
-                        </div>
-                        <div class="form-group">
-                            <label>最終ログイン</label>
-                            <div class="profile-field">2024年1月20日 14:30</div>
-                        </div>
-                        <div class="profile-actions">
-                            <button class="btn btn-secondary" onclick="editProfile()">編集</button>
-                        </div>
-                    </div>
-                `;
+            localStorage.setItem('notificationSettings', JSON.stringify(settings));
+            showSuccessMessage('通知設定を保存しました');
+        }
+
+        // プライバシー設定保存
+        function savePrivacySettings() {
+            const settings = {
+                profilePublic: document.getElementById('profile-public').checked,
+                giftHistoryPublic: document.getElementById('gift-history-public').checked,
+                allowFriendRequests: document.getElementById('allow-friend-requests').checked,
+                showOnlineStatus: document.getElementById('show-online-status').checked
+            };
+            
+            localStorage.setItem('privacySettings', JSON.stringify(settings));
+            showSuccessMessage('プライバシー設定を保存しました');
+        }
+
+        // 保存された設定を読み込み
+        function loadSavedSettings() {
+            // 通知設定
+            const notificationSettings = localStorage.getItem('notificationSettings');
+            if (notificationSettings) {
+                const settings = JSON.parse(notificationSettings);
+                document.getElementById('notify-email').checked = settings.email;
+                document.getElementById('notify-push').checked = settings.push;
+                document.getElementById('notify-promotion').checked = settings.promotion;
+                document.getElementById('notify-newsletter').checked = settings.newsletter;
+                document.getElementById('notify-gift-updates').checked = settings.giftUpdates;
+                document.getElementById('notify-reminders').checked = settings.reminders;
+            }
+            
+            // プライバシー設定
+            const privacySettings = localStorage.getItem('privacySettings');
+            if (privacySettings) {
+                const settings = JSON.parse(privacySettings);
+                document.getElementById('profile-public').checked = settings.profilePublic;
+                document.getElementById('gift-history-public').checked = settings.giftHistoryPublic;
+                document.getElementById('allow-friend-requests').checked = settings.allowFriendRequests;
+                document.getElementById('show-online-status').checked = settings.showOnlineStatus;
             }
         }
 
-        // プロフィール編集（ダミー機能）
-        function editProfile() {
-            alert('プロフィール編集機能は現在開発中です。');
+        // アカウント削除モーダル表示
+        function showDeleteAccountModal() {
+            document.getElementById('delete-account-modal').style.display = 'flex';
+        }
+
+        // データエクスポートモーダル表示
+        function showDataExportModal() {
+            document.getElementById('data-export-modal').style.display = 'flex';
+        }
+
+        // モーダルを閉じる
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // アカウント削除
+        function deleteAccount() {
+            if (confirm('本当にアカウントを削除しますか？この操作は取り消せません。')) {
+                // アカウント削除処理（実際のアプリではサーバーに送信）
+                showSuccessMessage('アカウントを削除しました');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+            closeModal('delete-account-modal');
+        }
+
+        // データエクスポート
+        function exportData() {
+            const includeProfile = document.getElementById('export-profile').checked;
+            const includeHistory = document.getElementById('export-history').checked;
+            const includeSettings = document.getElementById('export-settings').checked;
+            
+            // CSVデータを生成
+            let csvContent = '';
+            
+            if (includeProfile) {
+                const profileData = localStorage.getItem('profileData');
+                if (profileData) {
+                    csvContent += 'プロフィール情報\n';
+                    csvContent += '項目,値\n';
+                    const profile = JSON.parse(profileData);
+                    for (let [key, value] of Object.entries(profile)) {
+                        csvContent += `${key},${value}\n`;
+                    }
+                    csvContent += '\n';
+                }
+            }
+            
+            if (includeHistory) {
+                csvContent += 'ギフト履歴\n';
+                csvContent += 'ID,タイプ,ギフト名,相手,金額,日付,ステータス\n';
+                // 履歴データを追加（実際のアプリではサーバーから取得）
+                csvContent += '1,送信,健康診断パックA,田中花子,15000,2024-01-15,完了\n';
+            }
+            
+            if (includeSettings) {
+                csvContent += '設定情報\n';
+                csvContent += '項目,値\n';
+                const notificationSettings = localStorage.getItem('notificationSettings');
+                const privacySettings = localStorage.getItem('privacySettings');
+                
+                if (notificationSettings) {
+                    const settings = JSON.parse(notificationSettings);
+                    for (let [key, value] of Object.entries(settings)) {
+                        csvContent += `通知_${key},${value}\n`;
+                    }
+                }
+                
+                if (privacySettings) {
+                    const settings = JSON.parse(privacySettings);
+                    for (let [key, value] of Object.entries(settings)) {
+                        csvContent += `プライバシー_${key},${value}\n`;
+                    }
+                }
+            }
+            
+            // CSVファイルをダウンロード
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `gift_data_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showSuccessMessage('データをエクスポートしました');
+            closeModal('data-export-modal');
+        }
+
+        // 連携アカウント機能
+        function disconnectGoogle() {
+            if (confirm('Googleアカウントとの連携を解除しますか？')) {
+                showSuccessMessage('Googleアカウントとの連携を解除しました');
+            }
+        }
+
+        function connectApple() {
+            showSuccessMessage('Appleアカウントとの連携を開始しました');
         }
     </script>
-
-    <style>
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid #e1e5e9;
-        }
-
-        .profile-avatar {
-            flex-shrink: 0;
-        }
-
-        .avatar-icon {
-            font-size: 4rem;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .profile-title h2 {
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .profile-title p {
-            color: #666;
-        }
-
-        .profile-details {
-            max-width: 600px;
-        }
-
-        .profile-field {
-            background: #f8f9fa;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 1px solid #e1e5e9;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .setting-item, .service-item, .management-item {
-            text-align: center;
-            padding: 1.5rem;
-        }
-
-        .setting-item .icon, .service-item .icon, .management-item .icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .setting-item h3, .service-item h3, .management-item h3 {
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .setting-item p, .service-item p, .management-item p {
-            margin-bottom: 1rem;
-            color: #666;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .profile-actions {
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            margin: 0;
-        }
-    </style>
 </body>
 </html> 

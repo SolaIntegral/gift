@@ -3,367 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ギフトを選択 - GIFT</title>
+    <title>ギフト選択 - GIFT</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 </head>
 <body>
     <!-- ヘッダー -->
     <header class="header">
         <div class="header-content">
-            <a href="index.html" class="logo">🎁 GIFT</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="about.html">GIFTについて</a></li>
-                    <li><a href="send_gifts.html">ギフトを送る</a></li>
-                    <li><a href="mypage.html">マイページ</a></li>
-                </ul>
-            </nav>
+            <a href="index.html" class="logo">GIFT</a>
+            <div style="width: 60px;"></div> <!-- 中央揃えのためのスペーサー -->
         </div>
     </header>
 
     <!-- メインコンテンツ -->
     <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>ギフトを選択</h1>
+                <p>贈りたい健康診断を選択してください</p>
+            </div>
+        </section>
+
         <!-- ステップインジケーター -->
-        <section class="step-indicator">
-            <div class="step active">
-                <div class="step-number">1</div>
-                <span>ギフトを選択</span>
-            </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <span>相手の情報を入力</span>
-            </div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <span>決済完了</span>
+        <section class="card">
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span>ギフト選択</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>受取人情報入力</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>決済</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>ギフト送信完了</span>
+                </div>
             </div>
         </section>
 
-        <!-- ギフト選択セクション -->
-        <section class="gift-selection">
-            <div class="card">
-                <h2>ギフトを選択してください</h2>
-                <p>送りたい健康診断やサービスをお選びください</p>
+        <!-- ギフト選択 -->
+        <section class="card gift-selection">
+            <h2>ギフトを選択してください</h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--color-text-secondary);">
+                受取人に合った健康診断パックを選択してください
+            </p>
+            
+            <div class="grid grid-3">
+                <div class="gift-card" data-gift-id="1">
+                    <div class="icon">💊</div>
+                    <h3>健康診断パックA</h3>
+                    <p>基本的な健康チェック<br>血圧、血糖値、コレステロールなど</p>
+                    <div class="price">¥15,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 20代〜60代<br>
+                        <strong>所要時間:</strong> 約2時間
+                    </div>
+                </div>
                 
-                <div class="grid grid-3" id="gift-container">
-                    <!-- JavaScriptで動的に生成 -->
+                <div class="gift-card" data-gift-id="2">
+                    <div class="icon">❤️</div>
+                    <h3>健康診断パックB</h3>
+                    <p>詳細な健康診断<br>パックA + 心電図、胸部X線など</p>
+                    <div class="price">¥25,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 30代〜70代<br>
+                        <strong>所要時間:</strong> 約3時間
+                    </div>
+                </div>
+                
+                <div class="gift-card" data-gift-id="3">
+                    <div class="icon">🌟</div>
+                    <h3>健康診断パックC</h3>
+                    <p>プレミアム健康診断<br>パックB + 腫瘍マーカー、骨密度など</p>
+                    <div class="price">¥35,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 40代〜80代<br>
+                        <strong>所要時間:</strong> 約4時間
+                    </div>
+                </div>
+                
+                <div class="gift-card" data-gift-id="4">
+                    <div class="icon">👨‍⚕️</div>
+                    <h3>健康相談チケット</h3>
+                    <p>専門医による健康相談<br>健康に関する不安や疑問を解決</p>
+                    <div class="price">¥8,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 全年齢<br>
+                        <strong>所要時間:</strong> 約30分
+                    </div>
+                </div>
+                
+                <div class="gift-card" data-gift-id="5">
+                    <div class="icon">🥗</div>
+                    <h3>栄養指導セッション</h3>
+                    <p>管理栄養士による栄養指導<br>健康的な食生活のアドバイス</p>
+                    <div class="price">¥5,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 全年齢<br>
+                        <strong>所要時間:</strong> 約45分
+                    </div>
+                </div>
+                
+                <div class="gift-card" data-gift-id="6">
+                    <div class="icon">🧘‍♀️</div>
+                    <h3>ストレスケアセッション</h3>
+                    <p>心理カウンセラーによる相談<br>ストレス管理とメンタルヘルス</p>
+                    <div class="price">¥12,000</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                        <strong>対象:</strong> 全年齢<br>
+                        <strong>所要時間:</strong> 約60分
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 選択確認セクション -->
-        <section class="selection-confirmation" id="confirmation-section" style="display: none;">
-            <div class="card">
-                <h2>選択したギフトの確認</h2>
-                <div id="selected-gift-info">
-                    <!-- 選択されたギフトの情報を表示 -->
+        <!-- 受取人情報入力フォーム -->
+        <section class="card" id="recipient-form" style="display: none;">
+            <h2>受取人情報を入力してください</h2>
+            <form id="gift-form">
+                <div class="form-group">
+                    <label for="recipient-name">受取人氏名 *</label>
+                    <input type="text" id="recipient-name" name="recipient-name" class="form-control" required placeholder="例: 田中太郎">
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="recipient-email">メールアドレス *</label>
+                    <input type="email" id="recipient-email" name="recipient-email" class="form-control" required placeholder="例: tanaka@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipient-phone">電話番号</label>
+                    <input type="tel" id="recipient-phone" name="recipient-phone" class="form-control" placeholder="例: 090-1234-5678">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recipient-age">年齢</label>
+                    <select id="recipient-age" name="recipient-age" class="form-control">
+                        <option value="">選択してください</option>
+                        <option value="20-29">20代</option>
+                        <option value="30-39">30代</option>
+                        <option value="40-49">40代</option>
+                        <option value="50-59">50代</option>
+                        <option value="60-69">60代</option>
+                        <option value="70-79">70代</option>
+                        <option value="80+">80代以上</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">メッセージ</label>
+                    <textarea id="message" name="message" class="form-control" rows="4" placeholder="受取人へのメッセージを入力してください（任意）"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="delivery-date">希望受取日</label>
+                    <input type="date" id="delivery-date" name="delivery-date" class="form-control" min="">
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn" disabled>次へ進む</button>
+                </div>
+            </form>
         </section>
 
-        <!-- 相手情報入力フォーム -->
-        <section class="recipient-form" id="recipient-form" style="display: none;">
-            <div class="card">
-                <h2>相手の情報を入力してください</h2>
-                <form id="gift-form">
+        <!-- 決済情報 -->
+        <section class="card" id="payment-form" style="display: none;">
+            <h2>決済情報を入力してください</h2>
+            <form id="payment-form-content">
+                <div class="form-group">
+                    <label for="card-number">カード番号 *</label>
+                    <input type="text" id="card-number" name="card-number" class="form-control" required placeholder="1234 5678 9012 3456">
+                </div>
+                
+                <div class="grid grid-2">
                     <div class="form-group">
-                        <label for="recipient-name">お名前 *</label>
-                        <input type="text" id="recipient-name" name="recipientName" class="form-control" required>
+                        <label for="expiry-date">有効期限 *</label>
+                        <input type="text" id="expiry-date" name="expiry-date" class="form-control" required placeholder="MM/YY">
                     </div>
-                    
                     <div class="form-group">
-                        <label for="recipient-email">メールアドレス *</label>
-                        <input type="email" id="recipient-email" name="recipientEmail" class="form-control" required>
+                        <label for="cvv">セキュリティコード *</label>
+                        <input type="text" id="cvv" name="cvv" class="form-control" required placeholder="123">
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="recipient-phone">電話番号</label>
-                        <input type="tel" id="recipient-phone" name="recipientPhone" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="message">メッセージ</label>
-                        <textarea id="message" name="message" class="form-control" rows="4" placeholder="相手へのメッセージを入力してください（任意）"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="delivery-date">希望配達日</label>
-                        <input type="date" id="delivery-date" name="deliveryDate" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>配達方法</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="delivery-email" name="deliveryMethod" value="email" checked>
-                                <label for="delivery-email">メール配達（即座に配達）</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="delivery-scheduled" name="deliveryMethod" value="scheduled">
-                                <label for="delivery-scheduled">指定日時配達</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>オプション</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="option-card" name="options" value="card">
-                                <label for="option-card">ギフトカード付き（+¥500）</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="option-wrapping" name="options" value="wrapping">
-                                <label for="option-wrapping">ラッピングサービス（+¥1,000）</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="price-summary" id="price-summary">
-                        <!-- 価格サマリーを表示 -->
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="goBack()">戻る</button>
-                        <button type="submit" class="btn btn-success">決済に進む</button>
-                    </div>
-                </form>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-name">カード名義人 *</label>
+                    <input type="text" id="card-name" name="card-name" class="form-control" required placeholder="TARO TANAKA">
+                </div>
+                
+                <div class="text-center" style="margin-top: 2rem;">
+                    <button type="submit" class="btn">決済を完了する</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 完了メッセージ -->
+        <section class="card" id="completion-message" style="display: none;">
+            <div style="text-align: center; padding: 2rem;">
+                <div class="icon" style="font-size: 4rem; color: var(--color-green-light);">✅</div>
+                <h2>ギフト送信完了！</h2>
+                <p style="font-size: 1.1rem; margin: 1rem 0;">
+                    大切な人への健康ギフトが正常に送信されました。
+                </p>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    受取人にメールで通知が送信されます。
+                </p>
+                <div class="hero-buttons">
+                    <a href="mypage.html" class="btn">マイページへ</a>
+                    <a href="send_gifts.html" class="btn btn-secondary">別のギフトを贈る</a>
+                </div>
             </div>
         </section>
     </main>
 
+    <!-- フッターナビゲーション -->
+    <nav class="footer-nav">
+        <div class="footer-nav-content">
+            <a href="index.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🏠</div>
+                <div class="footer-nav-text">ホーム</div>
+            </a>
+            <a href="send_gifts.html" class="footer-nav-item active">
+                <div class="footer-nav-icon">🎁</div>
+                <div class="footer-nav-text">ギフト</div>
+            </a>
+            <a href="mypage.html" class="footer-nav-item">
+                <div class="footer-nav-icon">👤</div>
+                <div class="footer-nav-text">マイページ</div>
+            </a>
+            <a href="history_send.html" class="footer-nav-item">
+                <div class="footer-nav-icon">📋</div>
+                <div class="footer-nav-text">履歴</div>
+            </a>
+        </div>
+    </nav>
+
     <!-- フッター -->
     <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2024 GIFT. All rights reserved.</p>
-            <p>大切な人へ健康を贈る - GIFT</p>
-        </div>
+        <p>&copy; 2024 GIFT. All rights reserved.</p>
     </footer>
 
     <script src="js/script.js"></script>
     <script>
-        let selectedGift = null;
-        let currentStep = 1;
-
-        // ページ読み込み時の初期化
+        // ページ固有のJavaScript
         document.addEventListener('DOMContentLoaded', function() {
-            initGiftSelection();
-            initFormHandlers();
-        });
-
-        // ギフト選択の初期化
-        function initGiftSelection() {
-            const giftContainer = document.getElementById('gift-container');
-            if (!giftContainer) return;
-
-            const giftHTML = giftData.gifts.map(gift => `
-                <div class="gift-card" data-gift-id="${gift.id}" onclick="selectGift(${gift.id})">
-                    <div class="icon">${gift.icon}</div>
-                    <h3>${gift.name}</h3>
-                    <p>${gift.description}</p>
-                    <div class="price">¥${gift.price.toLocaleString()}</div>
-                </div>
-            `).join('');
-
-            giftContainer.innerHTML = giftHTML;
-        }
-
-        // フォームハンドラーの初期化
-        function initFormHandlers() {
-            const form = document.getElementById('gift-form');
-            if (form) {
-                form.addEventListener('submit', handleFormSubmit);
-            }
-
-            // オプション変更時の価格更新
-            const optionCheckboxes = document.querySelectorAll('input[name="options"]');
-            optionCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', updatePriceSummary);
-            });
-        }
-
-        // ギフト選択処理
-        function selectGift(giftId) {
-            selectedGift = giftData.gifts.find(gift => gift.id === giftId);
+            // 日付の最小値を今日に設定
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('delivery-date').min = today;
             
-            // 選択状態の視覚的フィードバック
-            document.querySelectorAll('.gift-card').forEach(card => {
-                card.classList.remove('selected');
+            // ギフト選択時の処理
+            const giftCards = document.querySelectorAll('.gift-card');
+            giftCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // 他のカードの選択を解除
+                    giftCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // このカードを選択
+                    this.classList.add('selected');
+                    
+                    // 受取人情報フォームを表示
+                    document.getElementById('recipient-form').style.display = 'block';
+                    
+                    // フォームの送信ボタンを有効化
+                    const submitBtn = document.querySelector('#gift-form button[type="submit"]');
+                    submitBtn.disabled = false;
+                    
+                    // スクロール
+                    document.getElementById('recipient-form').scrollIntoView({ behavior: 'smooth' });
+                });
             });
             
-            const selectedCard = document.querySelector(`[data-gift-id="${giftId}"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('selected');
-            }
-
-            // 選択確認セクションを表示
-            showConfirmation();
-            
-            console.log('選択されたギフト:', selectedGift);
-        }
-
-        // 選択確認の表示
-        function showConfirmation() {
-            const confirmationSection = document.getElementById('confirmation-section');
-            const selectedGiftInfo = document.getElementById('selected-gift-info');
-            
-            if (selectedGift && confirmationSection && selectedGiftInfo) {
-                selectedGiftInfo.innerHTML = `
-                    <div class="selected-gift-details">
-                        <div class="icon">${selectedGift.icon}</div>
-                        <h3>${selectedGift.name}</h3>
-                        <p>${selectedGift.description}</p>
-                        <div class="price">¥${selectedGift.price.toLocaleString()}</div>
-                    </div>
-                    <div class="confirmation-actions">
-                        <button class="btn btn-success" onclick="proceedToForm()">このギフトで進む</button>
-                        <button class="btn btn-secondary" onclick="changeSelection()">選択を変更</button>
-                    </div>
-                `;
+            // フォーム送信処理
+            document.getElementById('gift-form').addEventListener('submit', function(e) {
+                e.preventDefault();
                 
-                confirmationSection.style.display = 'block';
-                confirmationSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // フォームに進む
-        function proceedToForm() {
-            document.getElementById('recipient-form').style.display = 'block';
-            document.getElementById('recipient-form').scrollIntoView({ behavior: 'smooth' });
-            updatePriceSummary();
-        }
-
-        // 選択を変更
-        function changeSelection() {
-            document.getElementById('confirmation-section').style.display = 'none';
-            document.getElementById('recipient-form').style.display = 'none';
-            selectedGift = null;
-            
-            document.querySelectorAll('.gift-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-        }
-
-        // 価格サマリーの更新
-        function updatePriceSummary() {
-            if (!selectedGift) return;
-
-            let totalPrice = selectedGift.price;
-            const selectedOptions = document.querySelectorAll('input[name="options"]:checked');
-            
-            selectedOptions.forEach(option => {
-                if (option.value === 'card') {
-                    totalPrice += 500;
-                } else if (option.value === 'wrapping') {
-                    totalPrice += 1000;
-                }
-            });
-
-            const priceSummary = document.getElementById('price-summary');
-            if (priceSummary) {
-                priceSummary.innerHTML = `
-                    <div class="price-breakdown">
-                        <h3>料金内訳</h3>
-                        <div class="price-item">
-                            <span>${selectedGift.name}</span>
-                            <span>¥${selectedGift.price.toLocaleString()}</span>
-                        </div>
-                        ${selectedOptions.length > 0 ? selectedOptions.map(option => {
-                            const optionName = option.value === 'card' ? 'ギフトカード' : 'ラッピングサービス';
-                            const optionPrice = option.value === 'card' ? 500 : 1000;
-                            return `<div class="price-item">
-                                <span>${optionName}</span>
-                                <span>¥${optionPrice.toLocaleString()}</span>
-                            </div>`;
-                        }).join('') : ''}
-                        <div class="price-total">
-                            <strong>合計</strong>
-                            <strong>¥${totalPrice.toLocaleString()}</strong>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // フォーム送信処理
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            if (!selectedGift) {
-                showAlert('ギフトを選択してください', 'warning');
-                return;
-            }
-
-            const formData = new FormData(e.target);
-            const data = {};
-            
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            console.log('送信データ:', { ...data, gift: selectedGift });
-            
-            // 決済処理を開始
-            processPayment();
-        }
-
-        // 戻るボタン
-        function goBack() {
-            if (document.getElementById('recipient-form').style.display !== 'none') {
+                // 決済フォームを表示
+                document.getElementById('payment-form').style.display = 'block';
                 document.getElementById('recipient-form').style.display = 'none';
-                document.getElementById('confirmation-section').style.display = 'block';
-            } else if (document.getElementById('confirmation-section').style.display !== 'none') {
-                changeSelection();
-            }
-        }
+                
+                // スクロール
+                document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 決済フォーム送信処理
+            document.getElementById('payment-form-content').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 完了メッセージを表示
+                document.getElementById('payment-form').style.display = 'none';
+                document.getElementById('completion-message').style.display = 'block';
+                
+                // スクロール
+                document.getElementById('completion-message').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
     </script>
-
-    <style>
-        .selected-gift-details {
-            text-align: center;
-            padding: 2rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .confirmation-actions {
-            text-align: center;
-            margin-top: 1rem;
-        }
-
-        .price-breakdown {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-
-        .price-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .price-total {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 2px solid #e1e5e9;
-            font-size: 1.2rem;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-    </style>
 </body>
 </html> 

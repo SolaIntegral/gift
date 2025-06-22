@@ -1,4 +1,4 @@
-// GIFT アプリ共通JavaScript
+// GIFT アプリ共通JavaScript - オレンジ基調・スマホ最適化
 
 // 仮データ
 const giftData = {
@@ -215,149 +215,606 @@ function showAlert(message, type = 'info') {
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', function() {
-    // フェードインアニメーション
-    const elements = document.querySelectorAll('.card, .hero, .gift-card');
-    elements.forEach(element => {
-        element.classList.add('fade-in');
-    });
-    
-    // タブ機能の初期化
-    initTabs();
-    
-    // 選択されたギフトを復元
-    const savedGift = storage.get('selectedGift');
-    if (savedGift) {
-        selectedGift = savedGift;
-    }
-    
-    // ページ固有の初期化
-    const currentPage = window.location.pathname.split('/').pop();
-    
-    switch (currentPage) {
-        case 'send_gifts_nonhelp.html':
-            // ギフト選択ページの初期化
-            initGiftSelection();
-            break;
-        case 'send_gifts_help.html':
-            // ギフト提案ページの初期化
-            initGiftSuggestion();
-            break;
-        case 'mypage.html':
-            // マイページの初期化
-            initMyPage();
-            break;
-        case 'history_send.html':
-            // 履歴ページの初期化
-            initHistoryPage();
-            break;
-    }
+    initializeApp();
 });
 
-// ギフト選択ページの初期化
-function initGiftSelection() {
-    const giftContainer = document.getElementById('gift-container');
-    if (!giftContainer) return;
+// アプリ初期化
+function initializeApp() {
+    setupNavigation();
+    setupAnimations();
+    setupFormValidation();
+    setupGiftSelection();
+    setupTabNavigation();
+    setupMobileOptimizations();
+    setupLoadingStates();
+}
+
+// ナビゲーション設定
+function setupNavigation() {
+    // フッターナビゲーションのアクティブ状態管理
+    const currentPage = getCurrentPage();
+    const footerNavItems = document.querySelectorAll('.footer-nav-item');
     
-    const giftHTML = giftData.gifts.map(gift => `
-        <div class="gift-card" data-gift-id="${gift.id}" onclick="selectGift(${gift.id})">
-            <div class="icon">${gift.icon}</div>
-            <h3>${gift.name}</h3>
-            <p>${gift.description}</p>
-            <div class="price">¥${gift.price.toLocaleString()}</div>
-        </div>
-    `).join('');
-    
-    giftContainer.innerHTML = giftHTML;
-    
-    // フォーム送信処理
-    handleFormSubmit('gift-form', (data) => {
-        if (!selectedGift) {
-            showAlert('ギフトを選択してください', 'warning');
-            return;
+    footerNavItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && href.includes(currentPage)) {
+            item.classList.add('active');
         }
         
-        console.log('送信データ:', { ...data, gift: selectedGift });
-        processPayment();
+        // タップ時のフィードバック
+        item.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.95)';
+        });
+        
+        item.addEventListener('touchend', function() {
+            this.style.transform = 'scale(1)';
+        });
     });
 }
 
-// ギフト提案ページの初期化
-function initGiftSuggestion() {
-    const form = document.getElementById('suggestion-form');
-    if (!form) return;
+// 現在のページ名を取得
+function getCurrentPage() {
+    const path = window.location.pathname;
+    const filename = path.split('/').pop();
+    return filename.replace('.html', '') || 'index';
+}
+
+// アニメーション設定
+function setupAnimations() {
+    // フェードインアニメーション
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
     
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+    
+    // アニメーション対象要素を監視
+    const animatedElements = document.querySelectorAll('.card, .gift-card, .choice-card, .flow-card');
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+    
+    // ボタンのホバーアニメーション
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px) scale(1.02)';
+        });
         
-        const formData = new FormData(form);
-        const answers = {
-            age: formData.get('age'),
-            healthFocus: formData.get('healthFocus'),
-            budget: formData.get('budget')
-        };
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
         
-        const suggestions = suggestGifts(answers);
-        displaySuggestions(suggestions);
+        // タッチデバイス用
+        btn.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(0) scale(0.98)';
+        });
+        
+        btn.addEventListener('touchend', function() {
+            this.style.transform = 'translateY(-2px) scale(1.02)';
+        });
     });
 }
 
-// 提案ギフト表示
-function displaySuggestions(suggestions) {
-    const container = document.getElementById('suggestions-container');
-    if (!container) return;
+// フォームバリデーション
+function setupFormValidation() {
+    const forms = document.querySelectorAll('form');
     
-    const suggestionsHTML = suggestions.map(gift => `
-        <div class="gift-card" data-gift-id="${gift.id}" onclick="selectGift(${gift.id})">
-            <div class="icon">${gift.icon}</div>
-            <h3>${gift.name}</h3>
-            <p>${gift.description}</p>
-            <div class="price">¥${gift.price.toLocaleString()}</div>
-        </div>
-    `).join('');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateForm(this)) {
+                showSuccessMessage('送信が完了しました！');
+                // 実際の送信処理をここに追加
+                setTimeout(() => {
+                    this.reset();
+                }, 2000);
+            }
+        });
+        
+        // リアルタイムバリデーション
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('input', function() {
+                clearFieldError(this);
+            });
+        });
+    });
+}
+
+// フォーム全体のバリデーション
+function validateForm(form) {
+    let isValid = true;
+    const requiredFields = form.querySelectorAll('[required]');
     
-    container.innerHTML = `
-        <h2>おすすめのギフト</h2>
-        <div class="grid grid-3">
-            ${suggestionsHTML}
-        </div>
-        <div class="text-center">
-            <button class="btn btn-success" onclick="navigateTo('send_gifts_nonhelp.html')">
-                選択したギフトで進む
-            </button>
-        </div>
+    requiredFields.forEach(field => {
+        if (!validateField(field)) {
+            isValid = false;
+        }
+    });
+    
+    return isValid;
+}
+
+// 個別フィールドのバリデーション
+function validateField(field) {
+    const value = field.value.trim();
+    const fieldName = field.getAttribute('name') || field.getAttribute('id');
+    
+    // エラーメッセージをクリア
+    clearFieldError(field);
+    
+    // 必須チェック
+    if (field.hasAttribute('required') && !value) {
+        showFieldError(field, `${getFieldLabel(field)}は必須です`);
+        return false;
+    }
+    
+    // メールアドレスチェック
+    if (field.type === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            showFieldError(field, '有効なメールアドレスを入力してください');
+            return false;
+        }
+    }
+    
+    // 電話番号チェック
+    if (field.type === 'tel' && value) {
+        const phoneRegex = /^[0-9-+\s()]+$/;
+        if (!phoneRegex.test(value)) {
+            showFieldError(field, '有効な電話番号を入力してください');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// フィールドエラー表示
+function showFieldError(field, message) {
+    field.classList.add('error');
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.textContent = message;
+    errorDiv.style.color = '#FF6B6B';
+    errorDiv.style.fontSize = '0.85rem';
+    errorDiv.style.marginTop = '0.5rem';
+    
+    field.parentNode.appendChild(errorDiv);
+}
+
+// フィールドエラークリア
+function clearFieldError(field) {
+    field.classList.remove('error');
+    const errorDiv = field.parentNode.querySelector('.field-error');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+}
+
+// フィールドラベル取得
+function getFieldLabel(field) {
+    const label = field.parentNode.querySelector('label');
+    return label ? label.textContent.replace('*', '').trim() : 'この項目';
+}
+
+// ギフト選択機能
+function setupGiftSelection() {
+    const giftCards = document.querySelectorAll('.gift-card');
+    
+    giftCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // 他のカードの選択を解除
+            giftCards.forEach(c => c.classList.remove('selected'));
+            
+            // このカードを選択
+            this.classList.add('selected');
+            
+            // 選択されたギフトの情報を保存
+            const giftName = this.querySelector('h3').textContent;
+            const giftPrice = this.querySelector('.price').textContent;
+            
+            // 選択情報を表示
+            showGiftSelection(giftName, giftPrice);
+            
+            // 次のステップボタンを有効化
+            enableNextStep();
+        });
+    });
+}
+
+// ギフト選択情報表示
+function showGiftSelection(name, price) {
+    let selectionInfo = document.getElementById('gift-selection-info');
+    
+    if (!selectionInfo) {
+        selectionInfo = document.createElement('div');
+        selectionInfo.id = 'gift-selection-info';
+        selectionInfo.className = 'alert alert-info';
+        selectionInfo.style.marginTop = '1rem';
+        
+        const container = document.querySelector('.gift-selection') || document.querySelector('.main-content');
+        container.appendChild(selectionInfo);
+    }
+    
+    selectionInfo.innerHTML = `
+        <strong>選択されたギフト:</strong> ${name} - ${price}
+        <button class="btn btn-secondary" onclick="clearGiftSelection()" style="margin-left: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem;">
+            選択をクリア
+        </button>
     `;
 }
 
-// マイページの初期化
-function initMyPage() {
-    // 最新の履歴を表示
-    const recentHistory = giftData.history.slice(0, 2);
-    const historyContainer = document.getElementById('recent-history');
+// ギフト選択クリア
+function clearGiftSelection() {
+    const giftCards = document.querySelectorAll('.gift-card');
+    giftCards.forEach(card => card.classList.remove('selected'));
     
-    if (historyContainer) {
-        const historyHTML = recentHistory.map(item => {
-            const date = new Date(item.date).toLocaleDateString('ja-JP');
-            const type = item.type === 'sent' ? '送信' : '受信';
-            const partner = item.type === 'sent' ? item.recipient : item.sender;
-            
-            return `
-                <div class="card">
-                    <h3>${item.giftName}</h3>
-                    <p>${type}: ${partner}</p>
-                    <p>日付: ${date}</p>
-                    <p>ステータス: ${item.status}</p>
-                </div>
-            `;
-        }).join('');
-        
-        historyContainer.innerHTML = historyHTML;
+    const selectionInfo = document.getElementById('gift-selection-info');
+    if (selectionInfo) {
+        selectionInfo.remove();
     }
+    
+    disableNextStep();
 }
 
-// 履歴ページの初期化
-function initHistoryPage() {
-    displayHistory('sent-history', 'sent');
-    displayHistory('received-history', 'received');
+// 次のステップ有効化
+function enableNextStep() {
+    const nextButtons = document.querySelectorAll('.btn-next, .btn-primary');
+    nextButtons.forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    });
+}
+
+// 次のステップ無効化
+function disableNextStep() {
+    const nextButtons = document.querySelectorAll('.btn-next, .btn-primary');
+    nextButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+    });
+}
+
+// タブナビゲーション
+function setupTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // アクティブ状態を切り替え
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            this.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+            
+            // タブ切り替え時のアニメーション
+            const activeContent = document.getElementById(targetTab);
+            activeContent.style.opacity = '0';
+            activeContent.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                activeContent.style.transition = 'all 0.3s ease';
+                activeContent.style.opacity = '1';
+                activeContent.style.transform = 'translateY(0)';
+            }, 50);
+        });
+    });
+}
+
+// モバイル最適化
+function setupMobileOptimizations() {
+    // タッチデバイス判定
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (isTouchDevice) {
+        // タッチデバイス用のスタイル調整
+        document.body.classList.add('touch-device');
+        
+        // ダブルタップズーム無効化
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+    
+    // スクロール位置の復元
+    window.addEventListener('beforeunload', function() {
+        sessionStorage.setItem('scrollPosition', window.scrollY);
+    });
+    
+    window.addEventListener('load', function() {
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            sessionStorage.removeItem('scrollPosition');
+        }
+    });
+}
+
+// ローディング状態管理
+function setupLoadingStates() {
+    // ボタンクリック時のローディング表示
+    const buttons = document.querySelectorAll('.btn');
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (!this.disabled && !this.classList.contains('btn-secondary')) {
+                const originalText = this.textContent;
+                this.textContent = '処理中...';
+                this.disabled = true;
+                
+                // ローディングアニメーション
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                
+                const loadingBar = document.createElement('div');
+                loadingBar.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    animation: loading 1.5s infinite;
+                `;
+                
+                this.appendChild(loadingBar);
+                
+                // 3秒後に元に戻す（実際の処理では適切なタイミングで）
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                    if (loadingBar.parentNode) {
+                        loadingBar.remove();
+                    }
+                }, 3000);
+            }
+        });
+    });
+}
+
+// ローディングアニメーション
+const loadingStyle = document.createElement('style');
+loadingStyle.textContent = `
+    @keyframes loading {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+`;
+document.head.appendChild(loadingStyle);
+
+// 成功メッセージ表示
+function showSuccessMessage(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success fade-in';
+    alertDiv.textContent = message;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.left = '50%';
+    alertDiv.style.transform = 'translateX(-50%)';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '300px';
+    alertDiv.style.textAlign = 'center';
+    
+    document.body.appendChild(alertDiv);
+    
+    // 3秒後に自動削除
+    setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transform = 'translateX(-50%) translateY(-20px)';
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// エラーメッセージ表示
+function showErrorMessage(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-warning fade-in';
+    alertDiv.textContent = message;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.left = '50%';
+    alertDiv.style.transform = 'translateX(-50%)';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.minWidth = '300px';
+    alertDiv.style.textAlign = 'center';
+    
+    document.body.appendChild(alertDiv);
+    
+    // 5秒後に自動削除
+    setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.style.transform = 'translateX(-50%) translateY(-20px)';
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 300);
+    }, 5000);
+}
+
+// ページ遷移
+function navigateTo(page) {
+    showLoading();
+    setTimeout(() => {
+        window.location.href = page;
+    }, 300);
+}
+
+// ローディング表示
+function showLoading() {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'page-loading';
+    loadingDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    `;
+    
+    loadingDiv.innerHTML = `
+        <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border: 3px solid #FF8C00; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <p style="color: #333; font-weight: 600;">読み込み中...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingDiv);
+}
+
+// 履歴データの管理
+const giftHistory = {
+    sent: [
+        { id: 1, recipient: '田中太郎', gift: '健康診断パックA', date: '2024-01-15', status: '完了' },
+        { id: 2, recipient: '佐藤花子', gift: '健康診断パックB', date: '2024-01-10', status: '完了' },
+        { id: 3, recipient: '鈴木一郎', gift: '健康診断パックC', date: '2024-01-05', status: '処理中' }
+    ],
+    received: [
+        { id: 1, sender: '山田次郎', gift: '健康診断パックA', date: '2024-01-12', status: '完了' },
+        { id: 2, sender: '高橋美咲', gift: '健康診断パックB', date: '2024-01-08', status: '完了' }
+    ]
+};
+
+// 履歴表示
+function displayHistory(type = 'sent') {
+    const historyContainer = document.getElementById('history-content');
+    if (!historyContainer) return;
+    
+    const data = giftHistory[type];
+    let html = '';
+    
+    if (data.length === 0) {
+        html = '<p style="text-align: center; color: #666; padding: 2rem;">履歴がありません</p>';
+    } else {
+        html = `
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>${type === 'sent' ? '受取人' : '送信者'}</th>
+                        <th>ギフト</th>
+                        <th>日付</th>
+                        <th>ステータス</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        data.forEach(item => {
+            const statusClass = item.status === '完了' ? 'badge-success' : 'badge-warning';
+            html += `
+                <tr>
+                    <td>${type === 'sent' ? item.recipient : item.sender}</td>
+                    <td>${item.gift}</td>
+                    <td>${item.date}</td>
+                    <td><span class="badge ${statusClass}">${item.status}</span></td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+    }
+    
+    historyContainer.innerHTML = html;
+}
+
+// ギフト提案機能
+function suggestGift(answers) {
+    const suggestions = {
+        'health-conscious': '健康診断パックA',
+        'busy-person': '健康診断パックB',
+        'elderly': '健康診断パックC',
+        'family': '健康診断パックD'
+    };
+    
+    // 簡単なロジック（実際はより複雑な判定）
+    const mostFrequent = Object.keys(answers).reduce((a, b) => 
+        answers[a] > answers[b] ? a : b
+    );
+    
+    return suggestions[mostFrequent] || '健康診断パックA';
+}
+
+// ユーティリティ関数
+function formatPrice(price) {
+    return `¥${price.toLocaleString()}`;
+}
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('ja-JP');
+}
+
+// エクスポート機能
+function exportHistory(type) {
+    const data = giftHistory[type];
+    const csvContent = "data:text/csv;charset=utf-8," + 
+        "受取人,ギフト,日付,ステータス\n" +
+        data.map(item => 
+            `${type === 'sent' ? item.recipient : item.sender},${item.gift},${item.date},${item.status}`
+        ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${type}_history.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showSuccessMessage('履歴をエクスポートしました');
+}
+
+// 検索機能
+function searchHistory(query, type = 'sent') {
+    const data = giftHistory[type];
+    const filtered = data.filter(item => {
+        const searchText = `${type === 'sent' ? item.recipient : item.sender} ${item.gift} ${item.date} ${item.status}`.toLowerCase();
+        return searchText.includes(query.toLowerCase());
+    });
+    
+    return filtered;
+}
+
+// フィルター機能
+function filterHistory(status, type = 'sent') {
+    const data = giftHistory[type];
+    if (status === 'all') return data;
+    
+    return data.filter(item => item.status === status);
 }
 
 // ユーザープロフィール表示
