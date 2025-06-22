@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIFTを送る - 大切な人へ健康を贈る</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">🎁 GIFT</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="about.html">GIFTについて</a></li>
+                    <li><a href="send_gifts.html">ギフトを送る</a></li>
+                    <li><a href="mypage.html">マイページ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <h1>GIFTを送る</h1>
+            <p>大切な人への想いを、健康という形で表現しましょう</p>
+        </section>
+
+        <!-- 選択肢セクション -->
+        <section class="choice-section">
+            <div class="card text-center">
+                <h2>どのようにギフトを選びますか？</h2>
+                <p>送りたいギフトが決まっているか、迷っているかをお選びください</p>
+                
+                <div class="grid grid-2" style="margin-top: 2rem;">
+                    <div class="choice-card">
+                        <div class="icon">🎯</div>
+                        <h3>送りたいギフトが決まっている</h3>
+                        <p>既に送りたい健康診断やサービスが決まっている場合は、こちらからお進みください。</p>
+                        <a href="send_gifts_nonhelp.html" class="btn btn-success">ギフトを選択する</a>
+                    </div>
+                    <div class="choice-card">
+                        <div class="icon">🤔</div>
+                        <h3>送るものを迷っている</h3>
+                        <p>相手に合ったギフトを選びたい場合は、簡単な質問にお答えください。</p>
+                        <a href="send_gifts_help.html" class="btn btn-secondary">ギフトを相談する</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ギフト一覧セクション -->
+        <section class="gift-catalog">
+            <h2 class="section-title">利用可能なギフト</h2>
+            <div class="grid grid-3" id="gift-container">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+        </section>
+
+        <!-- よくある質問セクション -->
+        <section class="faq-section">
+            <h2 class="section-title">よくある質問</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3>Q. ギフトの有効期限はありますか？</h3>
+                    <p>A. はい、ギフトの種類によって異なりますが、通常は発行から1年間有効です。詳細は各ギフトの説明をご確認ください。</p>
+                </div>
+                <div class="card">
+                    <h3>Q. 全国どこでも利用できますか？</h3>
+                    <p>A. 提携医療機関のある地域でのみご利用いただけます。現在は主要都市を中心に展開しています。</p>
+                </div>
+                <div class="card">
+                    <h3>Q. キャンセルは可能ですか？</h3>
+                    <p>A. ギフト送信後、相手が受け取りを完了する前であればキャンセル可能です。詳細はお問い合わせください。</p>
+                </div>
+                <div class="card">
+                    <h3>Q. 複数のギフトを同時に送れますか？</h3>
+                    <p>A. はい、同じ相手に複数のギフトを同時に送ることができます。カート機能をご利用ください。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 利用の流れセクション -->
+        <section class="usage-flow">
+            <h2 class="section-title">利用の流れ</h2>
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <span>ギフトを選択</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>相手の情報を入力</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>決済完了</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>ギフト送信</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-4" style="margin-top: 2rem;">
+                <div class="flow-card">
+                    <div class="icon">🎁</div>
+                    <h4>ギフト選択</h4>
+                    <p>送りたい健康診断やサービスを選択します</p>
+                </div>
+                <div class="flow-card">
+                    <div class="icon">📝</div>
+                    <h4>情報入力</h4>
+                    <p>相手の名前やメールアドレスを入力します</p>
+                </div>
+                <div class="flow-card">
+                    <div class="icon">💳</div>
+                    <h4>決済</h4>
+                    <p>お好みの決済方法でお支払いいただきます</p>
+                </div>
+                <div class="flow-card">
+                    <div class="icon">📧</div>
+                    <h4>送信完了</h4>
+                    <p>相手にギフトの通知が送信されます</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 GIFT. All rights reserved.</p>
+            <p>大切な人へ健康を贈る - GIFT</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // ページ読み込み時にギフト一覧を表示
+        document.addEventListener('DOMContentLoaded', function() {
+            const giftContainer = document.getElementById('gift-container');
+            if (giftContainer) {
+                const giftHTML = giftData.gifts.map(gift => `
+                    <div class="gift-card" data-gift-id="${gift.id}" onclick="selectGift(${gift.id})">
+                        <div class="icon">${gift.icon}</div>
+                        <h3>${gift.name}</h3>
+                        <p>${gift.description}</p>
+                        <div class="price">¥${gift.price.toLocaleString()}</div>
+                    </div>
+                `).join('');
+                
+                giftContainer.innerHTML = giftHTML;
+            }
+        });
+    </script>
+</body>
+</html> 

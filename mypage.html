@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ - GIFT</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">🎁 GIFT</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="about.html">GIFTについて</a></li>
+                    <li><a href="send_gifts.html">ギフトを送る</a></li>
+                    <li><a href="mypage.html">マイページ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <h1>マイページ</h1>
+            <p>あなたのGIFT活動を管理しましょう</p>
+        </section>
+
+        <!-- ユーザー情報サマリー -->
+        <section class="user-summary">
+            <div class="card">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <div class="avatar-icon">👤</div>
+                    </div>
+                    <div class="user-info">
+                        <h2>田中花子さん</h2>
+                        <p>GIFTメンバー</p>
+                        <p>メール: tanaka.hanako@example.com</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- アクションカード -->
+        <section class="action-cards">
+            <div class="grid grid-2">
+                <div class="card action-card">
+                    <div class="icon">📋</div>
+                    <h3>登録情報を確認したい</h3>
+                    <p>プロフィール情報の確認・編集ができます</p>
+                    <a href="profile.html" class="btn btn-success">プロフィールを見る</a>
+                </div>
+                <div class="card action-card">
+                    <div class="icon">🎁</div>
+                    <h3>新しいギフトを送る</h3>
+                    <p>大切な人へ新しい健康ギフトを贈りましょう</p>
+                    <a href="send_gifts.html" class="btn btn-secondary">ギフトを送る</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 送受信履歴セクション -->
+        <section class="history-section">
+            <div class="card">
+                <h2>送受信履歴を確認したい</h2>
+                <p>最新の2件の履歴を表示しています</p>
+                
+                <div id="recent-history">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+                
+                <div class="history-actions">
+                    <a href="history_send.html" class="btn btn-success">履歴ページへ</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 統計情報 -->
+        <section class="statistics">
+            <h2 class="section-title">あなたのGIFT活動</h2>
+            <div class="grid grid-3">
+                <div class="card stat-card">
+                    <div class="icon">📤</div>
+                    <h3>送信したギフト</h3>
+                    <div class="stat-number">5</div>
+                    <p>件</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon">📥</div>
+                    <h3>受信したギフト</h3>
+                    <div class="stat-number">3</div>
+                    <p>件</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon">💝</div>
+                    <h3>総ギフト金額</h3>
+                    <div class="stat-number">¥125,000</div>
+                    <p>（送信分）</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- おすすめアクション -->
+        <section class="recommended-actions">
+            <h2 class="section-title">おすすめアクション</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3>🎯 未使用のギフトがあります</h3>
+                    <p>受け取ったギフトのうち、2件がまだ使用されていません。早めにご利用ください。</p>
+                    <a href="history_send.html" class="btn btn-warning">詳細を確認</a>
+                </div>
+                <div class="card">
+                    <h3>📅 定期的な健康チェック</h3>
+                    <p>大切な人への定期的な健康チェックを習慣にしませんか？</p>
+                    <a href="send_gifts.html" class="btn btn-success">ギフトを送る</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 設定・サポート -->
+        <section class="settings-support">
+            <h2 class="section-title">設定・サポート</h2>
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="icon">⚙️</div>
+                    <h3>アカウント設定</h3>
+                    <p>パスワード変更や通知設定</p>
+                    <button class="btn btn-secondary">設定</button>
+                </div>
+                <div class="card">
+                    <div class="icon">❓</div>
+                    <h3>ヘルプ・サポート</h3>
+                    <p>よくある質問やお問い合わせ</p>
+                    <button class="btn btn-secondary">サポート</button>
+                </div>
+                <div class="card">
+                    <div class="icon">📞</div>
+                    <h3>お問い合わせ</h3>
+                    <p>カスタマーサポートへの連絡</p>
+                    <button class="btn btn-secondary">連絡する</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 GIFT. All rights reserved.</p>
+            <p>大切な人へ健康を贈る - GIFT</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initMyPage();
+        });
+
+        // マイページの初期化
+        function initMyPage() {
+            // 最新の履歴を表示
+            const recentHistory = giftData.history.slice(0, 2);
+            const historyContainer = document.getElementById('recent-history');
+            
+            if (historyContainer) {
+                const historyHTML = recentHistory.map(item => {
+                    const date = new Date(item.date).toLocaleDateString('ja-JP');
+                    const type = item.type === 'sent' ? '送信' : '受信';
+                    const partner = item.type === 'sent' ? item.recipient : item.sender;
+                    const statusClass = item.status === '使用済み' ? 'status-used' : 'status-unused';
+                    
+                    return `
+                        <div class="history-item">
+                            <div class="history-icon">
+                                ${item.type === 'sent' ? '📤' : '📥'}
+                            </div>
+                            <div class="history-details">
+                                <h4>${item.giftName}</h4>
+                                <p>${type}: ${partner}</p>
+                                <p>日付: ${date}</p>
+                                <span class="status-badge ${statusClass}">${item.status}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                historyContainer.innerHTML = historyHTML;
+            }
+        }
+    </script>
+
+    <style>
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .user-avatar {
+            flex-shrink: 0;
+        }
+
+        .avatar-icon {
+            font-size: 4rem;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .user-info h2 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .user-info p {
+            margin-bottom: 0.25rem;
+            color: #666;
+        }
+
+        .action-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .action-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .history-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .history-details h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .history-details p {
+            margin-bottom: 0.25rem;
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-used {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-unused {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 2rem;
+        }
+    </style>
+</body>
+</html> 

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>履歴 - GIFT</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">🎁 GIFT</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="about.html">GIFTについて</a></li>
+                    <li><a href="send_gifts.html">ギフトを送る</a></li>
+                    <li><a href="mypage.html">マイページ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <h1>送受信履歴</h1>
+            <p>あなたのGIFTの送受信履歴を確認できます</p>
+        </section>
+
+        <!-- 統計サマリー -->
+        <section class="history-summary">
+            <div class="grid grid-3">
+                <div class="card stat-card">
+                    <div class="icon">📤</div>
+                    <h3>送信したギフト</h3>
+                    <div class="stat-number">5</div>
+                    <p>件</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon">📥</div>
+                    <h3>受信したギフト</h3>
+                    <div class="stat-number">3</div>
+                    <p>件</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon">💝</div>
+                    <h3>総ギフト金額</h3>
+                    <div class="stat-number">¥125,000</div>
+                    <p>（送信分）</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- タブコンテナ -->
+        <section class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="sent-tab">送信したギフト</button>
+                <button class="tab-button" data-tab="received-tab">受信したギフト</button>
+            </div>
+
+            <!-- 送信したギフトタブ -->
+            <div id="sent-tab" class="tab-content active">
+                <div class="card">
+                    <h2>送信したギフト</h2>
+                    <p>あなたが送信したギフトの履歴です</p>
+                    
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>日付</th>
+                                    <th>ギフト名</th>
+                                    <th>相手</th>
+                                    <th>金額</th>
+                                    <th>ステータス</th>
+                                    <th>アクション</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sent-history">
+                                <!-- JavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 受信したギフトタブ -->
+            <div id="received-tab" class="tab-content">
+                <div class="card">
+                    <h2>受信したギフト</h2>
+                    <p>あなたが受信したギフトの履歴です</p>
+                    
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>日付</th>
+                                    <th>ギフト名</th>
+                                    <th>送信者</th>
+                                    <th>ステータス</th>
+                                    <th>アクション</th>
+                                </tr>
+                            </thead>
+                            <tbody id="received-history">
+                                <!-- JavaScriptで動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- フィルター・検索 -->
+        <section class="filter-search">
+            <div class="card">
+                <h2>履歴の検索・フィルター</h2>
+                <div class="grid grid-3">
+                    <div class="form-group">
+                        <label for="date-filter">期間</label>
+                        <select id="date-filter" class="form-control">
+                            <option value="all">すべて</option>
+                            <option value="1month">過去1ヶ月</option>
+                            <option value="3months">過去3ヶ月</option>
+                            <option value="6months">過去6ヶ月</option>
+                            <option value="1year">過去1年</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status-filter">ステータス</label>
+                        <select id="status-filter" class="form-control">
+                            <option value="all">すべて</option>
+                            <option value="used">使用済み</option>
+                            <option value="unused">未使用</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-input">検索</label>
+                        <input type="text" id="search-input" class="form-control" placeholder="ギフト名や相手の名前で検索">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="applyFilters()">フィルター適用</button>
+                    <button class="btn btn-warning" onclick="resetFilters()">リセット</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- エクスポート機能 -->
+        <section class="export-section">
+            <div class="card">
+                <h2>履歴のエクスポート</h2>
+                <p>履歴データをCSVファイルとしてダウンロードできます</p>
+                <div class="export-options">
+                    <button class="btn btn-success" onclick="exportHistory('sent')">送信履歴をエクスポート</button>
+                    <button class="btn btn-success" onclick="exportHistory('received')">受信履歴をエクスポート</button>
+                    <button class="btn btn-secondary" onclick="exportHistory('all')">全履歴をエクスポート</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- アクション -->
+        <section class="history-actions">
+            <div class="card text-center">
+                <h2>新しいギフトを送りませんか？</h2>
+                <p>大切な人への想いを、健康という形で表現しましょう</p>
+                <div class="action-buttons">
+                    <a href="send_gifts.html" class="btn btn-success">ギフトを送る</a>
+                    <a href="mypage.html" class="btn btn-secondary">マイページに戻る</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 GIFT. All rights reserved.</p>
+            <p>大切な人へ健康を贈る - GIFT</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initHistoryPage();
+            initTabs();
+        });
+
+        // 履歴ページの初期化
+        function initHistoryPage() {
+            displayHistory('sent-history', 'sent');
+            displayHistory('received-history', 'received');
+        }
+
+        // タブ機能の初期化
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const target = button.getAttribute('data-tab');
+                    
+                    // アクティブクラスを切り替え
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(target).classList.add('active');
+                });
+            });
+        }
+
+        // 履歴表示（拡張版）
+        function displayHistory(containerId, type = 'all') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            let filteredHistory = giftData.history;
+            if (type !== 'all') {
+                filteredHistory = giftData.history.filter(item => item.type === type);
+            }
+            
+            const historyHTML = filteredHistory.map(item => {
+                const date = new Date(item.date).toLocaleDateString('ja-JP');
+                const statusClass = item.status === '使用済み' ? 'badge-success' : 'badge-warning';
+                
+                if (item.type === 'sent') {
+                    const gift = giftData.gifts.find(g => g.name === item.giftName);
+                    const price = gift ? gift.price : 0;
+                    
+                    return `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${item.giftName}</td>
+                            <td>${item.recipient}</td>
+                            <td>¥${price.toLocaleString()}</td>
+                            <td><span class="badge ${statusClass}">${item.status}</span></td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="viewDetails(${item.id})">詳細</button>
+                                <button class="btn btn-warning btn-sm" onclick="resendGift(${item.id})">再送</button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    return `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${item.giftName}</td>
+                            <td>${item.sender}</td>
+                            <td><span class="badge ${statusClass}">${item.status}</span></td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="viewDetails(${item.id})">詳細</button>
+                                ${item.status === '未使用' ? `<button class="btn btn-success btn-sm" onclick="useGift(${item.id})">使用する</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }).join('');
+            
+            container.innerHTML = historyHTML;
+        }
+
+        // フィルター適用
+        function applyFilters() {
+            const dateFilter = document.getElementById('date-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchInput = document.getElementById('search-input').value;
+            
+            console.log('フィルター適用:', { dateFilter, statusFilter, searchInput });
+            
+            // 実際の実装では、フィルタリングロジックを追加
+            showAlert('フィルターが適用されました', 'info');
+        }
+
+        // フィルターリセット
+        function resetFilters() {
+            document.getElementById('date-filter').value = 'all';
+            document.getElementById('status-filter').value = 'all';
+            document.getElementById('search-input').value = '';
+            
+            showAlert('フィルターがリセットされました', 'info');
+        }
+
+        // 履歴エクスポート
+        function exportHistory(type) {
+            console.log('エクスポート:', type);
+            showAlert(`${type === 'all' ? '全履歴' : type === 'sent' ? '送信履歴' : '受信履歴'}のエクスポートを開始しました`, 'success');
+        }
+
+        // 詳細表示
+        function viewDetails(id) {
+            const item = giftData.history.find(h => h.id === id);
+            if (item) {
+                alert(`詳細情報:\nギフト: ${item.giftName}\n日付: ${item.date}\nステータス: ${item.status}`);
+            }
+        }
+
+        // ギフト再送
+        function resendGift(id) {
+            const item = giftData.history.find(h => h.id === id);
+            if (item) {
+                if (confirm(`${item.giftName}を${item.recipient}に再送しますか？`)) {
+                    showAlert('ギフトの再送を開始しました', 'success');
+                }
+            }
+        }
+
+        // ギフト使用
+        function useGift(id) {
+            const item = giftData.history.find(h => h.id === id);
+            if (item) {
+                if (confirm(`${item.giftName}を使用しますか？`)) {
+                    showAlert('ギフトの使用を開始しました', 'success');
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .history-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .history-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 2rem;
+        }
+    </style>
+</body>
+</html> 
