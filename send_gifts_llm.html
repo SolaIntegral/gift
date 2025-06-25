@@ -95,11 +95,23 @@
             appendMessage('user', userText);
             chatInput.value = '';
             appendMessage('ai', '考え中...');
-            // ここでAWS LLM APIにリクエストを送る処理に置き換えてください
-            setTimeout(() => {
-                // ダミー応答
-                chatContainer.lastChild.textContent = 'おすすめのギフトをいくつかご提案します。受取人の年齢やご予算を教えていただけますか？';
-            }, 1200);
+            // // ここでAWS LLM APIにリクエストを送る処理に置き換えてください
+            // setTimeout(() => {
+            //     // ダミー応答
+            //     chatContainer.lastChild.textContent = 'おすすめのギフトをいくつかご提案します。受取人の年齢やご予算を教えていただけますか？';
+            // }, 1200);
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userText })
+                });
+                const data = await res.json();
+                chatContainer.lastChild.textContent = data.reply;
+            } catch (error) {
+                chatContainer.lastChild.textContent = 'エラーが発生しました。もう一度お試しください。';
+                console.error(error);
+            }
         };
 
         chatInput.addEventListener('keydown', function(e) {
@@ -112,3 +124,4 @@
         };
     </script>
 </body>
+</html>
