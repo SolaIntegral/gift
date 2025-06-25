@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIチャットでギフト相談 - GIFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">GIFT</a>
+            <div style="width: 60px;"></div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>AIチャットでギフト相談</h1>
+                <p>AIとチャットしながら、最適なギフトを一緒に見つけましょう。</p>
+            </div>
+        </section>
+
+        <!-- チャットセクション -->
+        <section class="card">
+            <div id="chat-container" class="chat-container" style="background: #f8f8fa; border-radius: 8px; padding: 1rem; height: 320px; overflow-y: auto; margin-bottom: 1rem;">
+                <!-- チャットメッセージがここに表示されます -->
+            </div>
+            <div class="chat-input-area" style="display: flex; gap: 0.5rem;">
+                <input type="text" id="chat-input" placeholder="質問や希望を入力してください..." style="flex: 1; padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc;">
+                <button id="send-btn" style="padding: 0.5rem 1rem; border-radius: 8px; background: #ffb300; color: #fff; border: none; cursor: pointer;">送信</button>
+            </div>
+            <div id="chat-hint" style="margin-top: 1rem; color: var(--color-text-secondary); font-size: 0.95rem;">
+                例: 「60代の母におすすめのギフトは？」「健康診断以外のギフトも知りたい」
+            </div>
+        </section>
+    </main>
+
+    <!-- フッターナビゲーション -->
+    <nav class="footer-nav">
+        <div class="footer-nav-content">
+            <a href="index.html" class="footer-nav-item">
+                <div class="footer-nav-icon">🏠</div>
+                <div class="footer-nav-text">ホーム</div>
+            </a>
+            <a href="send_gifts.html" class="footer-nav-item active">
+                <div class="footer-nav-icon">🎁</div>
+                <div class="footer-nav-text">ギフト</div>
+            </a>
+            <a href="mypage.html" class="footer-nav-item">
+                <div class="footer-nav-icon">👤</div>
+                <div class="footer-nav-text">マイページ</div>
+            </a>
+            <a href="history_send.html" class="footer-nav-item">
+                <div class="footer-nav-icon">📋</div>
+                <div class="footer-nav-text">履歴</div>
+            </a>
+        </div>
+    </nav>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <p>&copy; 2024 GIFT. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // チャットUIの簡易実装（ダミー応答）
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        function appendMessage(sender, text) {
+            const msg = document.createElement('div');
+            msg.className = sender === 'user' ? 'chat-msg user' : 'chat-msg ai';
+            msg.style.marginBottom = '0.5rem';
+            msg.style.padding = '0.5rem 1rem';
+            msg.style.borderRadius = '16px';
+            msg.style.maxWidth = '80%';
+            msg.style.background = sender === 'user' ? '#e0f7fa' : '#fffde7';
+            msg.style.alignSelf = sender === 'user' ? 'flex-end' : 'flex-start';
+            msg.style.textAlign = sender === 'user' ? 'right' : 'left';
+            msg.textContent = text;
+            chatContainer.appendChild(msg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        sendBtn.onclick = async () => {
+            const userText = chatInput.value.trim();
+            if (!userText) return;
+            appendMessage('user', userText);
+            chatInput.value = '';
+            appendMessage('ai', '考え中...');
+            // ここでAWS LLM APIにリクエストを送る処理に置き換えてください
+            setTimeout(() => {
+                // ダミー応答
+                chatContainer.lastChild.textContent = 'おすすめのギフトをいくつかご提案します。受取人の年齢やご予算を教えていただけますか？';
+            }, 1200);
+        };
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+
+        // 初回メッセージ
+        window.onload = () => {
+            appendMessage('ai', 'こんにちは！ギフト選びでお困りですね。どんな方へのギフトか、簡単に教えていただけますか？');
+        };
+    </script>
+</body>
