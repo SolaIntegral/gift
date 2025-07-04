@@ -6,6 +6,235 @@
     <title>ギフト相談 - GIFT</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    <style>
+        /* 目立つUIのための追加スタイル */
+        .hero {
+            background: linear-gradient(135deg, var(--color-orange-primary), var(--color-orange-light));
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--color-orange-primary);
+        }
+        
+        .card h2 {
+            color: var(--color-orange-primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--color-text-primary);
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-orange-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--color-background-light);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            border-color: var(--color-orange-primary);
+            background: rgba(255, 107, 53, 0.05);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+        
+        .btn {
+            background: var(--color-orange-primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn:hover {
+            background: var(--color-orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--color-orange-primary);
+            border: 2px solid var(--color-orange-primary);
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--color-orange-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .gift-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gift-card:hover {
+            border-color: var(--color-orange-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+        
+        .gift-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .gift-card h3 {
+            color: var(--color-orange-primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .gift-card .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-green-primary);
+            margin: 1rem 0;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: var(--color-orange-primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .step span {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            text-align: center;
+        }
+        
+        .step.active span {
+            color: var(--color-orange-primary);
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .step {
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- ヘッダー -->
@@ -238,6 +467,24 @@
                 <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
                     受取人にメールで通知が送信されます。
                 </p>
+                
+                <!-- ギフトURL表示 -->
+                <div id="gift-url-section" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 15px; padding: 2rem; margin: 2rem 0; border-left: 5px solid var(--color-orange-primary);">
+                    <h3 style="color: var(--color-orange-primary); margin-bottom: 1rem;">🎁 ギフトURL</h3>
+                    <p style="margin-bottom: 1rem; color: var(--color-text-secondary);">
+                        以下のURLを受取人に送って、ギフトの詳細を確認してもらってください：
+                    </p>
+                    <div id="gift-url-display" style="background: white; border: 2px solid var(--color-orange-primary); border-radius: 10px; padding: 1rem; margin: 1rem 0; word-break: break-all; font-family: monospace; font-size: 0.9rem; color: var(--color-orange-primary);">
+                        <!-- URLがここに表示されます -->
+                    </div>
+                    <button id="copy-url-btn" class="btn" style="background: var(--color-orange-primary); color: white; margin: 1rem 0.5rem;">
+                        📋 URLをコピー
+                    </button>
+                    <button id="share-url-btn" class="btn btn-secondary" style="margin: 1rem 0.5rem;">
+                        📤 共有する
+                    </button>
+                </div>
+                
                 <div class="hero-buttons">
                     <a href="mypage.html" class="btn">マイページへ</a>
                     <a href="send_gifts.html" class="btn btn-secondary">別のギフトを贈る</a>
@@ -364,12 +611,50 @@
             document.getElementById('payment-form-content').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // ギフトIDを生成
+                const giftId = generateGiftId();
+                const giftUrl = `${window.location.origin}${window.location.pathname.replace('send_gifts_help.html', 'gift_view.html')}?id=${giftId}`;
+                
+                // ギフトURLを表示
+                document.getElementById('gift-url-display').textContent = giftUrl;
+                
                 // 完了メッセージを表示
                 document.getElementById('payment-form').style.display = 'none';
                 document.getElementById('completion-message').style.display = 'block';
                 
                 // スクロール
                 document.getElementById('completion-message').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // URLコピー機能
+            document.getElementById('copy-url-btn').addEventListener('click', function() {
+                const giftUrl = document.getElementById('gift-url-display').textContent;
+                navigator.clipboard.writeText(giftUrl).then(function() {
+                    const originalText = this.textContent;
+                    this.textContent = '✅ コピー完了！';
+                    this.style.background = 'var(--color-green-primary)';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = 'var(--color-orange-primary)';
+                    }, 2000);
+                }.bind(this));
+            });
+            
+            // 共有機能
+            document.getElementById('share-url-btn').addEventListener('click', function() {
+                const giftUrl = document.getElementById('gift-url-display').textContent;
+                if (navigator.share) {
+                    navigator.share({
+                        title: '健康ギフトが届きました',
+                        text: '大切な人からの健康ギフトです。詳細を確認してください。',
+                        url: giftUrl
+                    });
+                } else {
+                    // フォールバック: メールで共有
+                    const subject = encodeURIComponent('健康ギフトが届きました');
+                    const body = encodeURIComponent(`大切な人からの健康ギフトです。\n\n詳細は以下のURLから確認できます：\n${giftUrl}`);
+                    window.open(`mailto:?subject=${subject}&body=${body}`);
+                }
             });
         });
 
@@ -458,6 +743,13 @@
             
             // スクロール
             document.getElementById('question-form').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // ギフトID生成
+        function generateGiftId() {
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substr(2, 9);
+            return `gift_${timestamp}_${random}`;
         }
     </script>
 </body>

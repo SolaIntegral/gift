@@ -6,6 +6,238 @@
     <title>GIFT - 大切な人へ健康を贈る</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    <style>
+        /* 目立つUIのための追加スタイル */
+        .hero {
+            background: linear-gradient(135deg, var(--color-orange-primary), var(--color-orange-light));
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: var(--color-orange-primary);
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn:hover {
+            background: var(--color-orange-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--color-orange-primary);
+            border: 2px solid var(--color-orange-primary);
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--color-orange-primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--color-orange-primary);
+        }
+        
+        .card h2 {
+            color: var(--color-orange-primary);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .flow-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-card:hover {
+            border-color: var(--color-orange-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+        
+        .flow-card .icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .flow-card h4 {
+            color: var(--color-orange-primary);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .flow-card p {
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        
+        .gift-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gift-card:hover {
+            border-color: var(--color-orange-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+        
+        .gift-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .gift-card h3 {
+            color: var(--color-orange-primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .gift-card .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--color-green-primary);
+            margin: 1rem 0;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: var(--color-orange-primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .step span {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .step.active span {
+            color: var(--color-orange-primary);
+            font-weight: bold;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .step {
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- ヘッダー -->
@@ -24,7 +256,8 @@
                 <h1>大切な人へ<br>健康を贈る</h1>
                 <p>健康診断をギフトとして贈ることで、<br>大切な人の健康をサポートしませんか？</p>
                 <div class="hero-buttons">
-                    <a href="send_gifts.html" class="btn">ギフトを贈る</a>
+                    <a href="send_gifts_help.html" class="btn">🎁 ギフト相談を始める</a>
+                    <a href="send_gifts.html" class="btn btn-secondary">ギフトを選ぶ</a>
                     <a href="about.html" class="btn btn-secondary">サービスについて</a>
                 </div>
             </div>
