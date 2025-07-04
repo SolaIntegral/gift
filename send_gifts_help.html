@@ -281,23 +281,11 @@
         <section class="card" id="question-form">
             <h2>受取人について教えてください</h2>
             <p style="text-align: center; margin-bottom: 2rem; color: var(--color-text-secondary);">
-                以下の質問にお答えいただき、最適なギフトをご提案いたします
+                年齢と予算を教えていただければ、最適なギフトをご提案いたします<br>
+                <small style="color: var(--color-orange-primary);">※健康への関心事は任意です</small>
             </p>
             
             <form id="suggestion-form">
-                <div class="form-group">
-                    <label for="recipient-relationship">受取人との関係 *</label>
-                    <select id="recipient-relationship" name="relationship" class="form-control" required>
-                        <option value="">選択してください</option>
-                        <option value="family">家族（両親、祖父母など）</option>
-                        <option value="partner">パートナー（配偶者、恋人など）</option>
-                        <option value="friend">友人</option>
-                        <option value="colleague">同僚・上司</option>
-                        <option value="business">取引先</option>
-                        <option value="other">その他</option>
-                    </select>
-                </div>
-                
                 <div class="form-group">
                     <label for="recipient-age">受取人の年齢 *</label>
                     <select id="recipient-age" name="age" class="form-control" required>
@@ -313,7 +301,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="health-concern">健康への関心事 *</label>
+                    <label for="budget">予算 *</label>
+                    <select id="budget" name="budget" class="form-control" required>
+                        <option value="">選択してください</option>
+                        <option value="low">〜10,000円</option>
+                        <option value="medium">10,000円〜25,000円</option>
+                        <option value="high">25,000円〜50,000円</option>
+                        <option value="premium">50,000円以上</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="health-concern">健康への関心事（任意）</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" id="concern-general" name="health-concerns" value="general">
@@ -343,17 +342,6 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="budget">予算 *</label>
-                    <select id="budget" name="budget" class="form-control" required>
-                        <option value="">選択してください</option>
-                        <option value="low">〜10,000円</option>
-                        <option value="medium">10,000円〜25,000円</option>
-                        <option value="high">25,000円〜50,000円</option>
-                        <option value="premium">50,000円以上</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
                     <label for="occasion">贈る機会</label>
                     <select id="occasion" name="occasion" class="form-control">
                         <option value="">選択してください</option>
@@ -369,7 +357,7 @@
                 </div>
                 
                 <div class="text-center" style="margin-top: 2rem;">
-                    <button type="submit" class="btn">ギフトを提案してもらう</button>
+                    <button type="submit" class="btn">🎁 ギフトを提案してもらう</button>
                 </div>
             </form>
         </section>
@@ -578,6 +566,8 @@
             document.getElementById('suggestion-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                console.log('フォーム送信が実行されました');
+                
                 const formData = new FormData(this);
                 const answers = {};
                 
@@ -590,8 +580,12 @@
                     }
                 }
                 
+                console.log('収集された回答:', answers);
+                
                 // ギフト提案を生成
                 const suggestions = generateSuggestions(answers);
+                console.log('生成された提案:', suggestions);
+                
                 displaySuggestions(suggestions);
             });
             
@@ -683,12 +677,21 @@
             // 予算に基づく調整
             if (answers.budget === 'low') {
                 suggestions.push(giftSuggestions['consultation']);
+            } else if (answers.budget === 'medium') {
+                suggestions.push(giftSuggestions['busy-person']);
+            } else if (answers.budget === 'high' || answers.budget === 'premium') {
+                suggestions.push(giftSuggestions['elderly']);
             }
             
             // 重複を除去
             const uniqueSuggestions = suggestions.filter((suggestion, index, self) => 
                 index === self.findIndex(s => s.name === suggestion.name)
             );
+            
+            // 最低1つは提案する
+            if (uniqueSuggestions.length === 0) {
+                uniqueSuggestions.push(giftSuggestions['health-conscious']);
+            }
             
             return uniqueSuggestions.slice(0, 3); // 最大3つまで
         }
