@@ -562,15 +562,11 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('delivery-date').min = today;
             
-            // 質問フォーム送信処理
+            // 質問フォーム送信処理（バリデーションをほぼ無効化）
             document.getElementById('suggestion-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                console.log('フォーム送信が実行されました');
-                
                 const formData = new FormData(this);
                 const answers = {};
-                
                 for (let [key, value] of formData.entries()) {
                     if (key === 'health-concerns') {
                         if (!answers[key]) answers[key] = [];
@@ -579,51 +575,44 @@
                         answers[key] = value;
                     }
                 }
-                
-                console.log('収集された回答:', answers);
-                
-                // ギフト提案を生成
-                const suggestions = generateSuggestions(answers);
-                console.log('生成された提案:', suggestions);
-                
+                // ギフト提案を生成（必ず1件は表示）
+                let suggestions = generateSuggestions(answers);
+                if (!suggestions || suggestions.length === 0) {
+                    suggestions = [{
+                        name: 'おまかせ健康ギフト',
+                        icon: '🎁',
+                        description: 'どなたにもおすすめできる健康ギフトです',
+                        price: 10000,
+                        reason: '入力内容に関わらずご提案します'
+                    }];
+                }
                 displaySuggestions(suggestions);
             });
             
-            // 受取人情報フォーム送信処理
+            // 受取人情報フォーム送信処理（バリデーションを無効化）
             document.getElementById('gift-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                // 決済フォームを表示
                 document.getElementById('payment-form').style.display = 'block';
                 document.getElementById('recipient-form').style.display = 'none';
-                
-                // スクロール
                 document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth' });
             });
             
-            // 決済フォーム送信処理
+            // 決済フォーム送信処理（バリデーションを無効化）
             document.getElementById('payment-form-content').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
                 // ギフトIDを生成
                 const giftId = generateGiftId();
                 const giftUrl = `${window.location.origin}${window.location.pathname.replace('send_gifts_help.html', 'gift_view.html')}?id=${giftId}`;
-                
-                // ギフトURLを表示
                 document.getElementById('gift-url-display').textContent = giftUrl;
-                
-                // 完了メッセージを表示
                 document.getElementById('payment-form').style.display = 'none';
                 document.getElementById('completion-message').style.display = 'block';
-                
-                // スクロール
                 document.getElementById('completion-message').scrollIntoView({ behavior: 'smooth' });
             });
             
             // URLコピー機能
             document.getElementById('copy-url-btn').addEventListener('click', function() {
                 const giftUrl = document.getElementById('gift-url-display').textContent;
-                navigator.clipboard.writeText(giftUrl).then(function() {
+                navigator.clipboard.writeText(giftUrl).then(() => {
                     const originalText = this.textContent;
                     this.textContent = '✅ コピー完了！';
                     this.style.background = 'var(--color-green-primary)';
@@ -631,7 +620,7 @@
                         this.textContent = originalText;
                         this.style.background = 'var(--color-orange-primary)';
                     }, 2000);
-                }.bind(this));
+                });
             });
             
             // 共有機能
@@ -644,7 +633,6 @@
                         url: giftUrl
                     });
                 } else {
-                    // フォールバック: メールで共有
                     const subject = encodeURIComponent('健康ギフトが届きました');
                     const body = encodeURIComponent(`大切な人からの健康ギフトです。\n\n詳細は以下のURLから確認できます：\n${giftUrl}`);
                     window.open(`mailto:?subject=${subject}&body=${body}`);
