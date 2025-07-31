@@ -3,382 +3,724 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIFT - 大切な人へ健康を贈る</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
-    <style>
-        /* 目立つUIのための追加スタイル */
-        .hero {
-            background: linear-gradient(135deg, var(--color-orange-primary), var(--color-orange-light));
-            color: white;
-            padding: 4rem 1rem;
-            text-align: center;
-            border-radius: 20px;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
-        }
-        
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-            line-height: 1.2;
-        }
-        
-        .hero p {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            background: var(--color-orange-primary);
-            color: white;
-            padding: 1.2rem 2.5rem;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-        }
-        
-        .btn:hover {
-            background: var(--color-orange-dark);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: var(--color-orange-primary);
-            border: 2px solid var(--color-orange-primary);
-            box-shadow: none;
-        }
-        
-        .btn-secondary:hover {
-            background: var(--color-orange-primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-        }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 5px solid var(--color-orange-primary);
-        }
-        
-        .card h2 {
-            color: var(--color-orange-primary);
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        
-        .flow-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .flow-card:hover {
-            border-color: var(--color-orange-primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
-        }
-        
-        .flow-card .icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .flow-card h4 {
-            color: var(--color-orange-primary);
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-        }
-        
-        .flow-card p {
-            color: var(--color-text-secondary);
-            line-height: 1.6;
-        }
-        
-        .gift-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .gift-card:hover {
-            border-color: var(--color-orange-primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
-        }
-        
-        .gift-card .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        
-        .gift-card h3 {
-            color: var(--color-orange-primary);
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-        }
-        
-        .gift-card .price {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--color-green-primary);
-            margin: 1rem 0;
-        }
-        
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 2rem 0;
-        }
-        
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            position: relative;
-        }
-        
-        .step-number {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #e9ecef;
-            color: var(--color-text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .step.active .step-number {
-            background: var(--color-orange-primary);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-        }
-        
-        .step span {
-            font-size: 1rem;
-            color: var(--color-text-secondary);
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        .step.active span {
-            color: var(--color-orange-primary);
-            font-weight: bold;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            .step-indicator {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .step {
-                flex-direction: row;
-                gap: 0.5rem;
-            }
-        }
-    </style>
+    <title>GIFT - 健康を贈る、想いを届ける</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-    <!-- ヘッダー -->
-    <header class="header">
-        <div class="header-content">
-            <a href="index.html" class="logo">GIFT</a>
-            <div style="width: 60px;"></div> <!-- 中央揃えのためのスペーサー -->
-        </div>
-    </header>
+    <!-- ホーム画面 -->
+    <div id="home-screen" class="screen active">
+        <!-- ヘッダー部分を統一デザインに更新 -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1 class="logo" onclick="goHome()">GIFT</h1>
+                    <nav class="main-nav">
+                        <a href="#" onclick="goHome()" class="active">ホーム</a>
+                        <a href="#" onclick="showGiftList()">ギフト一覧</a>
+                        <a href="#" onclick="showServiceInfo()">サービス紹介</a>
+                        <a href="#" onclick="showAdminLogin()">管理者</a>
+                    </nav>
+                </div>
+                <p class="tagline">健康を贈る、想いを届ける</p>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="hero-section">
+                    <div class="hero-visual">
+                        <div class="hero-image-container">
+                            <div class="hero-background"></div>
+                            <div class="hero-overlay">
+                                <div class="hero-icon">💝</div>
+                                <h2 class="hero-title">大切な人に<br><span class="highlight">"元気"</span>を贈りませんか？</h2>
+                                <p class="hero-description">
+                                    健康診断、フィットネス、ウェルネス体験...<br>
+                                    あなたの想いを健康ギフトに込めて、<br>
+                                    大切な人の笑顔と元気を応援します。
+                                </p>
+                                <div class="hero-buttons">
+                                    <button class="cta-button primary" onclick="startGiftConsultation()">
+                                        ギフト相談を始める
+                                    </button>
+                                    <button class="cta-button secondary" onclick="showGiftList()">
+                                        ギフト一覧を見る
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- GIFTとは -->
+                <section class="service-intro">
+                    <div class="container">
+                        <h2 class="section-title">「GIFT」とは？</h2>
+                        <div class="intro-content">
+                            <div class="intro-text">
+                                <p class="intro-lead">「GIFT」は、「もしも」のための「いつも」の贈り物として、大切な家族や友人の健康を贈れる革新的なアプリです。</p>
+                                <p>子育てや仕事に忙しく、つい自身の健康を後回しにしてしまいがちな現代社会。そんな現状に、「GIFT」は<strong>「健康を贈る」という新しいコミュニケーションの形</strong>を提案します。</p>
+                            </div>
+                            <div class="intro-visual">
+                                <div class="intro-icon">💝</div>
+                                <p class="intro-caption">健康を贈る新しい形</p>
+                            </div>
+                        </div>
+                        
+                        <div class="gifter-selecter-section">
+                            <div class="role-card gifter-card">
+                                <div class="role-icon">🎁</div>
+                                <h3>GIFTER</h3>
+                                <p>感謝や愛情を込めて健康を贈る人</p>
+                                <ul>
+                                    <li>健康診断チケットを贈る</li>
+                                    <li>フィットネス施設利用券を贈る</li>
+                                    <li>想いをメッセージに込める</li>
+                                </ul>
+                            </div>
+                            <div class="connection-arrow">
+                                <span>❤️</span>
+                                <p>つながる</p>
+                            </div>
+                            <div class="role-card selecter-card">
+                                <div class="role-icon">🎯</div>
+                                <h3>SELECTER</h3>
+                                <p>ギフトを受け取り利用する人</p>
+                                <ul>
+                                    <li>好きなタイミングで利用</li>
+                                    <li>無理なく健康ケア</li>
+                                    <li>愛情を感じながら健康管理</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="service-philosophy">
+                            <p>このアプリは単なる健康管理ツールではありません。普段なかなか伝えられない<strong>「いつまでも元気でいてほしい」という温かい気持ちを形にし、家族や友人との絆を深めるきっかけを創出します。</strong></p>
+                            <p>贈る側も贈られる側も、お互いの健康を意識し、結果として自分自身の健康にも向き合える<strong>「自分へのGIFT」</strong>となることを目指します。</p>
+                        </div>
+                    </div>
+                </section>
 
-    <!-- メインコンテンツ -->
-    <main class="main-content">
-        <!-- ヒーローセクション -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>大切な人へ<br>健康を贈る</h1>
-                <p>健康診断をギフトとして贈ることで、<br>大切な人の健康をサポートしませんか？</p>
-                <div class="hero-buttons">
-                    <a href="send_gifts_help.html" class="btn">🎁 ギフト相談を始める</a>
-                    <a href="send_gifts.html" class="btn btn-secondary">ギフトを選ぶ</a>
-                    <a href="about.html" class="btn btn-secondary">サービスについて</a>
+                <!-- 利用シーン -->
+                <section class="use-cases">
+                    <div class="container">
+                        <h2 class="section-title">こんな時におすすめ！「GIFT」の利用シーン</h2>
+                        <p class="section-subtitle">「GIFT」は、あなたの<strong>「贈りたい」</strong>気持ちを様々な形でサポートします。</p>
+                        
+                        <div class="use-case-grid">
+                            <div class="use-case-card">
+                                <div class="use-case-header">
+                                    <div class="use-case-icon">🎂</div>
+                                    <h3>親の還暦祝いに「人間ドック」をプレゼント</h3>
+                                </div>
+                                <div class="use-case-message">
+                                    <p>「お父さん、お母さん、いつまでも健康でいてほしいから。なかなか予約しないだろうと思って、人間ドックを贈るよ。これを機にしっかり見てきてね！」</p>
+                                </div>
+                                <div class="use-case-roles">
+                                    <span class="gifter-tag">GIFTER：娘</span>
+                                    <span class="selecter-tag">SELECTER：両親</span>
+                                </div>
+                            </div>
+                            
+                            <div class="use-case-card">
+                                <div class="use-case-header">
+                                    <div class="use-case-icon">👶</div>
+                                    <h3>出産を頑張った友人に「産後ケアフィットネス」をプレゼント</h3>
+                                </div>
+                                <div class="use-case-message">
+                                    <p>「〇〇ちゃん、出産お疲れ様！育児で忙しいと思うけど、自分の体も大切にしてほしいから、近所のフィットネスジムのチケットを贈るね。気分転換にもなるし、気軽に利用してみて！」</p>
+                                </div>
+                                <div class="use-case-roles">
+                                    <span class="gifter-tag">GIFTER：友人</span>
+                                    <span class="selecter-tag">SELECTER：友人</span>
+                                </div>
+                            </div>
+                            
+                            <div class="use-case-card">
+                                <div class="use-case-header">
+                                    <div class="use-case-icon">💑</div>
+                                    <h3>パートナーの誕生日に「ペアでの遺伝子検査」をプレゼント</h3>
+                                </div>
+                                <div class="use-case-message">
+                                    <p>「ハッピーバースデー！今年はちょっと変わったプレゼントだけど、一緒に健康について考えるきっかけにしたいなと思って。これからの人生も二人で健康に過ごそうね！」</p>
+                                </div>
+                                <div class="use-case-roles">
+                                    <span class="gifter-tag">GIFTER：夫</span>
+                                    <span class="selecter-tag">SELECTER：妻</span>
+                                </div>
+                            </div>
+                            
+                            <div class="use-case-card">
+                                <div class="use-case-header">
+                                    <div class="use-case-icon">💪</div>
+                                    <h3>頑張る自分へのご褒美に「パーソナルトレーニング体験」をプレゼント</h3>
+                                </div>
+                                <div class="use-case-message">
+                                    <p>「最近仕事でストレスが溜まって運動不足気味…。これを機に、プロの指導で体のメンテナンスをしたい！自分への投資として、パーソナルトレーニングに挑戦してみよう。」</p>
+                                </div>
+                                <div class="use-case-roles">
+                                    <span class="gifter-tag">GIFTER：自分</span>
+                                    <span class="selecter-tag">SELECTER：自分</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- メリット -->
+                <section class="benefits">
+                    <div class="container">
+                        <h2 class="section-title">「GIFT」のメリット</h2>
+                        <p class="section-subtitle">「GIFT」は、GIFTER、SELECTER双方にとって、そして社会全体にポジティブな影響をもたらします。</p>
+                        
+                        <div class="benefits-container">
+                            <div class="benefit-side gifter-side">
+                                <h3>GIFTERのメリット</h3>
+                                <ul class="benefit-list">
+                                    <li>
+                                        <div class="benefit-icon">💝</div>
+                                        <div class="benefit-text">
+                                            <strong>気持ちを形に</strong>
+                                            <p>大切な人への「健康でいてほしい」という想いを、具体的なギフトとして贈れます。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="benefit-icon">🤝</div>
+                                        <div class="benefit-text">
+                                            <strong>絆を深める</strong>
+                                            <p>健康を気遣う気持ちが、家族や友人との新しいコミュニケーションのきっかけになります。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="benefit-icon">😌</div>
+                                        <div class="benefit-text">
+                                            <strong>安心感</strong>
+                                            <p>大切な人が健康診断を受けたり、運動習慣を始めるきっかけを作ることで、GIFTER自身も安心できます。</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="benefit-side selecter-side">
+                                <h3>SELECTERのメリット</h3>
+                                <ul class="benefit-list">
+                                    <li>
+                                        <div class="benefit-icon">🏃‍♀️</div>
+                                        <div class="benefit-text">
+                                            <strong>健康への一歩</strong>
+                                            <p>普段は後回しにしがちな健康診断や運動を、プレゼントをきっかけに気軽に始められます。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="benefit-icon">⏰</div>
+                                        <div class="benefit-text">
+                                            <strong>利用の自由度</strong>
+                                            <p>自分の都合の良いタイミングで、好きなギフトを利用できます。</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="benefit-icon">🌟</div>
+                                        <div class="benefit-text">
+                                            <strong>自己肯定感の向上</strong>
+                                            <p>大切な人に気遣ってもらっているという温かい気持ちを感じられます。</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 利用の流れ -->
+                <section class="service-flow">
+                    <div class="container">
+                        <h2 class="section-title">ご利用の流れ</h2>
+                        <div class="flow-steps">
+                            <div class="flow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-icon">🎁</div>
+                                <h3>GIFTを選ぶ</h3>
+                                <p>アプリ内で、贈りたい健康診断やフィットネス施設利用券などを選びます。</p>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-icon">💌</div>
+                                <h3>GIFTを贈る</h3>
+                                <p>感謝のメッセージを添えて、SELECTERへGIFTを贈ります。</p>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-icon">📱</div>
+                                <h3>GIFTを受け取る</h3>
+                                <p>SELECTERはアプリを通じてGIFTを受け取り、メッセージを確認します。</p>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-icon">🏥</div>
+                                <h3>GIFTを利用する</h3>
+                                <p>SELECTERは自分の好きなタイミングで施設を予約・利用します。</p>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">5</div>
+                                <div class="step-icon">😊</div>
+                                <h3>笑顔と健康が広がる</h3>
+                                <p>GIFTERとSELECTER双方の健康意識が高まり、笑顔があふれる関係性が築かれます。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ -->
+                <section class="faq">
+                    <div class="container">
+                        <h2 class="section-title">よくあるご質問</h2>
+                        <div class="faq-list">
+                            <div class="faq-item active">
+                                <div class="faq-question" onclick="toggleFaq(this)">
+                                    <h3>どのようなギフトがありますか？</h3>
+                                    <span class="faq-toggle">+</span>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>人間ドック、がん検診などの各種健康診断チケット、フィットネスジムやヨガスタジオの利用券、リラクゼーションサービスなど、様々な健康にまつわるギフトをご用意しています。</p>
+                                    <p>特に人気なのは、総合健康診断パック（15,400円）、パーソナルフィットネス体験（12,100円）、ウェルネス相談セッション（6,600円）などです。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(this)">
+                                    <h3>ギフトの利用期限はありますか？</h3>
+                                    <span class="faq-toggle">+</span>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>ギフトの種類によって異なりますが、基本的に発行日から6ヶ月〜1年の有効期限を設けています。</p>
+                                    <p>健康診断系ギフト：発行から1年間</p>
+                                    <p>フィットネス系ギフト：発行から6ヶ月間</p>
+                                    <p>ウェルネス系ギフト：発行から9ヶ月間</p>
+                                    <p>詳細は各ギフトページでご確認いただけます。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(this)">
+                                    <h3>SELECTERがギフトを利用しなかった場合、どうなりますか？</h3>
+                                    <span class="faq-toggle">+</span>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>ギフトの種類や提携企業によって対応が異なりますが、基本的には期限切れとなります。</p>
+                                    <p>SELECTERには利用を促すリマインダー通知が定期的に送信されます。また、GIFTERには利用状況が通知されるため、必要に応じて声かけをしていただくことも可能です。</p>
+                                    <p>一部のギフトでは、有効期限の延長サービス（有料）もご用意しています。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(this)">
+                                    <h3>支払い方法は何がありますか？</h3>
+                                    <span class="faq-toggle">+</span>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>以下の決済方法に対応しています：</p>
+                                    <ul class="payment-list">
+                                        <li>クレジットカード（VISA、Mastercard、JCB、AMEX）</li>
+                                        <li>PayPay</li>
+                                        <li>LINE Pay</li>
+                                        <li>d払い</li>
+                                        <li>楽天ペイ</li>
+                                    </ul>
+                                    <p>すべてスマートフォンで簡単に完結する決済方法を採用しています。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFaq(this)">
+                                    <h3>利用できる地域は限られていますか？</h3>
+                                    <span class="faq-toggle">+</span>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>現在は首都圏（東京、神奈川、埼玉、千葉）と関西圏（大阪、京都、兵庫）を中心にサービスを展開しています。</p>
+                                    <p>2024年内に名古屋、福岡、札幌へのサービス拡大を予定しており、順次全国展開を目指しています。</p>
+                                    <p>オンラインで受けられるカウンセリングやアドバイスサービスは、地域を問わずご利用いただけます。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 最終CTA -->
+                <section class="final-cta">
+                    <div class="container">
+                        <div class="cta-content">
+                            <h2>「GIFT」は、単なるプレゼント以上の価値を提供します</h2>
+                            <p>大切な人への愛を健康という形で贈り、笑顔と元気の輪を広げていきませんか？</p>
+                            <div class="cta-buttons">
+                                <button class="cta-button primary" onclick="startGiftConsultation()">
+                                    今すぐGIFTを始める
+                                </button>
+                                <button class="cta-button secondary" onclick="showGiftList()">
+                                    ギフト一覧を見る
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- 質問画面 -->
+    <div id="question-screen" class="screen">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo" onclick="goHome()">GIFT</h1>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p class="progress-text">質問 <span id="current-question">1</span> / 3</p>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="question-container">
+                    <div class="question-content" id="question-content">
+                        <!-- 質問内容がJavaScriptで動的に挿入される -->
+                    </div>
+                    <div class="question-actions">
+                        <button class="next-button" id="next-button" onclick="nextQuestion()" disabled>
+                            次へ進む
+                        </button>
+                    </div>
                 </div>
             </div>
-        </section>
+        </main>
+    </div>
 
-        <!-- サービスの特徴 -->
-        <section class="card">
-            <h2>GIFTの特徴</h2>
-            <div class="grid grid-3">
-                <div class="flow-card">
-                    <div class="icon">💝</div>
-                    <h4>簡単ギフト</h4>
-                    <p>数クリックで大切な人へ健康診断を贈ることができます</p>
+    <!-- ギフト提案画面 -->
+    <div id="proposal-screen" class="screen">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo" onclick="goHome()">GIFT</h1>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="proposal-header">
+                    <h2>あなたへのおすすめギフト</h2>
+                    <p>お答えいただいた内容をもとに、最適なギフトをご提案いたします。</p>
                 </div>
-                <div class="flow-card">
-                    <div class="icon">🏥</div>
-                    <h4>信頼できる医療機関</h4>
-                    <p>全国の提携医療機関で安心して健康診断を受けられます</p>
+                
+                <div class="gift-options" id="gift-options">
+                    <!-- ギフト選択肢がJavaScriptで動的に挿入される -->
                 </div>
-                <div class="flow-card">
-                    <div class="icon">📱</div>
-                    <h4>スマート管理</h4>
-                    <p>アプリで簡単に履歴管理と予約確認ができます</p>
+                
+                <div class="proposal-actions">
+                    <button class="select-button" id="select-gift-button" onclick="selectGift()" disabled>
+                        このギフトを選ぶ
+                    </button>
                 </div>
             </div>
-        </section>
+        </main>
+    </div>
 
-        <!-- 人気のギフト -->
-        <section class="card">
-            <h2>人気のギフト</h2>
-            <div class="grid grid-3">
-                <div class="gift-card">
-                    <div class="icon">💊</div>
-                    <h3>健康診断パックA</h3>
-                    <p>基本的な健康チェック</p>
-                    <div class="price">¥15,000</div>
+    <!-- 受取人情報入力画面 -->
+    <div id="recipient-screen" class="screen">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo" onclick="goHome()">GIFT</h1>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="form-header">
+                    <h2>受取人情報とメッセージ</h2>
+                    <p>ギフトをお届けする方の情報をご入力ください。</p>
                 </div>
-                <div class="gift-card">
-                    <div class="icon">❤️</div>
-                    <h3>健康診断パックB</h3>
-                    <p>詳細な健康診断</p>
-                    <div class="price">¥25,000</div>
+                
+                <form class="recipient-form" id="recipient-form">
+                    <div class="form-group">
+                        <label for="recipient-name">受取人のお名前 <span class="required">*</span></label>
+                        <input type="text" id="recipient-name" name="recipientName" required>
+                    </div>
+                    
+                    
+                    <div class="form-group">
+                        <label for="sender-name">贈り主のお名前 <span class="required">*</span></label>
+                        <input type="text" id="sender-name" name="senderName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gift-message">メッセージ（任意）</label>
+                        <textarea id="gift-message" name="giftMessage" placeholder="いつまでも元気でいてね"></textarea>
+                        <div class="message-templates">
+                            <button type="button" class="template-button" onclick="setMessage('いつまでも元気でいてね')">いつまでも元気でいてね</button>
+                            <button type="button" class="template-button" onclick="setMessage('いつもありがとう')">いつもありがとう</button>
+                            <button type="button" class="template-button" onclick="setMessage('健康第一で過ごしてください')">健康第一で過ごしてください</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="form-submit-button">次へ進む</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- 決済画面 -->
+    <div id="payment-screen" class="screen">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo" onclick="goHome()">GIFT</h1>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="payment-header">
+                    <h2>お支払い情報</h2>
+                    <p>ギフトのお支払い情報をご入力ください。</p>
                 </div>
-                <div class="gift-card">
-                    <div class="icon">🌟</div>
-                    <h3>健康診断パックC</h3>
-                    <p>プレミアム健康診断</p>
-                    <div class="price">¥35,000</div>
+                
+                <div class="order-summary" id="order-summary">
+                    <!-- 注文内容がJavaScriptで動的に挿入される -->
+                </div>
+                
+                <div class="payment-method-section">
+                    <h3>お支払い方法を選択してください</h3>
+                    <div class="payment-methods">
+                        <div class="payment-method" onclick="selectPaymentMethod('paypay')">
+                            <div class="payment-method-icon">📱</div>
+                            <h4>PayPay</h4>
+                            <p>PayPayアプリで簡単決済</p>
+                        </div>
+                        <div class="payment-method" onclick="selectPaymentMethod('card')">
+                            <div class="payment-method-icon">💳</div>
+                            <h4>クレジットカード</h4>
+                            <p>各種クレジットカード対応</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-action">
+                    <button class="payment-button" id="payment-button" onclick="processPayment()" disabled>
+                        決済方法を選択してください
+                    </button>
                 </div>
             </div>
-            <div class="text-center" style="margin-top: 2rem;">
-                <a href="send_gifts.html" class="btn">すべてのギフトを見る</a>
+        </main>
+    </div>
+
+    <!-- URL発行完了画面 -->
+    <div id="completion-screen" class="screen">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo" onclick="goHome()">GIFT</h1>
             </div>
-        </section>
-
-        <!-- 利用の流れ -->
-        <section class="card">
-            <h2>利用の流れ</h2>
-            <div class="step-indicator">
-                <div class="step active">
-                    <div class="step-number">1</div>
-                    <span>ギフト選択</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <span>受取人情報入力</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <span>決済</span>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <span>ギフト送信完了</span>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="completion-content">
+                    <div class="completion-icon">✅</div>
+                    <h2>ギフトの準備が完了しました！</h2>
+                    <p class="completion-message" id="completion-message">
+                        <!-- 完了メッセージがJavaScriptで動的に挿入される -->
+                    </p>
+                    
+                    <div class="gift-url-section">
+                        <label for="gift-url">ギフトURL</label>
+                        <div class="url-input-group">
+                            <input type="text" id="gift-url" readonly>
+                            <button class="copy-button" onclick="copyGiftUrl()">コピー</button>
+                        </div>
+                    </div>
+                    
+                    <div class="share-options">
+                        <h3>ギフトを共有する</h3>
+                        <div class="share-buttons">
+                            <button class="share-button line" onclick="shareToLine()">
+                                <span class="share-icon">💬</span>
+                                LINE
+                            </button>
+                            <button class="share-button email" onclick="shareToEmail()">
+                                <span class="share-icon">📧</span>
+                                メール
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="new-gift-button" onclick="goHome()">
+                        新しいギフトを作る
+                    </button>
                 </div>
             </div>
-        </section>
+        </main>
+    </div>
 
-        <!-- お客様の声 -->
-        <section class="card">
-            <h2>お客様の声</h2>
-            <div class="grid grid-2">
-                <div class="card" style="background: var(--color-background-light);">
-                    <p>"母の日に健康診断を贈りました。母がとても喜んでくれて、私も安心できました。"</p>
-                    <small>- 田中さん (30代)</small>
-                </div>
-                <div class="card" style="background: var(--color-background-light);">
-                    <p>"夫の誕生日に贈りました。健康への意識が高まり、家族みんなで健康管理をするようになりました。"</p>
-                    <small>- 佐藤さん (40代)</small>
+    <!-- ギフト内容表示画面 -->
+    <div id="gift-display-screen" class="screen">
+        <header class="header gift-header">
+            <div class="container">
+                <h1 class="logo">GIFT</h1>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="gift-display-content" id="gift-display-content">
+                    <div class="gift-opening-animation" id="gift-opening">
+                        <div class="gift-box">
+                            <div class="gift-box-lid"></div>
+                            <div class="gift-box-body"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <div class="gift-ribbon-v"></div>
+                        </div>
+                        <div class="opening-text">ギフトを開いています...</div>
+                    </div>
+                    <!-- ギフト内容がJavaScriptで動的に挿入される -->
                 </div>
             </div>
-        </section>
-    </main>
+        </main>
+    </div>
 
-    <!-- フッターナビゲーション -->
-    <nav class="footer-nav">
-        <div class="footer-nav-content">
-            <a href="index.html" class="footer-nav-item active">
-                <div class="footer-nav-icon">🏠</div>
-                <div class="footer-nav-text">ホーム</div>
-            </a>
-            <a href="send_gifts.html" class="footer-nav-item">
-                <div class="footer-nav-icon">🎁</div>
-                <div class="footer-nav-text">ギフト</div>
-            </a>
-            <a href="mypage.html" class="footer-nav-item">
-                <div class="footer-nav-icon">👤</div>
-                <div class="footer-nav-text">マイページ</div>
-            </a>
-            <a href="history_send.html" class="footer-nav-item">
-                <div class="footer-nav-icon">📋</div>
-                <div class="footer-nav-text">履歴</div>
-            </a>
-        </div>
-    </nav>
+    <!-- ギフト受取画面 -->
+    <div id="gift-receive-screen" class="screen">
+        <header class="header gift-header">
+            <div class="container">
+                <h1 class="logo">GIFT</h1>
+                <p class="tagline">健康を贈る、想いを届ける</p>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="container">
+                <div class="gift-receive-content" id="gift-receive-content">
+                    <div class="gift-opening-animation" id="gift-opening-receive">
+                        <div class="gift-box">
+                            <div class="gift-box-lid"></div>
+                            <div class="gift-box-body"></div>
+                            <div class="gift-ribbon-h"></div>
+                            <div class="gift-ribbon-v"></div>
+                        </div>
+                        <div class="opening-text">ギフトを開いています...</div>
+                    </div>
+                    
+                    <div class="gift-content-display" id="gift-content-display" style="display: none;">
+                        <div class="gift-message-section">
+                            <div class="gift-icon-large">🎁</div>
+                            <h2 class="gift-title">健康のギフトが届きました！</h2>
+                            <div class="gift-from">
+                                <span id="gift-sender-name">○○</span>様より
+                            </div>
+                            <div class="gift-message-card">
+                                <h3>メッセージ</h3>
+                                <p id="gift-personal-message">いつまでも元気でいてね</p>
+                            </div>
+                        </div>
+                        
+                        <div class="gift-details-section">
+                            <div class="gift-item-card">
+                                <div class="gift-item-header">
+                                    <div class="gift-item-icon" id="gift-item-icon">🏥</div>
+                                    <div class="gift-item-info">
+                                        <h3 id="gift-item-name">総合健康診断パック</h3>
+                                        <p class="gift-item-category" id="gift-item-category">健康診断</p>
+                                        <p class="gift-item-price" id="gift-item-price">¥15,400</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="gift-item-description">
+                                    <p id="gift-item-desc">詳細な血液検査から画像診断まで、総合的な健康状態をチェックできます。</p>
+                                </div>
+                                
+                                <div class="gift-item-features">
+                                    <h4>含まれるサービス</h4>
+                                    <ul id="gift-item-features-list">
+                                        <li>詳細血液検査</li>
+                                        <li>胸部X線検査</li>
+                                        <li>心電図検査</li>
+                                        <li>医師による結果説明</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="gift-item-partner">
+                                    <h4>提携施設</h4>
+                                    <p id="gift-item-partner-name">健康クリニック東京</p>
+                                    <p class="partner-note">※ご利用時は事前予約が必要です</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="gift-usage-section">
+                            <h3>ご利用方法</h3>
+                            <div class="usage-steps">
+                                <div class="usage-step">
+                                    <div class="step-number">1</div>
+                                    <p>提携施設に電話またはWebで予約</p>
+                                </div>
+                                <div class="usage-step">
+                                    <div class="step-number">2</div>
+                                    <p>来店時に下記のQRコードを提示</p>
+                                </div>
+                                <div class="usage-step">
+                                    <div class="step-number">3</div>
+                                    <p>サービスをお楽しみください</p>
+                                </div>
+                            </div>
+                            
+                            <div class="qr-code-section">
+                                <h4>利用時に提示するQRコード</h4>
+                                <div class="qr-code-container">
+                                    <div class="qr-code-display" id="gift-qr-code">
+                                        <div class="qr-placeholder">
+                                            <div class="qr-pattern"></div>
+                                            <div class="qr-code-text" id="gift-code-text">GIFT_ABC123456</div>
+                                        </div>
+                                    </div>
+                                    <p class="qr-code-note">このQRコードを提携施設で提示してください</p>
+                                </div>
+                            </div>
+                            
+                            <div class="gift-validity">
+                                <h4>有効期限</h4>
+                                <p class="validity-date" id="gift-validity-date">2024年12月31日まで</p>
+                                <p class="validity-note">期限内にご利用ください</p>
+                            </div>
+                        </div>
+                        
+                        <div class="gift-actions">
+                            <button class="action-button primary" onclick="showUsageInstructions()">
+                                利用方法を詳しく見る
+                            </button>
+                            <button class="action-button secondary" onclick="shareGift()">
+                                このギフトを共有
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    <!-- フッター -->
-    <footer class="footer">
-        <p>&copy; 2024 GIFT. All rights reserved.</p>
-    </footer>
-
-    <script src="js/script.js"></script>
+    <script>
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // すべてのFAQを閉じる
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // クリックされたFAQが閉じていた場合は開く
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+    </script>
+    <script src="assets/js/script.js"></script>
 </body>
 </html>

@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ページ - GIFT</title>
+    <style>
+        /* インラインCSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Hiragino Sans", "ヒラギノ角ゴシック", "Yu Gothic", "メイリオ", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* ログイン画面 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #a8e6cf;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8c0 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 管理者ヘッダー */
+        .admin-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .logout-button:hover {
+            background: #c0392b;
+        }
+
+        /* 管理者レイアウト */
+        .admin-layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .admin-nav li {
+            margin-bottom: 5px;
+        }
+
+        .admin-nav a {
+            display: block;
+            padding: 15px 25px;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: #f8f9fa;
+            border-left-color: #a8e6cf;
+            color: #2c3e50;
+        }
+
+        .admin-main {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+
+        /* 統計カード */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+
+        .stat-info h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+        }
+
+        .stat-change.positive {
+            color: #27ae60;
+        }
+
+        .stat-change.negative {
+            color: #e74c3c;
+        }
+
+        /* チャート */
+        .dashboard-charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        /* ランキング */
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .rank {
+            background: #a8e6cf;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .gift-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .gift-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* ギフト管理 */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+
+        .add-button {
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8c0 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* フィルター */
+        .management-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .management-filters select {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* テーブル */
+        .gifts-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .gifts-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .gifts-table th,
+        .gifts-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .gifts-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #138496;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* QRスキャナー */
+        .scanner-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .scanner-main {
+            padding: 40px 0;
+            background: #f8f9fa;
+            min-height: calc(100vh - 70px);
+        }
+
+        .scanner-content {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .scanner-content h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .scanner-content p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .scanner-area {
+            margin-bottom: 30px;
+        }
+
+        .qr-scanner {
+            margin-bottom: 30px;
+        }
+
+        .scanner-frame {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #28a745;
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background: #28a745;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100px); }
+        }
+
+        .camera-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .camera-button:hover {
+            background: #218838;
+        }
+
+        .manual-input {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .manual-input p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .manual-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .verify-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .verify-button:hover {
+            background: #138496;
+        }
+
+        /* 検証結果 */
+        .verification-result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .verification-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .verification-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .verification-details {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .verification-details p {
+            margin-bottom: 8px;
+        }
+
+        .verification-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .confirm-usage-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .cancel-usage-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .modal-content h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .cancel-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .admin-layout {
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+            }
+
+            .admin-nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+            }
+
+            .admin-nav li {
+                margin-bottom: 0;
+                margin-right: 10px;
+            }
+
+            .admin-nav a {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-charts {
+                grid-template-columns: 1fr;
+            }
+
+            .management-filters {
+                flex-direction: column;
+            }
+
+            .gifts-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 管理者ログイン画面 -->
+    <div id="admin-login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <h1 class="login-title">GIFT 管理者ログイン</h1>
+                <form id="admin-login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="admin-email">メールアドレス</label>
+                        <input type="email" id="admin-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">パスワード</label>
+                        <input type="password" id="admin-password" name="password" required>
+                    </div>
+                    <button type="submit" class="login-button">ログイン</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理者ダッシュボード -->
+    <div id="admin-dashboard-screen" class="screen">
+        <header class="admin-header">
+            <div class="container">
+                <h1 class="admin-logo">GIFT 管理者</h1>
+                <div class="admin-user">
+                    <span>管理者様</span>
+                    <button class="logout-button" onclick="adminLogout()">ログアウト</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-layout">
+            <nav class="admin-sidebar">
+                <ul class="admin-nav">
+                    <li><a href="#" onclick="showDashboard()" class="active">ダッシュボード</a></li>
+                    <li><a href="#" onclick="showGiftManagement()">ギフト管理</a></li>
+                    <li><a href="#" onclick="showDataAnalysis()">データ分析</a></li>
+                    <li><a href="#" onclick="showQRScanner()">QRスキャナー</a></li>
+                </ul>
+            </nav>
+
+            <main class="admin-main">
+                <!-- ダッシュボード -->
+                <div id="dashboard-content" class="admin-content active">
+                    <h2>ダッシュボード</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🎁</div>
+                            <div class="stat-info">
+                                <h3>総ギフト発行数</h3>
+                                <div class="stat-number">1,234</div>
+                                <div class="stat-change positive">+12% 前月比</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <h3>利用率</h3>
+                                <div class="stat-number">78.5%</div>
+                                <div class="stat-change positive">+3.2% 前月比</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-info">
+                                <h3>月間売上</h3>
+                                <div class="stat-number">¥2,456,789</div>
+                                <div class="stat-change positive">+18% 前月比</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <h3>新規ユーザー</h3>
+                                <div class="stat-number">456</div>
+                                <div class="stat-change positive">+25% 前月比</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>月別売上推移</h3>
+                            <div class="chart-placeholder">
+                                <canvas id="sales-chart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>人気ギフトランキング</h3>
+                            <div class="ranking-list" id="ranking-list">
+                                <div class="ranking-item">
+                                    <span class="rank">1</span>
+                                    <span class="gift-name">総合健康診断パック</span>
+                                    <span class="gift-count">234件</span>
+                                </div>
+                                <div class="ranking-item">
+                                    <span class="rank">2</span>
+                                    <span class="gift-name">パーソナルフィットネス体験</span>
+                                    <span class="gift-count">189件</span>
+                                </div>
+                                <div class="ranking-item">
+                                    <span class="rank">3</span>
+                                    <span class="gift-name">ウェルネス相談セッション</span>
+                                    <span class="gift-count">156件</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ギフト管理 -->
+                <div id="gift-management-content" class="admin-content">
+                    <div class="content-header">
+                        <h2>ギフト管理</h2>
+                        <button class="add-button" onclick="showAddGiftModal()">+ 新しいギフトを追加</button>
+                    </div>
+                    
+                    <div class="management-filters">
+                        <select id="status-filter" aria-label="ステータスフィルター">
+                            <option value="">すべてのステータス</option>
+                            <option value="active">公開中</option>
+                            <option value="draft">下書き</option>
+                            <option value="inactive">非公開</option>
+                        </select>
+                        
+                        <select id="category-filter-admin" aria-label="カテゴリーフィルター">
+                            <option value="">すべてのカテゴリー</option>
+                            <option value="checkup">健康診断</option>
+                            <option value="fitness">フィットネス</option>
+                            <option value="wellness">ウェルネス</option>
+                        </select>
+                    </div>
+
+                    <div class="gifts-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ギフト名</th>
+                                    <th>カテゴリー</th>
+                                    <th>価格</th>
+                                    <th>ステータス</th>
+                                    <th>発行数</th>
+                                    <th>利用率</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gifts-table-body">
+                                <!-- ギフトデータがJavaScriptで動的に挿入される -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- データ分析 -->
+                <div id="data-analysis-content" class="admin-content">
+                    <h2>データ分析</h2>
+                    
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>利用率推移</h3>
+                            <div class="chart-placeholder">
+                                利用率推移チャート
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>カテゴリー別売上</h3>
+                            <div class="chart-placeholder">
+                                カテゴリー別売上チャート
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 企業側QRコード読み取り画面 -->
+    <div id="qr-scanner-screen" class="screen">
+        <header class="scanner-header">
+            <div class="container">
+                <h1 class="admin-logo">GIFT 企業用</h1>
+                <div class="admin-user">
+                    <span id="partner-name">○○クリニック</span>
+                    <button class="logout-button" onclick="partnerLogout()">ログアウト</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="scanner-main">
+            <div class="container">
+                <div class="scanner-content">
+                    <h2>ギフト利用確認</h2>
+                    <p>お客様のギフトQRコードを読み取ってください</p>
+                    
+                    <div class="scanner-area">
+                        <div class="qr-scanner">
+                            <div class="scanner-frame">
+                                <div class="scanner-line"></div>
+                            </div>
+                            <button class="camera-button" onclick="startQRScanner()">
+                                📷 カメラを起動
+                            </button>
+                        </div>
+                        
+                        <div class="manual-input">
+                            <p>または手動でコードを入力</p>
+                            <input type="text" id="manual-code" placeholder="ギフトコードを入力">
+                            <button class="verify-button" onclick="verifyGiftCode()">確認</button>
+                        </div>
+                    </div>
+
+                    <div id="gift-verification-result" class="verification-result" style="display: none;">
+                        <!-- 確認結果がJavaScriptで動的に挿入される -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- モーダル -->
+    <div id="add-gift-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddGiftModal()">&times;</span>
+            <h3>新しいギフトを追加</h3>
+            <form id="add-gift-form">
+                <div class="form-group">
+                    <label for="gift-name">ギフト名</label>
+                    <input type="text" id="gift-name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gift-category">カテゴリー</label>
+                    <select id="gift-category" name="category" required>
+                        <option value="">選択してください</option>
+                        <option value="checkup">健康診断</option>
+                        <option value="fitness">フィットネス</option>
+                        <option value="wellness">ウェルネス</option>
+                        <option value="consultation">相談・指導</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gift-price">価格（円）</label>
+                    <input type="number" id="gift-price" name="price" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gift-description">説明</label>
+                    <textarea id="gift-description" name="description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gift-partner">提携企業</label>
+                    <select id="gift-partner" name="partner" required>
+                        <option value="">選択してください</option>
+                        <option value="clinic-a">健康クリニック東京</option>
+                        <option value="gym-b">フィットネスジムB</option>
+                        <option value="spa-c">ウェルネススパC</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" onclick="closeAddGiftModal()">キャンセル</button>
+                    <button type="submit" class="save-button">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // サンプル管理データ
+        var adminData = {
+            gifts: [
+                {
+                    id: 1,
+                    name: "総合健康診断パック",
+                    category: "checkup",
+                    price: 15400,
+                    status: "active",
+                    issued: 234,
+                    usageRate: 78.5,
+                    partner: "健康クリニック東京"
+                },
+                {
+                    id: 2,
+                    name: "パーソナルフィットネス体験",
+                    category: "fitness",
+                    price: 12100,
+                    status: "active",
+                    issued: 189,
+                    usageRate: 82.1,
+                    partner: "フィットネスジムB"
+                },
+                {
+                    id: 3,
+                    name: "ウェルネス相談セッション",
+                    category: "wellness",
+                    price: 6600,
+                    status: "draft",
+                    issued: 156,
+                    usageRate: 65.4,
+                    partner: "ウェルネスセンターC"
+                }
+            ]
+        };
+
+        // 画面表示切り替え
+        function showScreen(screenId) {
+            var screens = document.querySelectorAll(".screen");
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove("active");
+            }
+
+            var targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add("active");
+            }
+        }
+
+        // 管理者ログイン
+        function setupAdminLogin() {
+            var loginForm = document.getElementById("admin-login-form");
+            if (loginForm) {
+                loginForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+
+                    var email = document.getElementById("admin-email").value;
+                    var password = document.getElementById("admin-password").value;
+
+                    // ダミー認証
+                    if (email === "admin@gift.com" && password === "admin123") {
+                        showScreen("admin-dashboard-screen");
+                        loadGiftManagementData();
+                    } else {
+                        alert("ログイン情報が正しくありません");
+                    }
+                });
+            }
+        }
+
+        // ナビゲーション
+        function showDashboard() {
+            showAdminContent("dashboard");
+        }
+
+        function showGiftManagement() {
+            showAdminContent("gift-management");
+            loadGiftManagementData();
+        }
+
+        function showDataAnalysis() {
+            showAdminContent("data-analysis");
+        }
+
+        function showQRScanner() {
+            showScreen("qr-scanner-screen");
+        }
+
+        function showAdminContent(contentType) {
+            // ナビゲーションの状態更新
+            var navLinks = document.querySelectorAll(".admin-nav a");
+            for (var i = 0; i < navLinks.length; i++) {
+                navLinks[i].classList.remove("active");
+            }
+
+            // 対応するナビリンクをアクティブに
+            var activeLink = document.querySelector('.admin-nav a[onclick*="' + contentType + '"]');
+            if (activeLink) {
+                activeLink.classList.add("active");
+            }
+
+            // コンテンツの表示切り替え
+            var contents = document.querySelectorAll(".admin-content");
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove("active");
+            }
+
+            var targetContent = document.getElementById(contentType + "-content");
+            if (targetContent) {
+                targetContent.classList.add("active");
+            }
+        }
+
+        // ギフト管理データ読み込み
+        function loadGiftManagementData() {
+            var tableBody = document.getElementById("gifts-table-body");
+            if (!tableBody) return;
+
+            var html = "";
+            for (var i = 0; i < adminData.gifts.length; i++) {
+                var gift = adminData.gifts[i];
+                html += "<tr>";
+                html += "<td>" + gift.name + "</td>";
+                html += "<td>" + getCategoryName(gift.category) + "</td>";
+                html += "<td>¥" + gift.price.toLocaleString() + "</td>";
+                html += '<td><span class="status-badge ' + gift.status + '">' + getStatusName(gift.status) + '</span></td>';
+                html += "<td>" + gift.issued + "</td>";
+                html += "<td>" + gift.usageRate + "%</td>";
+                html += '<td><div class="action-buttons">';
+                html += '<button class="action-btn edit-btn" onclick="editGift(' + gift.id + ')">編集</button>';
+                html += '<button class="action-btn delete-btn" onclick="deleteGift(' + gift.id + ')">削除</button>';
+                html += '</div></td>';
+                html += "</tr>";
+            }
+
+            tableBody.innerHTML = html;
+        }
+
+        function getCategoryName(category) {
+            var names = {
+                checkup: "健康診断",
+                fitness: "フィットネス",
+                wellness: "ウェルネス",
+                consultation: "相談・指導"
+            };
+            return names[category] || category;
+        }
+
+        function getStatusName(status) {
+            var names = {
+                active: "公開中",
+                draft: "下書き",
+                inactive: "非公開"
+            };
+            return names[status] || status;
+        }
+
+        // モーダル管理
+        function showAddGiftModal() {
+            var modal = document.getElementById("add-gift-modal");
+            if (modal) {
+                modal.classList.add("active");
+            }
+        }
+
+        function closeAddGiftModal() {
+            var modal = document.getElementById("add-gift-modal");
+            if (modal) {
+                modal.classList.remove("active");
+            }
+
+            var form = document.getElementById("add-gift-form");
+            if (form) {
+                form.reset();
+            }
+        }
+
+        // ギフト操作
+        function editGift(giftId) {
+            alert("ギフトID: " + giftId + " の編集機能（実装予定）");
+        }
+
+        function deleteGift(giftId) {
+            if (confirm("このギフトを削除しますか？")) {
+                adminData.gifts = adminData.gifts.filter(function(gift) {
+                    return gift.id !== giftId;
+                });
+                loadGiftManagementData();
+                alert("ギフトが削除されました");
+            }
+        }
+
+        // QRスキャナー
+        function startQRScanner() {
+            alert("QRコードスキャナーを起動します（実際の実装ではカメラAPIを使用）");
+
+            setTimeout(function() {
+                var dummyGiftCode = "gift_abc123456";
+                verifyGiftCodeResult(dummyGiftCode);
+            }, 2000);
+        }
+
+        function verifyGiftCode() {
+            var code = document.getElementById("manual-code").value;
+            if (!code) {
+                alert("ギフトコードを入力してください");
+                return;
+            }
+
+            verifyGiftCodeResult(code);
+        }
+
+        function verifyGiftCodeResult(code) {
+            var resultDiv = document.getElementById("gift-verification-result");
+            if (!resultDiv) return;
+
+            var isValid = code.indexOf("gift_") === 0;
+
+            if (isValid) {
+                resultDiv.innerHTML = 
+                    '<div class="verification-success">' +
+                    '<h3>✅ ギフト確認完了</h3>' +
+                    '<div class="verification-details">' +
+                    '<p><strong>ギフト名:</strong> 総合健康診断パック</p>' +
+                    '<p><strong>受取人:</strong> 山田 太郎様</p>' +
+                    '<p><strong>贈り主:</strong> 田中 花子様</p>' +
+                    '<p><strong>有効期限:</strong> 2024年12月31日</p>' +
+                    '</div>' +
+                    '<div class="verification-actions">' +
+                    '<button class="confirm-usage-button" onclick="confirmGiftUsage(\'' + code + '\')">利用を確定する</button>' +
+                    '<button class="cancel-usage-button" onclick="cancelGiftUsage()">キャンセル</button>' +
+                    '</div>' +
+                    '</div>';
+            } else {
+                resultDiv.innerHTML = 
+                    '<div class="verification-error">' +
+                    '<h3>❌ ギフトコードが無効です</h3>' +
+                    '<p>正しいギフトコードを入力してください。</p>' +
+                    '</div>';
+            }
+
+            resultDiv.style.display = "block";
+        }
+
+        function confirmGiftUsage(code) {
+            alert("ギフト " + code + " の利用が確定されました");
+
+            var resultDiv = document.getElementById("gift-verification-result");
+            if (resultDiv) {
+                resultDiv.style.display = "none";
+            }
+
+            var manualInput = document.getElementById("manual-code");
+            if (manualInput) {
+                manualInput.value = "";
+            }
+        }
+
+        function cancelGiftUsage() {
+            var resultDiv = document.getElementById("gift-verification-result");
+            if (resultDiv) {
+                resultDiv.style.display = "none";
+            }
+        }
+
+        // ログアウト
+        function adminLogout() {
+            if (confirm("ログアウトしますか？")) {
+                window.location.href = "../index.html";
+            }
+        }
+
+        function partnerLogout() {
+            if (confirm("ログアウトしますか？")) {
+                window.location.href = "../index.html";
+            }
+        }
+
+        // フォーム送信処理
+        function handleAddGift(e) {
+            e.preventDefault();
+
+            var formData = new FormData(e.target);
+            var newGift = {
+                id: adminData.gifts.length + 1,
+                name: formData.get("name"),
+                category: formData.get("category"),
+                price: parseInt(formData.get("price")),
+                status: "draft",
+                issued: 0,
+                usageRate: 0,
+                partner: formData.get("partner")
+            };
+
+            adminData.gifts.push(newGift);
+            loadGiftManagementData();
+            closeAddGiftModal();
+
+            alert("新しいギフトが追加されました");
+        }
+
+        // 初期化
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Admin page loaded successfully");
+            setupAdminLogin();
+
+            // フォームイベントリスナー
+            var addGiftForm = document.getElementById("add-gift-form");
+            if (addGiftForm) {
+                addGiftForm.addEventListener("submit", handleAddGift);
+            }
+
+            // モーダルクリック処理
+            var modal = document.getElementById("add-gift-modal");
+            if (modal) {
+                modal.addEventListener("click", function(e) {
+                    if (e.target === modal) {
+                        closeAddGiftModal();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サービス紹介 - GIFT</title>
+    <style>
+        /* インラインCSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Hiragino Sans", "ヒラギノ角ゴシック", "Yu Gothic", "メイリオ", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fafafa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .screen {
+            display: block;
+            min-height: 100vh;
+        }
+
+        /* ヘッダー */
+        .header {
+            background: linear-gradient(135deg, #a8e6cf 0%, #88d8c0 100%);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        .main-nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        .main-nav a:hover,
+        .main-nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tagline {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        /* サービス紹介 */
+        .service-intro {
+            padding: 60px 0;
+            background: white;
+        }
+
+        .intro-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .intro-lead {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .intro-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .intro-visual {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .intro-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .intro-caption {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* 利用シーン */
+        .use-cases {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 50px;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+        }
+
+        .use-case-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .use-case-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .use-case-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .use-case-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .use-case-header h3 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            line-height: 1.4;
+        }
+
+        .use-case-example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #a8e6cf;
+        }
+
+        /* メリット */
+        .benefits {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .benefits-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .benefit-side h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .benefit-list {
+            list-style: none;
+        }
+
+        .benefit-list li {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .benefit-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-text strong {
+            display: block;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .benefit-text p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 利用の流れ */
+        .detailed-flow {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .flow-timeline {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: flex-start;
+        }
+
+        .timeline-marker {
+            background: #a8e6cf;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-content h3 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .timeline-detail ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .timeline-detail li {
+            color: #555;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .timeline-detail li::before {
+            content: "•";
+            position: absolute;
+            left: -15px;
+            color: #a8e6cf;
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            padding: 20px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+
+        .faq-question h3 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin: 0;
+            padding-right: 30px;
+        }
+
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: #a8e6cf;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 20px;
+            max-height: 1000px;
+        }
+
+        .faq-answer p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+
+        .faq-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* CTA */
+        .service-cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-content h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button.primary {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .main-nav {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .intro-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .use-case-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .use-case-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .benefits-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .use-case-card {
+                padding: 20px;
+            }
+
+            .timeline-item {
+                gap: 15px;
+            }
+
+            .cta-content h2 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="service-info-screen" class="screen">
+        <!-- ヘッダー部分を統一デザインに更新 -->
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <h1 class="logo" onclick="goHome()">GIFT</h1>
+            <nav class="main-nav">
+                <a href="#" onclick="goHome()">ホーム</a>
+                <a href="#" onclick="showGiftList()">ギフト一覧</a>
+                <a href="#" onclick="showServiceInfo()" class="active">サービス紹介</a>
+                <a href="#" onclick="showAdminLogin()">管理者</a>
+            </nav>
+        </div>
+        <p class="tagline">健康を贈る、想いを届ける</p>
+    </div>
+</header>
+
+        <main class="main-content">
+            <div class="container">
+                <!-- GIFTとは -->
+                <section class="service-intro">
+                    <h1>GIFTとは？</h1>
+                    <div class="intro-content">
+                        <div class="intro-text">
+                            <p class="intro-lead">GIFTは、大切な人の健康を想う気持ちを形にするサービスです。</p>
+                            <p>健康診断、フィットネス体験、ウェルネスサービスなど、様々な健康関連のギフトを通じて、あなたの想いを届けます。</p>
+                        </div>
+                        <div class="intro-visual">
+                            <div class="intro-icon">🎁</div>
+                            <p class="intro-caption">健康を贈る</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- こんな時におすすめ -->
+                <section class="use-cases">
+                    <h2 class="section-title">こんな時におすすめ</h2>
+                    <div class="use-case-grid">
+                        <div class="use-case-card">
+                            <div class="use-case-header">
+                                <div class="use-case-icon">🎂</div>
+                                <h3>誕生日プレゼント</h3>
+                            </div>
+                            <p>「いつまでも元気でいてね」の想いを込めて、健康診断やフィットネス体験をプレゼント</p>
+                            <div class="use-case-example">
+                                <strong>例：</strong>母の60歳の誕生日に人間ドックをプレゼント
+                            </div>
+                        </div>
+                        
+                        <div class="use-case-card">
+                            <div class="use-case-header">
+                                <div class="use-case-icon">👶</div>
+                                <h3>出産祝い</h3>
+                            </div>
+                            <p>新しいママの体調回復を応援する産後ケアサービスをギフトに</p>
+                            <div class="use-case-example">
+                                <strong>例：</strong>友人の出産祝いに産後骨盤ケアチケット
+                            </div>
+                        </div>
+                        
+                        <div class="use-case-card">
+                            <div class="use-case-header">
+                                <div class="use-case-icon">🏆</div>
+                                <h3>還暦・長寿祝い</h3>
+                            </div>
+                            <p>これからも健康で長生きしてほしい想いを健康ギフトで表現</p>
+                            <div class="use-case-example">
+                                <strong>例：</strong>父の還暦祝いにプレミアム健康診断
+                            </div>
+                        </div>
+                        
+                        <div class="use-case-card">
+                            <div class="use-case-header">
+                                <div class="use-case-icon">💼</div>
+                                <h3>お疲れ様ギフト</h3>
+                            </div>
+                            <p>頑張っている人へのねぎらいとして、リラクゼーションギフトを</p>
+                            <div class="use-case-example">
+                                <strong>例：</strong>同僚の昇進祝いにスパ＆ウェルネス体験
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GIFTのメリット -->
+                <section class="benefits">
+                    <h2 class="section-title">GIFTのメリット</h2>
+                    <div class="benefits-container">
+                        <div class="benefit-side gifter-side">
+                            <h3>贈る人（GIFTER）のメリット</h3>
+                            <ul class="benefit-list">
+                                <li>
+                                    <div class="benefit-icon">💝</div>
+                                    <div class="benefit-text">
+                                        <strong>想いを形にできる</strong>
+                                        <p>「健康でいてほしい」という気持ちを具体的なギフトで表現</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="benefit-icon">🎯</div>
+                                    <div class="benefit-text">
+                                        <strong>相手に合わせて選べる</strong>
+                                        <p>年齢や関心事に応じて最適なギフトを提案</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="benefit-icon">📱</div>
+                                    <div class="benefit-text">
+                                        <strong>簡単に贈れる</strong>
+                                        <p>URLで簡単にギフトを届けられる</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="benefit-side selecter-side">
+                            <h3>受け取る人（SELECTER）のメリット</h3>
+                            <ul class="benefit-list">
+                                <li>
+                                    <div class="benefit-icon">🏥</div>
+                                    <div class="benefit-text">
+                                        <strong>健康への第一歩</strong>
+                                        <p>普段なかなか行かない健康診断のきっかけに</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="benefit-icon">💪</div>
+                                    <div class="benefit-text">
+                                        <strong>新しい体験</strong>
+                                        <p>フィットネスやウェルネスの新しい世界を体験</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="benefit-icon">❤️</div>
+                                    <div class="benefit-text">
+                                        <strong>愛情を感じられる</strong>
+                                        <p>贈り主の想いを感じながら健康サービスを利用</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 利用の流れ（詳細版） -->
+                <section class="detailed-flow">
+                    <h2 class="section-title">利用の流れ（詳細版）</h2>
+                    <div class="flow-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker">1</div>
+                            <div class="timeline-content">
+                                <h3>ギフト選択</h3>
+                                <p>質問に答えて最適なギフトを提案してもらうか、ギフト一覧から直接選択</p>
+                                <div class="timeline-detail">
+                                    <ul>
+                                        <li>相手の年齢・予算・関心事を入力</li>
+                                        <li>AIが最適なギフトを3つ提案</li>
+                                        <li>または一覧から直接選択</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker">2</div>
+                            <div class="timeline-content">
+                                <h3>メッセージ作成</h3>
+                                <p>受け取る人への想いをメッセージに込める</p>
+                                <div class="timeline-detail">
+                                    <ul>
+                                        <li>受取人の名前を入力</li>
+                                        <li>心のこもったメッセージを作成</li>
+                                        <li>テンプレートも利用可能</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker">3</div>
+                            <div class="timeline-content">
+                                <h3>決済・URL発行</h3>
+                                <p>PayPayまたはクレジットカードで決済し、ギフトURLを取得</p>
+                                <div class="timeline-detail">
+                                    <ul>
+                                        <li>決済方法を選択</li>
+                                        <li>ギフトURL自動生成</li>
+                                        <li>LINE・メールで簡単共有</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-marker">4</div>
+                            <div class="timeline-content">
+                                <h3>ギフト受取・利用</h3>
+                                <p>受け取った人がURLからギフト内容を確認し、サービスを利用</p>
+                                <div class="timeline-detail">
+                                    <ul>
+                                        <li>美しい開封演出でギフトを表示</li>
+                                        <li>利用方法・施設情報を確認</li>
+                                        <li>QRコードで簡単利用</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- よくある質問 -->
+                <section class="faq">
+                    <h2 class="section-title">よくある質問</h2>
+                    <div class="faq-list">
+                        <div class="faq-item active">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <h3>ギフトに有効期限はありますか？</h3>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>ギフトによって異なりますが、一般的に発行から6ヶ月〜1年の有効期限を設けています。詳細は各ギフトの説明をご確認ください。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <h3>ギフトをキャンセルできますか？</h3>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>ギフト発行後24時間以内であればキャンセル可能です。それ以降は各提携施設のキャンセルポリシーに従います。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <h3>利用できる地域は限られていますか？</h3>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>現在は首都圏・関西圏を中心にサービスを展開しています。順次全国に拡大予定です。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <h3>ギフトを受け取った人の個人情報は保護されますか？</h3>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>はい。個人情報保護法に基づき、厳重に管理しています。利用時に必要最小限の情報のみを提携施設と共有します。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CTA -->
+                <section class="service-cta">
+                    <div class="cta-content">
+                        <h2>今すぐ大切な人に健康を贈りませんか？</h2>
+                        <p>あなたの想いを健康ギフトに込めて、大切な人の笑顔を応援しましょう。</p>
+                        <div class="cta-buttons">
+                            <button class="cta-button primary" onclick="startGiftConsultation()">
+                                ギフト相談を始める
+                            </button>
+                            <button class="cta-button secondary" onclick="showGiftList()">
+                                ギフト一覧を見る
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // FAQ機能
+        function toggleFaq(element) {
+            var faqItem = element.parentElement;
+            var isActive = faqItem.classList.contains('active');
+            
+            // すべてのFAQを閉じる
+            var allFaqItems = document.querySelectorAll('.faq-item');
+            for (var i = 0; i < allFaqItems.length; i++) {
+                allFaqItems[i].classList.remove('active');
+            }
+            
+            // クリックされたFAQが閉じていた場合は開く
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
+        // ナビゲーション関数
+        function goHome() {
+            window.location.href = "../index.html";
+        }
+
+        function showGiftList() {
+            window.location.href = "gift-list.html";
+        }
+
+        function showServiceInfo() {
+            // 既にサービス紹介ページにいる場合は何もしない
+            return;
+        }
+
+        function showAdminLogin() {
+            window.location.href = "admin.html";
+        }
+
+        function startGiftConsultation() {
+            window.location.href = "index.html#consultation";
+        }
+
+        // 初期化
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Service info page loaded successfully");
+        });
+    </script>
+</body>
+</html>
