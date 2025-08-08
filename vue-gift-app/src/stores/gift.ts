@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Gift, GiftOrder, ConsultationAnswers, GiftConsultation } from '@/types'
 import { giftApi, orderApi, consultationApi } from '@/services/api'
-import type { ApiError } from '@/services/api'
+import { ApiError } from '@/services/api'
 
 export const useGiftStore = defineStore('gift', () => {
   // 状態

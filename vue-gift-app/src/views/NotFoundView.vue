@@ -1,15 +1,17 @@
 <template>
-  <div class="about-view">
+  <div class="not-found-view">
     <div class="page-header">
       <div class="container">
-        <h1>ℹ️ サービスについて</h1>
-        <p>GIFTSの詳細情報</p>
+        <h1>404</h1>
+        <p>ページが見つかりません</p>
       </div>
     </div>
 
     <div class="container">
-      <div class="about-content">
-        <p>サービスについてページ（開発中）</p>
+      <div class="not-found-content">
+        <div class="error-icon">🔍</div>
+        <h2>お探しのページが見つかりませんでした</h2>
+        <p>URLが正しいかご確認ください。</p>
         <router-link to="/" class="btn btn-primary">ホームに戻る</router-link>
       </div>
     </div>
@@ -17,11 +19,11 @@
 </template>
 
 <script setup lang="ts">
-// サービスについての実装は後で追加
+// 404ページの実装
 </script>
 
 <style scoped>
-.about-view {
+.not-found-view {
   min-height: 100vh;
   background: #f8f9fa;
 }
@@ -34,7 +36,7 @@
 }
 
 .page-header h1 {
-  font-size: 2.5rem;
+  font-size: 4rem;
   font-weight: 700;
   margin-bottom: 1rem;
 }
@@ -50,13 +52,28 @@
   padding: 0 2rem;
 }
 
-.about-content {
+.not-found-content {
   background: white;
   border-radius: 12px;
   padding: 3rem;
   margin: 2rem 0;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+}
+
+.not-found-content h2 {
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.not-found-content p {
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
 }
 
 .btn {
@@ -89,7 +106,7 @@
   }
   
   .page-header h1 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
   
   .page-header p {
@@ -100,8 +117,12 @@
     padding: 0 1rem;
   }
   
-  .about-content {
+  .not-found-content {
     padding: 2rem;
   }
+  
+  .error-icon {
+    font-size: 3rem;
+  }
 }
-</style>
+</style> 

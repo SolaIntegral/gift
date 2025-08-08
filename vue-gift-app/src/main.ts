@@ -11,4 +11,9 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
+// 認証の初期化
+import { useAuthStore } from '@/stores/auth'
+const authStore = useAuthStore()
+authStore.initialize()
+
 app.mount('#app')

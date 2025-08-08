@@ -5,72 +5,28 @@ import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
-import * as rds from 'aws-cdk-lib/aws-rds'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as iam from 'aws-cdk-lib/aws-iam'
 import * as bedrock from 'aws-cdk-lib/aws-bedrock'
 import { Construct } from 'constructs'
 
-export class GiftAppStack extends cdk.Stack {
+export class GiftAppStackSupabase extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    // VPC作成
-    const vpc = new ec2.Vpc(this, 'GiftAppVPC', {
-      maxAzs: 2,
-      natGateways: 1,
-    })
-
-    // Cognito User Pool作成
-    const userPool = new cognito.UserPool(this, 'GiftAppUserPool', {
-      userPoolName: 'gift-app-users',
-      selfSignUpEnabled: true,
-      signInAliases: {
-        email: true,
-      },
-      standardAttributes: {
-        email: {
-          required: true,
-          mutable: true,
-        },
-        phoneNumber: {
-          required: false,
-          mutable: true,
-        },
-      },
-      customAttributes: {
-        name: new cognito.StringAttribute({
-          mutable: true,
-        }),
-      },
-      passwordPolicy: {
-        minLength: 8,
-        requireLowercase: true,
-        requireUppercase: true,
-        requireDigits: true,
-        requireSymbols: true,
-      },
-      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+    // S3バケット作成（静的ファイルホスティング用）
+    const websiteBucket = new s3.Bucket(this, 'GiftAppWebsiteBucket', {
+      bucketName: 'gift-app-website',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-    })
-
-    // Cognito User Pool Client作成
-    const userPoolClient = new cognito.UserPoolClient(this, 'GiftAppUserPoolClient', {
-      userPool,
-      userPoolClientName: 'gift-app-client',
-      generateSecret: false,
-      authFlows: {
-        adminUserPassword: true,
-        userPassword: true,
-        userSrp: true,
-      },
-      oAuth: {
-        flows: {
-          authorizationCodeGrant: true,
+      autoDeleteObjects: true,
+      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+          allowedOrigins: ['*'],
+          allowedHeaders: ['*'],
         },
-        scopes: [cognito.OAuthScope.EMAIL, cognito.OAuthScope.OPENID, cognito.OAuthScope.PROFILE],
-        callbackUrls: ['http://localhost:3000/callback', 'https://gift-app.com/callback'],
-      },
+      ],
     })
 
     // S3バケット作成（ファイルアップロード用）
@@ -87,33 +43,10 @@ export class GiftAppStack extends cdk.Stack {
       ],
     })
 
-    // Aurora PostgreSQL クラスター作成
-    const dbCluster = new rds.DatabaseCluster(this, 'GiftAppDatabase', {
-      engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_15_4,
-      }),
-      instanceProps: {
-        instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
-        vpc,
-      },
-      instances: 1,
-      vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-      storageEncrypted: true,
-      backup: {
-        retention: cdk.Duration.days(7),
-        preferredWindow: '03:00-04:00',
-      },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    })
-
     // Lambda関数用のIAMロール作成
     const lambdaRole = new iam.Role(this, 'GiftAppLambdaRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
       ],
     })
@@ -133,18 +66,15 @@ export class GiftAppStack extends cdk.Stack {
     // S3権限を追加
     uploadBucket.grantReadWrite(lambdaRole)
 
-    // Lambda関数作成
+    // Lambda関数作成（Supabase使用版）
     const giftRecommendationFunction = new lambda.Function(this, 'GiftRecommendationFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'index.handler',
       code: lambda.Code.fromAsset('lambda/gift-recommendation'),
       role: lambdaRole,
-      vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
       environment: {
-        DB_SECRET_ARN: dbCluster.secret?.secretArn || '',
+        SUPABASE_URL: process.env.SUPABASE_URL || '',
+        SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || '',
         UPLOAD_BUCKET: uploadBucket.bucketName,
         BEDROCK_MODEL_ID: 'anthropic.claude-3-sonnet-20240229-v1:0',
       },
@@ -157,12 +87,9 @@ export class GiftAppStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.fromAsset('lambda/order-management'),
       role: lambdaRole,
-      vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
       environment: {
-        DB_SECRET_ARN: dbCluster.secret?.secretArn || '',
+        SUPABASE_URL: process.env.SUPABASE_URL || '',
+        SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || '',
       },
       timeout: cdk.Duration.seconds(30),
       memorySize: 512,
@@ -174,8 +101,9 @@ export class GiftAppStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/line-webhook'),
       role: lambdaRole,
       environment: {
-        DB_SECRET_ARN: dbCluster.secret?.secretArn || '',
-        LINE_CHANNEL_SECRET: 'your-line-channel-secret',
+        SUPABASE_URL: process.env.SUPABASE_URL || '',
+        SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || '',
+        LINE_CHANNEL_SECRET: process.env.LINE_CHANNEL_SECRET || '',
       },
       timeout: cdk.Duration.seconds(30),
       memorySize: 256,
@@ -212,7 +140,7 @@ export class GiftAppStack extends cdk.Stack {
     // CloudFront Distribution作成（フロントエンド用）
     const distribution = new cloudfront.Distribution(this, 'GiftAppDistribution', {
       defaultBehavior: {
-        origin: new origins.S3Origin(uploadBucket),
+        origin: new origins.S3Origin(websiteBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
@@ -225,25 +153,35 @@ export class GiftAppStack extends cdk.Stack {
       },
     })
 
+    // S3バケットポリシー（CloudFrontからのアクセスのみ許可）
+    websiteBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
+        actions: ['s3:GetObject'],
+        resources: [websiteBucket.arnForObjects('*')],
+        conditions: {
+          StringEquals: {
+            'AWS:SourceArn': distribution.distributionArn,
+          },
+        },
+      })
+    )
+
     // 出力値
-    new cdk.CfnOutput(this, 'UserPoolId', {
-      value: userPool.userPoolId,
-      description: 'Cognito User Pool ID',
-    })
-
-    new cdk.CfnOutput(this, 'UserPoolClientId', {
-      value: userPoolClient.userPoolClientId,
-      description: 'Cognito User Pool Client ID',
-    })
-
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: api.url,
       description: 'API Gateway URL',
     })
 
     new cdk.CfnOutput(this, 'DistributionUrl', {
-      value: distribution.distributionDomainName,
+      value: `https://${distribution.distributionDomainName}`,
       description: 'CloudFront Distribution URL',
+    })
+
+    new cdk.CfnOutput(this, 'WebsiteBucketName', {
+      value: websiteBucket.bucketName,
+      description: 'S3 Website Bucket Name',
     })
 
     new cdk.CfnOutput(this, 'UploadBucketName', {

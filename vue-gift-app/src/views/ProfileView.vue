@@ -1,15 +1,15 @@
 <template>
-  <div class="about-view">
+  <div class="profile-view">
     <div class="page-header">
       <div class="container">
-        <h1>ℹ️ サービスについて</h1>
-        <p>GIFTSの詳細情報</p>
+        <h1>👤 プロフィール</h1>
+        <p>アカウント情報の管理</p>
       </div>
     </div>
 
     <div class="container">
-      <div class="about-content">
-        <p>サービスについてページ（開発中）</p>
+      <div class="profile-content">
+        <p>プロフィールページ（開発中）</p>
         <router-link to="/" class="btn btn-primary">ホームに戻る</router-link>
       </div>
     </div>
@@ -17,11 +17,11 @@
 </template>
 
 <script setup lang="ts">
-// サービスについての実装は後で追加
+// プロフィール機能の実装は後で追加
 </script>
 
 <style scoped>
-.about-view {
+.profile-view {
   min-height: 100vh;
   background: #f8f9fa;
 }
@@ -50,7 +50,7 @@
   padding: 0 2rem;
 }
 
-.about-content {
+.profile-content {
   background: white;
   border-radius: 12px;
   padding: 3rem;
@@ -100,8 +100,8 @@
     padding: 0 1rem;
   }
   
-  .about-content {
+  .profile-content {
     padding: 2rem;
   }
 }
-</style>
+</style> 

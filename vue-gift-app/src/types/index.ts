@@ -18,6 +18,8 @@ export interface Gift {
   partnerId: string
   status: GiftStatus
   imageUrl?: string
+  icon?: string
+  reason?: string
   createdAt: string
 }
 
@@ -110,18 +112,20 @@ export interface GiftConsultation {
   userId: string
   answers: ConsultationAnswers
   recommendations: Gift[]
+  aiExplanation?: string
   createdAt: string
 }
 
 export interface ConsultationAnswers {
-  age: number
-  gender: 'male' | 'female' | 'other'
+  age: string
+  gender: string
   healthConcerns: string[]
-  budget: BudgetRange
+  budget: string
   relationship?: string
+  occasion?: string
 }
 
-export type BudgetRange = 'low' | 'medium' | 'high' | 'premium'
+export type BudgetRange = '5000-10000' | '10000-20000' | '20000-30000' | '30000-50000' | '50000+'
 
 // LINE連携関連の型定義
 export interface LineEvent {

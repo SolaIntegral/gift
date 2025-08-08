@@ -1,217 +1,198 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { User, AuthTokens, CognitoUser } from '@/types'
-import { userApi } from '@/services/api'
-import type { ApiError } from '@/services/api'
+import { supabase } from '@/services/supabase'
+import type { User } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('auth', () => {
   // 状態
   const user = ref<User | null>(null)
-  const tokens = ref<AuthTokens | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   // 計算プロパティ
-  const isAuthenticated = computed(() => !!user.value && !!tokens.value)
-  const isTokenExpired = computed(() => {
-    if (!tokens.value) return true
-    const now = Date.now()
-    const expiresAt = tokens.value.expiresIn * 1000
-    return now >= expiresAt
-  })
+  const isAuthenticated = computed(() => !!user.value)
+  const isGuest = computed(() => !user.value)
 
-  // アクション
-  const login = async (email: string, password: string) => {
+  // 初期化
+  const initialize = async () => {
     try {
       loading.value = true
-      error.value = null
       
-      // Cognito認証（実際の実装ではAWS Cognitoを使用）
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      // 現在のセッションを取得
+      const { data: { session } } = await supabase.auth.getSession()
+      user.value = session?.user ?? null
+
+      // 認証状態の変更を監視
+      supabase.auth.onAuthStateChange((event, session) => {
+        user.value = session?.user ?? null
       })
-
-      if (!response.ok) {
-        throw new Error('ログインに失敗しました')
-      }
-
-      const authData = await response.json()
-      tokens.value = authData.tokens
-      user.value = authData.user
-
-      // トークンをローカルストレージに保存
-      localStorage.setItem('accessToken', authData.tokens.accessToken)
-      localStorage.setItem('refreshToken', authData.tokens.refreshToken)
-      localStorage.setItem('user', JSON.stringify(authData.user))
-
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'ログインに失敗しました'
-      console.error('Login failed:', err)
-      throw err
+      console.error('Auth initialization error:', err)
+      error.value = '認証の初期化に失敗しました'
     } finally {
       loading.value = false
     }
   }
 
-  const register = async (userData: {
-    email: string
-    password: string
-    name: string
-    phone?: string
-  }) => {
+  // サインアップ
+  const signUp = async (email: string, password: string, name: string) => {
     try {
       loading.value = true
       error.value = null
-      
-      // Cognito登録（実際の実装ではAWS Cognitoを使用）
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
 
-      if (!response.ok) {
-        throw new Error('登録に失敗しました')
-      }
-
-      const authData = await response.json()
-      tokens.value = authData.tokens
-      user.value = authData.user
-
-      // トークンをローカルストレージに保存
-      localStorage.setItem('accessToken', authData.tokens.accessToken)
-      localStorage.setItem('refreshToken', authData.tokens.refreshToken)
-      localStorage.setItem('user', JSON.stringify(authData.user))
-
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : '登録に失敗しました'
-      console.error('Registration failed:', err)
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const logout = () => {
-    user.value = null
-    tokens.value = null
-    
-    // ローカルストレージから削除
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-  }
-
-  const refreshToken = async () => {
-    try {
-      const refreshTokenValue = localStorage.getItem('refreshToken')
-      if (!refreshTokenValue) {
-        throw new Error('リフレッシュトークンがありません')
-      }
-
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refreshToken: refreshTokenValue }),
-      })
-
-      if (!response.ok) {
-        throw new Error('トークンの更新に失敗しました')
-      }
-
-      const authData = await response.json()
-      tokens.value = authData.tokens
-
-      // 新しいトークンをローカルストレージに保存
-      localStorage.setItem('accessToken', authData.tokens.accessToken)
-      localStorage.setItem('refreshToken', authData.tokens.refreshToken)
-
-    } catch (err) {
-      console.error('Token refresh failed:', err)
-      logout()
-      throw err
-    }
-  }
-
-  const fetchProfile = async () => {
-    try {
-      loading.value = true
-      error.value = null
-      const response = await userApi.getProfile()
-      if (response.success && response.data) {
-        user.value = response.data
-        localStorage.setItem('user', JSON.stringify(response.data))
-      }
-    } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'プロフィールの取得に失敗しました'
-      console.error('Failed to fetch profile:', err)
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const updateProfile = async (userData: Partial<User>) => {
-    try {
-      loading.value = true
-      error.value = null
-      const response = await userApi.updateProfile(userData)
-      if (response.success && response.data) {
-        user.value = response.data
-        localStorage.setItem('user', JSON.stringify(response.data))
-      }
-    } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'プロフィールの更新に失敗しました'
-      console.error('Failed to update profile:', err)
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const deleteAccount = async () => {
-    try {
-      loading.value = true
-      error.value = null
-      await userApi.deleteAccount()
-      logout()
-    } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'アカウントの削除に失敗しました'
-      console.error('Failed to delete account:', err)
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const initializeAuth = () => {
-    // ローカルストレージから認証情報を復元
-    const accessToken = localStorage.getItem('accessToken')
-    const refreshToken = localStorage.getItem('refreshToken')
-    const userData = localStorage.getItem('user')
-
-    if (accessToken && refreshToken && userData) {
-      try {
-        tokens.value = {
-          accessToken,
-          refreshToken,
-          expiresIn: Date.now() + 3600000, // 1時間後（実際はJWTから取得）
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name
+          }
         }
-        user.value = JSON.parse(userData)
-      } catch (err) {
-        console.error('Failed to restore auth state:', err)
-        logout()
+      })
+
+      if (signUpError) throw signUpError
+
+      if (data.user) {
+        // ユーザープロフィールを作成
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            email: data.user.email!,
+            name: name
+          })
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+        }
       }
+
+      return { success: true, data }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'サインアップに失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
     }
   }
 
+  // サインイン
+  const signIn = async (email: string, password: string) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (signInError) throw signInError
+
+      user.value = data.user
+      return { success: true, data }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'サインインに失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // サインアウト
+  const signOut = async () => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const { error: signOutError } = await supabase.auth.signOut()
+      if (signOutError) throw signOutError
+
+      user.value = null
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'サインアウトに失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // パスワードリセット
+  const resetPassword = async (email: string) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+
+      if (resetError) throw resetError
+
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'パスワードリセットに失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // パスワード更新
+  const updatePassword = async (newPassword: string) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (updateError) throw updateError
+
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'パスワード更新に失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // プロフィール更新
+  const updateProfile = async (updates: { name?: string; phone?: string }) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      if (!user.value) {
+        throw new Error('ユーザーが認証されていません')
+      }
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', user.value.id)
+
+      if (updateError) throw updateError
+
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'プロフィール更新に失敗しました'
+      error.value = errorMessage
+      return { success: false, error: errorMessage }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // エラークリア
   const clearError = () => {
     error.value = null
   }
@@ -219,23 +200,21 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // 状態
     user,
-    tokens,
     loading,
     error,
     
     // 計算プロパティ
     isAuthenticated,
-    isTokenExpired,
+    isGuest,
     
     // アクション
-    login,
-    register,
-    logout,
-    refreshToken,
-    fetchProfile,
+    initialize,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    updatePassword,
     updateProfile,
-    deleteAccount,
-    initializeAuth,
     clearError,
   }
 }) 

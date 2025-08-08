@@ -1,16 +1,20 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { Client } from 'pg'
+import { createClient } from '@supabase/supabase-js'
 
 const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' })
-const secretsManager = new SecretsManagerClient({ region: process.env.AWS_REGION })
+
+// Supabaseクライアント
+const supabaseUrl = process.env.SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 interface ConsultationAnswers {
-  age: number
-  gender: 'male' | 'female' | 'other'
+  age: string
+  gender: string
   healthConcerns: string[]
-  budget: 'low' | 'medium' | 'high' | 'premium'
+  budget: string
   relationship?: string
+  occasion?: string
 }
 
 interface Gift {
@@ -19,7 +23,7 @@ interface Gift {
   description: string
   price: number
   category: string
-  partnerId: string
+  partnerId?: string
   status: string
   imageUrl?: string
   createdAt: string
@@ -32,26 +36,6 @@ interface ApiResponse<T> {
   timestamp: string
 }
 
-// データベース接続
-async function getDbClient() {
-  const secretResponse = await secretsManager.send(
-    new GetSecretValueCommand({
-      SecretId: process.env.DB_SECRET_ARN,
-    })
-  )
-
-  const dbCredentials = JSON.parse(secretResponse.SecretString || '{}')
-  
-  return new Client({
-    host: dbCredentials.host,
-    port: dbCredentials.port,
-    database: dbCredentials.dbname,
-    user: dbCredentials.username,
-    password: dbCredentials.password,
-    ssl: { rejectUnauthorized: false },
-  })
-}
-
 // AI推薦生成
 async function generateAIRecommendations(answers: ConsultationAnswers): Promise<string> {
   const prompt = `
@@ -62,6 +46,7 @@ async function generateAIRecommendations(answers: ConsultationAnswers): Promise<
     健康関心事: ${answers.healthConcerns.join(', ')}
     予算: ${answers.budget}
     関係性: ${answers.relationship || '未指定'}
+    贈る機会: ${answers.occasion || '未指定'}
     
     各ギフトについて以下の形式で回答してください：
     1. ギフト名
@@ -89,76 +74,66 @@ async function generateAIRecommendations(answers: ConsultationAnswers): Promise<
   return result.completion
 }
 
-// データベースからギフト取得
+// Supabaseからギフト取得
 async function getGiftsFromDatabase(answers: ConsultationAnswers): Promise<Gift[]> {
-  const client = await getDbClient()
-  
   try {
-    await client.connect()
-    
     // 予算に基づく価格範囲を設定
-    const budgetRanges = {
-      low: { min: 0, max: 5000 },
-      medium: { min: 5000, max: 15000 },
-      high: { min: 15000, max: 50000 },
-      premium: { min: 50000, max: 999999 },
+    const budgetRanges: Record<string, { min: number; max: number }> = {
+      '5000-10000': { min: 5000, max: 10000 },
+      '10000-20000': { min: 10000, max: 20000 },
+      '20000-30000': { min: 20000, max: 30000 },
+      '30000-50000': { min: 30000, max: 50000 },
+      '50000+': { min: 50000, max: 999999 },
     }
     
-    const range = budgetRanges[answers.budget]
+    const range = budgetRanges[answers.budget] || { min: 0, max: 999999 }
     
-    const query = `
-      SELECT id, name, description, price, category, partner_id, status, image_url, created_at
-      FROM gifts 
-      WHERE status = 'active' 
-        AND price BETWEEN $1 AND $2
-        AND category IN (
-          SELECT DISTINCT category 
-          FROM gifts 
-          WHERE status = 'active'
-        )
-      ORDER BY price ASC
-      LIMIT 10
-    `
-    
-    const result = await client.query(query, [range.min, range.max])
-    return result.rows.map(row => ({
-      id: row.id,
-      name: row.name,
-      description: row.description,
-      price: row.price,
-      category: row.category,
-      partnerId: row.partner_id,
-      status: row.status,
-      imageUrl: row.image_url,
-      createdAt: row.created_at,
+    const { data, error } = await supabase
+      .from('gifts')
+      .select('*')
+      .eq('status', 'active')
+      .gte('price', range.min)
+      .lte('price', range.max)
+      .order('price', { ascending: true })
+      .limit(10)
+
+    if (error) throw error
+
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category: item.category,
+      partnerId: item.partner_id,
+      status: item.status,
+      imageUrl: item.image_url,
+      createdAt: item.created_at,
     }))
-  } finally {
-    await client.end()
+  } catch (error) {
+    console.error('Database error:', error)
+    return []
   }
 }
 
 // 相談履歴保存
 async function saveConsultation(userId: string, answers: ConsultationAnswers, recommendations: Gift[]) {
-  const client = await getDbClient()
-  
   try {
-    await client.connect()
-    
-    const query = `
-      INSERT INTO consultations (user_id, answers, recommendations, created_at)
-      VALUES ($1, $2, $3, NOW())
-      RETURNING id
-    `
-    
-    const result = await client.query(query, [
-      userId,
-      JSON.stringify(answers),
-      JSON.stringify(recommendations),
-    ])
-    
-    return result.rows[0].id
-  } finally {
-    await client.end()
+    const { data, error } = await supabase
+      .from('consultations')
+      .insert({
+        user_id: userId,
+        answers: answers,
+        recommendations: recommendations
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data.id
+  } catch (error) {
+    console.error('Save consultation error:', error)
+    throw error
   }
 }
 
