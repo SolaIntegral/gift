@@ -12,6 +12,7 @@ import { supabase } from './supabase'
 
 // API設定
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+const AWS_API_GATEWAY_URL = import.meta.env.VITE_AWS_API_GATEWAY_URL
 
 // 開発環境かどうかを判定
 const isDevelopment = import.meta.env.DEV
@@ -20,57 +21,57 @@ const isDevelopment = import.meta.env.DEV
 const mockGifts: Gift[] = [
   {
     id: '1',
-    name: '健康管理アプリ',
-    description: '日々の健康状態を記録・管理できるアプリ',
-    price: 3000,
+    name: '総合健康診断パック',
+    description: '詳細な血液検査から画像診断まで、総合的な健康状態をチェックできます。',
+    price: 15400,
     category: 'health_checkup',
     partnerId: 'partner-1',
     status: 'active',
-    imageUrl: '/images/health-app.jpg',
+    imageUrl: '/images/health-checkup.jpg',
     createdAt: new Date().toISOString()
   },
   {
     id: '2',
-    name: 'フィットネストラッカー',
-    description: '歩数、心拍数、睡眠を記録するスマートウォッチ',
-    price: 15000,
+    name: 'パーソナルフィットネス体験',
+    description: 'プロのトレーナーによる個別指導で、効率的な運動習慣を身につけます。',
+    price: 12100,
     category: 'fitness',
     partnerId: 'partner-2',
     status: 'active',
-    imageUrl: '/images/fitness-tracker.jpg',
+    imageUrl: '/images/fitness-training.jpg',
     createdAt: new Date().toISOString()
   },
   {
     id: '3',
-    name: '栄養サプリメントセット',
-    description: 'ビタミン・ミネラルがバランス良く配合されたサプリ',
-    price: 5000,
-    category: 'nutrition',
+    name: 'ウェルネス相談セッション',
+    description: '専門家による健康相談で、あなたに最適な健康管理プランを作成します。',
+    price: 6600,
+    category: 'wellness',
     partnerId: 'partner-3',
     status: 'active',
-    imageUrl: '/images/supplements.jpg',
+    imageUrl: '/images/wellness-consultation.jpg',
     createdAt: new Date().toISOString()
   },
   {
     id: '4',
-    name: 'ヨガマット',
-    description: '滑り止め加工された高品質なヨガマット',
-    price: 8000,
+    name: 'ヨガ・ピラティス体験',
+    description: '心身のバランスを整えるヨガ・ピラティスを体験できます。',
+    price: 8800,
     category: 'fitness',
     partnerId: 'partner-4',
     status: 'active',
-    imageUrl: '/images/yoga-mat.jpg',
+    imageUrl: '/images/yoga-pilates.jpg',
     createdAt: new Date().toISOString()
   },
   {
     id: '5',
-    name: '有機緑茶セット',
-    description: '抗酸化作用のある有機栽培の緑茶',
-    price: 4000,
+    name: '栄養カウンセリング',
+    description: '管理栄養士による個別栄養相談で、健康的な食生活をサポートします。',
+    price: 5500,
     category: 'nutrition',
     partnerId: 'partner-5',
     status: 'active',
-    imageUrl: '/images/green-tea.jpg',
+    imageUrl: '/images/nutrition-counseling.jpg',
     createdAt: new Date().toISOString()
   }
 ]
@@ -88,6 +89,155 @@ export class ApiError extends Error {
   }
 }
 
+// AWS Lambda APIクライアント
+class AwsLambdaApiClient {
+  private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const url = `${AWS_API_GATEWAY_URL}${endpoint}`
+    
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
+
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        'API_ERROR',
+        `API request failed: ${response.statusText}`
+      )
+    }
+
+    return response.json()
+  }
+
+  // ギフト一覧取得
+  async getGifts(): Promise<ApiResponse<Gift[]>> {
+    try {
+      const response = await this.makeRequest('/gifts')
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
+    }
+  }
+
+  // ギフト詳細取得
+  async getGift(id: string): Promise<ApiResponse<Gift>> {
+    try {
+      const response = await this.makeRequest(`/gifts/${id}`)
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
+    }
+  }
+
+  // カテゴリ別ギフト取得
+  async getGiftsByCategory(category: string): Promise<ApiResponse<Gift[]>> {
+    try {
+      const response = await this.makeRequest(`/gifts?category=${category}`)
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
+    }
+  }
+
+  // ギフト検索
+  async searchGifts(query: string): Promise<ApiResponse<Gift[]>> {
+    try {
+      const response = await this.makeRequest(`/gifts/search?q=${encodeURIComponent(query)}`)
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの検索に失敗しました')
+    }
+  }
+
+  // 注文作成
+  async createOrder(orderData: {
+    giftId: string
+    recipientName: string
+    recipientEmail: string
+    message?: string
+  }): Promise<ApiResponse<GiftOrder>> {
+    try {
+      const response = await this.makeRequest('/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
+      })
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'CREATE_ERROR', '注文の作成に失敗しました')
+    }
+  }
+
+  // 注文一覧取得
+  async getOrders(): Promise<ApiResponse<GiftOrder[]>> {
+    try {
+      const response = await this.makeRequest('/orders')
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', '注文の取得に失敗しました')
+    }
+  }
+
+  // 注文詳細取得
+  async getOrder(id: string): Promise<ApiResponse<GiftOrder>> {
+    try {
+      const response = await this.makeRequest(`/orders/${id}`)
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', '注文の取得に失敗しました')
+    }
+  }
+
+  // 注文キャンセル
+  async cancelOrder(id: string): Promise<ApiResponse<void>> {
+    try {
+      const response = await this.makeRequest(`/orders/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'cancelled' }),
+      })
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'UPDATE_ERROR', '注文のキャンセルに失敗しました')
+    }
+  }
+
+  // ギフト相談開始
+  async startConsultation(answers: ConsultationAnswers): Promise<ApiResponse<GiftConsultation>> {
+    try {
+      const response = await this.makeRequest('/consultation', {
+        method: 'POST',
+        body: JSON.stringify({ answers }),
+      })
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'CONSULTATION_ERROR', 'ギフト相談の開始に失敗しました')
+    }
+  }
+
+  // 相談履歴取得
+  async getConsultations(): Promise<ApiResponse<GiftConsultation[]>> {
+    try {
+      const response = await this.makeRequest('/consultations')
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', '相談履歴の取得に失敗しました')
+    }
+  }
+
+  // 相談詳細取得
+  async getConsultation(id: string): Promise<ApiResponse<GiftConsultation>> {
+    try {
+      const response = await this.makeRequest(`/consultations/${id}`)
+      return response
+    } catch (error) {
+      throw new ApiError(500, 'FETCH_ERROR', '相談の取得に失敗しました')
+    }
+  }
+}
+
 // Supabase APIクライアント
 class SupabaseApiClient {
   // ギフト一覧取得
@@ -101,31 +251,23 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const gifts: Gift[] = data.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        imageUrl: item.image_url || '',
-        rating: 4.0, // デフォルト値
-        reviews: 0, // デフォルト値
-        inStock: true
-      }))
-
       return {
         success: true,
-        data: gifts,
-        timestamp: new Date().toISOString()
+        data: data.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          category: item.category,
+          partnerId: item.partner_id,
+          status: item.status,
+          imageUrl: item.image_url,
+          createdAt: item.created_at,
+        })),
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ギフトの取得に失敗しました',
-        data: [],
-        timestamp: new Date().toISOString()
-      }
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
     }
   }
 
@@ -140,29 +282,23 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const gift: Gift = {
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        price: data.price,
-        category: data.category,
-        imageUrl: data.image_url || '',
-        rating: 4.0,
-        reviews: 0,
-        inStock: true
-      }
-
       return {
         success: true,
-        data: gift,
-        message: 'ギフト詳細を取得しました'
+        data: {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          category: data.category,
+          partnerId: data.partner_id,
+          status: data.status,
+          imageUrl: data.image_url,
+          createdAt: data.created_at,
+        },
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ギフトの取得に失敗しました'
-      }
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
     }
   }
 
@@ -178,30 +314,23 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const gifts: Gift[] = data.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        imageUrl: item.image_url || '',
-        rating: 4.0,
-        reviews: 0,
-        inStock: true
-      }))
-
       return {
         success: true,
-        data: gifts,
-        message: 'カテゴリ別ギフトを取得しました'
+        data: data.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          category: item.category,
+          partnerId: item.partner_id,
+          status: item.status,
+          imageUrl: item.image_url,
+          createdAt: item.created_at,
+        })),
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ギフトの取得に失敗しました',
-        data: []
-      }
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの取得に失敗しました')
     }
   }
 
@@ -217,30 +346,23 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const gifts: Gift[] = data.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        imageUrl: item.image_url || '',
-        rating: 4.0,
-        reviews: 0,
-        inStock: true
-      }))
-
       return {
         success: true,
-        data: gifts,
-        message: '検索結果を取得しました'
+        data: data.map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          category: item.category,
+          partnerId: item.partner_id,
+          status: item.status,
+          imageUrl: item.image_url,
+          createdAt: item.created_at,
+        })),
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ギフトの検索に失敗しました',
-        data: []
-      }
+      throw new ApiError(500, 'FETCH_ERROR', 'ギフトの検索に失敗しました')
     }
   }
 
@@ -252,13 +374,8 @@ class SupabaseApiClient {
     message?: string
   }): Promise<ApiResponse<GiftOrder>> {
     try {
-      // 現在のユーザーを取得（認証が必要）
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
-
-      const giftUrl = `https://gift-app.com/gift/${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      if (!user) throw new Error('ユーザーが認証されていません')
 
       const { data, error } = await supabase
         .from('gift_orders')
@@ -268,40 +385,33 @@ class SupabaseApiClient {
           recipient_name: orderData.recipientName,
           recipient_email: orderData.recipientEmail,
           message: orderData.message,
-          gift_url: giftUrl,
           status: 'pending',
-          payment_status: 'pending'
+          payment_status: 'pending',
         })
         .select()
         .single()
 
       if (error) throw error
 
-      const order: GiftOrder = {
-        id: data.id,
-        giftId: data.gift_id,
-        gifterId: data.gifter_id,
-        recipientName: data.recipient_name,
-        recipientEmail: data.recipient_email,
-        message: data.message,
-        giftUrl: data.gift_url,
-        status: data.status,
-        paymentStatus: data.payment_status,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
-      }
-
       return {
         success: true,
-        data: order,
-        message: '注文を作成しました'
+        data: {
+          id: data.id,
+          gifterId: data.gifter_id,
+          giftId: data.gift_id,
+          recipientName: data.recipient_name,
+          recipientEmail: data.recipient_email,
+          message: data.message,
+          giftUrl: data.gift_url,
+          status: data.status,
+          paymentStatus: data.payment_status,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        },
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: '注文の作成に失敗しました'
-      }
+      throw new ApiError(500, 'CREATE_ERROR', '注文の作成に失敗しました')
     }
   }
 
@@ -309,9 +419,7 @@ class SupabaseApiClient {
   async getOrders(): Promise<ApiResponse<GiftOrder[]>> {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
+      if (!user) throw new Error('ユーザーが認証されていません')
 
       const { data, error } = await supabase
         .from('gift_orders')
@@ -321,107 +429,84 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const orders: GiftOrder[] = data.map(item => ({
-        id: item.id,
-        giftId: item.gift_id,
-        gifterId: item.gifter_id,
-        recipientName: item.recipient_name,
-        recipientEmail: item.recipient_email,
-        message: item.message,
-        giftUrl: item.gift_url,
-        status: item.status,
-        paymentStatus: item.payment_status,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
-      }))
-
       return {
         success: true,
-        data: orders,
-        message: '注文一覧を取得しました'
+        data: data.map(item => ({
+          id: item.id,
+          gifterId: item.gifter_id,
+          giftId: item.gift_id,
+          recipientName: item.recipient_name,
+          recipientEmail: item.recipient_email,
+          message: item.message,
+          giftUrl: item.gift_url,
+          status: item.status,
+          paymentStatus: item.payment_status,
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        })),
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: '注文の取得に失敗しました',
-        data: []
-      }
+      throw new ApiError(500, 'FETCH_ERROR', '注文の取得に失敗しました')
     }
   }
 
   // 注文キャンセル
   async cancelOrder(id: string): Promise<ApiResponse<void>> {
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('ユーザーが認証されていません')
+
       const { error } = await supabase
         .from('gift_orders')
         .update({ status: 'cancelled' })
         .eq('id', id)
+        .eq('gifter_id', user.id)
 
       if (error) throw error
 
       return {
         success: true,
-        message: '注文をキャンセルしました'
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: '注文のキャンセルに失敗しました'
-      }
+      throw new ApiError(500, 'UPDATE_ERROR', '注文のキャンセルに失敗しました')
     }
   }
 
-  // 相談開始
+  // ギフト相談開始
   async startConsultation(answers: ConsultationAnswers): Promise<ApiResponse<GiftConsultation>> {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
-
-      // ギフト推薦を生成（簡易版）
-      const recommendations = mockGifts.slice(0, 3).map(gift => ({
-        id: gift.id,
-        name: gift.name,
-        description: gift.description,
-        price: gift.price,
-        category: gift.category,
-        reason: `${gift.category}カテゴリで人気の商品です`
-      }))
+      if (!user) throw new Error('ユーザーが認証されていません')
 
       const { data, error } = await supabase
         .from('consultations')
         .insert({
           user_id: user.id,
           answers: answers,
-          recommendations: recommendations
+          status: 'completed',
         })
         .select()
         .single()
 
       if (error) throw error
 
-      const consultation: GiftConsultation = {
-        id: data.id,
-        userId: data.user_id,
-        answers: data.answers,
-        recommendations: data.recommendations,
-        createdAt: data.created_at
-      }
-
       return {
         success: true,
-        data: consultation,
-        message: '相談が完了しました'
+        data: {
+          id: data.id,
+          userId: data.user_id,
+          answers: data.answers,
+          recommendations: data.recommendations || [],
+          aiExplanation: data.ai_explanation,
+          status: data.status,
+          createdAt: data.created_at,
+        },
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: '相談の開始に失敗しました'
-      }
+      throw new ApiError(500, 'CONSULTATION_ERROR', 'ギフト相談の開始に失敗しました')
     }
   }
 
@@ -429,9 +514,7 @@ class SupabaseApiClient {
   async getConsultations(): Promise<ApiResponse<GiftConsultation[]>> {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
+      if (!user) throw new Error('ユーザーが認証されていません')
 
       const { data, error } = await supabase
         .from('consultations')
@@ -441,295 +524,306 @@ class SupabaseApiClient {
 
       if (error) throw error
 
-      const consultations: GiftConsultation[] = data.map(item => ({
-        id: item.id,
-        userId: item.user_id,
-        answers: item.answers,
-        recommendations: item.recommendations,
-        createdAt: item.created_at
-      }))
-
       return {
         success: true,
-        data: consultations,
-        message: '相談履歴を取得しました'
+        data: data.map(item => ({
+          id: item.id,
+          userId: item.user_id,
+          answers: item.answers,
+          recommendations: item.recommendations || [],
+          aiExplanation: item.ai_explanation,
+          status: item.status,
+          createdAt: item.created_at,
+        })),
+        timestamp: new Date().toISOString(),
       }
     } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: '相談履歴の取得に失敗しました',
-        data: []
-      }
+      throw new ApiError(500, 'FETCH_ERROR', '相談履歴の取得に失敗しました')
     }
   }
 }
 
-// 開発環境ではモッククライアント、本番環境ではSupabaseクライアントを使用
-const client = isDevelopment ? new SupabaseApiClient() : new SupabaseApiClient()
-
-// ギフト関連API
-export const giftApi = {
-  // ギフト一覧取得
+// モックAPIクライアント
+class MockApiClient {
   async getGifts(): Promise<ApiResponse<Gift[]>> {
-    return client.getGifts()
-  },
-
-  // ギフト詳細取得
-  async getGift(id: string): Promise<ApiResponse<Gift>> {
-    return client.getGift(id)
-  },
-
-  // カテゴリ別ギフト取得
-  async getGiftsByCategory(category: string): Promise<ApiResponse<Gift[]>> {
-    return client.getGiftsByCategory(category)
-  },
-
-  // ギフト検索
-  async searchGifts(query: string): Promise<ApiResponse<Gift[]>> {
-    return client.searchGifts(query)
+    return {
+      success: true,
+      data: mockGifts,
+      timestamp: new Date().toISOString(),
+    }
   }
-}
 
-// ギフト注文関連API
-export const orderApi = {
-  // 注文作成
+  async getGift(id: string): Promise<ApiResponse<Gift>> {
+    const gift = mockGifts.find(g => g.id === id)
+    if (!gift) {
+      throw new ApiError(404, 'NOT_FOUND', 'ギフトが見つかりません')
+    }
+    return {
+      success: true,
+      data: gift,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  async getGiftsByCategory(category: string): Promise<ApiResponse<Gift[]>> {
+    const gifts = mockGifts.filter(g => g.category === category)
+    return {
+      success: true,
+      data: gifts,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  async searchGifts(query: string): Promise<ApiResponse<Gift[]>> {
+    const gifts = mockGifts.filter(g => 
+      g.name.toLowerCase().includes(query.toLowerCase()) ||
+      g.description.toLowerCase().includes(query.toLowerCase())
+    )
+    return {
+      success: true,
+      data: gifts,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
   async createOrder(orderData: {
     giftId: string
     recipientName: string
     recipientEmail: string
     message?: string
   }): Promise<ApiResponse<GiftOrder>> {
-    return client.createOrder(orderData)
-  },
+    const gift = mockGifts.find(g => g.id === orderData.giftId)
+    if (!gift) {
+      throw new ApiError(404, 'NOT_FOUND', 'ギフトが見つかりません')
+    }
 
-  // 注文一覧取得
+    const order: GiftOrder = {
+      id: `order_${Date.now()}`,
+      gifterId: 'mock-user-id',
+      giftId: orderData.giftId,
+      recipientName: orderData.recipientName,
+      recipientEmail: orderData.recipientEmail,
+      message: orderData.message,
+      giftUrl: `${window.location.origin}/gift/${Date.now()}`,
+      status: 'pending',
+      paymentStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    return {
+      success: true,
+      data: order,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
   async getOrders(): Promise<ApiResponse<GiftOrder[]>> {
-    return client.getOrders()
-  },
+    return {
+      success: true,
+      data: [],
+      timestamp: new Date().toISOString(),
+    }
+  }
 
-  // 注文詳細取得
   async getOrder(id: string): Promise<ApiResponse<GiftOrder>> {
-    // 実装予定
-    return {
-      success: false,
-      error: '未実装'
-    }
-  },
+    throw new ApiError(404, 'NOT_FOUND', '注文が見つかりません')
+  }
 
-  // 注文キャンセル
   async cancelOrder(id: string): Promise<ApiResponse<void>> {
-    return client.cancelOrder(id)
-  }
-}
-
-// ギフト相談関連API
-export const consultationApi = {
-  // 相談開始
-  async startConsultation(answers: ConsultationAnswers): Promise<ApiResponse<GiftConsultation>> {
-    return client.startConsultation(answers)
-  },
-
-  // 相談履歴取得
-  async getConsultations(): Promise<ApiResponse<GiftConsultation[]>> {
-    return client.getConsultations()
-  },
-
-  // 相談詳細取得
-  async getConsultation(id: string): Promise<ApiResponse<GiftConsultation>> {
-    // 実装予定
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
   }
-}
 
-// 決済関連API
-export const paymentApi = {
-  // 決済意図作成
+  async startConsultation(answers: ConsultationAnswers): Promise<ApiResponse<GiftConsultation>> {
+    const consultation: GiftConsultation = {
+      id: `consultation_${Date.now()}`,
+      userId: 'mock-user-id',
+      answers,
+      recommendations: mockGifts.slice(0, 3),
+      aiExplanation: 'AIが分析した結果、健康診断とフィットネス体験をおすすめします。',
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+    }
+
+    return {
+      success: true,
+      data: consultation,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  async getConsultations(): Promise<ApiResponse<GiftConsultation[]>> {
+    return {
+      success: true,
+      data: [],
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  async getConsultation(id: string): Promise<ApiResponse<GiftConsultation>> {
+    throw new ApiError(404, 'NOT_FOUND', '相談が見つかりません')
+  }
+
   async createPaymentIntent(orderId: string): Promise<ApiResponse<PaymentIntent>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      data: {
+        id: `pi_${Date.now()}`,
+        orderId,
+        amount: 15400,
+        status: 'requires_payment_method',
+        clientSecret: 'pi_secret_mock',
+      },
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // 決済確認
   async confirmPayment(paymentIntentId: string): Promise<ApiResponse<void>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // 決済履歴取得
   async getPaymentHistory(): Promise<ApiResponse<PaymentIntent[]>> {
     return {
-      success: false,
-      error: '未実装',
-      data: []
+      success: true,
+      data: [],
+      timestamp: new Date().toISOString(),
     }
   }
-}
 
-// ユーザー関連API
-export const userApi = {
-  // ユーザー情報取得
   async getProfile(): Promise<ApiResponse<User>> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      if (error) throw error
-
-      const userProfile: User = {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        phone: data.phone
-      }
-
-      return {
-        success: true,
-        data: userProfile,
-        message: 'ユーザー情報を取得しました'
-      }
-    } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ユーザー情報の取得に失敗しました'
-      }
+    return {
+      success: true,
+      data: {
+        id: 'mock-user-id',
+        email: 'mock@example.com',
+        name: 'モックユーザー',
+        phone: null,
+        lineUserId: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // ユーザー情報更新
   async updateProfile(userData: Partial<User>): Promise<ApiResponse<User>> {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        throw new Error('認証が必要です')
-      }
-
-      const { data, error } = await supabase
-        .from('users')
-        .update(userData)
-        .eq('id', user.id)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      const userProfile: User = {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        phone: data.phone
-      }
-
-      return {
-        success: true,
-        data: userProfile,
-        message: 'ユーザー情報を更新しました'
-      }
-    } catch (error) {
-      console.error('Supabase error:', error)
-      return {
-        success: false,
-        error: 'ユーザー情報の更新に失敗しました'
-      }
+    return {
+      success: true,
+      data: {
+        id: 'mock-user-id',
+        email: 'mock@example.com',
+        name: userData.name || 'モックユーザー',
+        phone: userData.phone || null,
+        lineUserId: userData.lineUserId || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // ユーザー削除
   async deleteAccount(): Promise<ApiResponse<void>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
   }
-}
 
-// LINE連携API
-export const lineApi = {
-  // LINE連携開始
   async linkLineAccount(lineCode: string): Promise<ApiResponse<void>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // LINE連携解除
   async unlinkLineAccount(): Promise<ApiResponse<void>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
-  },
+  }
 
-  // LINE通知設定
   async updateLineNotification(settings: {
     enabled: boolean
     types: string[]
   }): Promise<ApiResponse<void>> {
     return {
-      success: false,
-      error: '未実装'
+      success: true,
+      timestamp: new Date().toISOString(),
     }
   }
-}
 
-// ファイルアップロードAPI
-export const uploadApi = {
-  // 画像アップロード
   async uploadImage(file: File): Promise<ApiResponse<{ url: string }>> {
-    try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}.${fileExt}`
-      const filePath = `images/${fileName}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('gift-images')
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      const { data } = supabase.storage
-        .from('gift-images')
-        .getPublicUrl(filePath)
-
-      return {
-        success: true,
-        data: { url: data.publicUrl },
-        message: '画像をアップロードしました'
-      }
-    } catch (error) {
-      console.error('Upload error:', error)
-      return {
-        success: false,
-        error: '画像のアップロードに失敗しました'
-      }
+    return {
+      success: true,
+      data: { url: URL.createObjectURL(file) },
+      timestamp: new Date().toISOString(),
     }
   }
 }
 
-// エクスポート
-export default {
-  gift: giftApi,
-  order: orderApi,
-  consultation: consultationApi,
-  payment: paymentApi,
-  user: userApi,
-  line: lineApi,
-  upload: uploadApi,
+// APIクライアントの選択
+let apiClient: AwsLambdaApiClient | SupabaseApiClient | MockApiClient
+
+if (AWS_API_GATEWAY_URL) {
+  // AWS Lambda APIを使用
+  apiClient = new AwsLambdaApiClient()
+} else if (import.meta.env.VITE_SUPABASE_URL) {
+  // Supabaseを使用
+  apiClient = new SupabaseApiClient()
+} else {
+  // モックデータを使用
+  apiClient = new MockApiClient()
+}
+
+// APIエクスポート
+export const giftApi = {
+  getGifts: () => apiClient.getGifts(),
+  getGift: (id: string) => apiClient.getGift(id),
+  getGiftsByCategory: (category: string) => apiClient.getGiftsByCategory(category),
+  searchGifts: (query: string) => apiClient.searchGifts(query),
+}
+
+export const orderApi = {
+  createOrder: (orderData: {
+    giftId: string
+    recipientName: string
+    recipientEmail: string
+    message?: string
+  }) => apiClient.createOrder(orderData),
+  getOrders: () => apiClient.getOrders(),
+  getOrder: (id: string) => apiClient.getOrder(id),
+  cancelOrder: (id: string) => apiClient.cancelOrder(id),
+}
+
+export const consultationApi = {
+  startConsultation: (answers: ConsultationAnswers) => apiClient.startConsultation(answers),
+  getConsultations: () => apiClient.getConsultations(),
+  getConsultation: (id: string) => apiClient.getConsultation(id),
+}
+
+export const paymentApi = {
+  createPaymentIntent: (orderId: string) => apiClient.createPaymentIntent(orderId),
+  confirmPayment: (paymentIntentId: string) => apiClient.confirmPayment(paymentIntentId),
+  getPaymentHistory: () => apiClient.getPaymentHistory(),
+}
+
+export const userApi = {
+  getProfile: () => apiClient.getProfile(),
+  updateProfile: (userData: Partial<User>) => apiClient.updateProfile(userData),
+  deleteAccount: () => apiClient.deleteAccount(),
+  linkLineAccount: (lineCode: string) => apiClient.linkLineAccount(lineCode),
+  unlinkLineAccount: () => apiClient.unlinkLineAccount(),
+  updateLineNotification: (settings: { enabled: boolean; types: string[] }) => 
+    apiClient.updateLineNotification(settings),
+}
+
+export const fileApi = {
+  uploadImage: (file: File) => apiClient.uploadImage(file),
 } 

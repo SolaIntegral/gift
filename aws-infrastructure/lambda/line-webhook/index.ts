@@ -1,13 +1,18 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
-import { createClient } from '@supabase/supabase-js'
+import mysql from 'mysql2/promise'
 import crypto from 'crypto'
 
 const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' })
 
-// Supabaseクライアント
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// MySQL接続設定
+const dbConfig = {
+  host: process.env.DB_HOST!,
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
+  port: parseInt(process.env.DB_PORT || '3306'),
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+}
 
 // 型定義
 interface LineEvent {
@@ -117,30 +122,37 @@ async function generateChatbotResponse(userMessage: string, userId: string): Pro
 回答:
 `
 
-  const response = await bedrock.send(
-    new InvokeModelCommand({
-      modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
-      contentType: 'application/json',
-      accept: 'application/json',
-      body: JSON.stringify({
-        anthropic_version: 'bedrock-2023-05-31',
-        max_tokens: 500,
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    })
-  )
+  try {
+    const response = await bedrock.send(
+      new InvokeModelCommand({
+        modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
+        contentType: 'application/json',
+        accept: 'application/json',
+        body: JSON.stringify({
+          anthropic_version: 'bedrock-2023-05-31',
+          max_tokens: 500,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      })
+    )
 
-  const responseBody = JSON.parse(new TextDecoder().decode(response.body))
-  return responseBody.content[0].text.trim()
+    const responseBody = JSON.parse(new TextDecoder().decode(response.body))
+    return responseBody.content[0].text.trim()
+  } catch (error) {
+    console.error('Bedrock API error:', error)
+    return '申し訳ございません。現在AIシステムが一時的に利用できません。しばらく時間をおいてから再度お試しください。'
+  }
 }
 
 // ユーザー情報取得・保存
 async function getUserInfo(userId: string): Promise<any> {
+  let connection: mysql.Connection | null = null
+  
   try {
     // LINEユーザー情報取得
     const response = await fetch(`https://api.line.me/v2/bot/profile/${userId}`, {
@@ -156,24 +168,25 @@ async function getUserInfo(userId: string): Promise<any> {
     const profile = await response.json()
     
     // データベースに保存または更新
-    const { data, error } = await supabase
-      .from('users')
-      .upsert({
-        line_user_id: (profile as any).userId,
-        name: (profile as any).displayName,
-        email: `${(profile as any).userId}@line.local`,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'line_user_id'
-      })
-      .select()
-      .single()
+    connection = await mysql.createConnection(dbConfig)
+    
+    const [result] = await connection.execute(
+      `INSERT INTO users (line_user_id, name, email, created_at, updated_at) 
+       VALUES (?, ?, ?, NOW(), NOW())
+       ON DUPLICATE KEY UPDATE 
+       name = VALUES(name), 
+       updated_at = NOW()`,
+      [(profile as any).userId, (profile as any).displayName, `${(profile as any).userId}@line.local`]
+    )
 
-    if (error) throw error
-    return data
+    return { id: (result as any).insertId || userId }
   } catch (error) {
     console.error('Get user info error:', error)
     throw error
+  } finally {
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
@@ -232,23 +245,22 @@ async function handleMessageEvent(event: LineEvent): Promise<void> {
   }
   
   if (userMessage === '注文状況') {
+    let connection: mysql.Connection | null = null
+    
     try {
-      const { data, error } = await supabase
-        .from('gift_orders')
-        .select(`
-          *,
-          gifts (
-            name,
-            price
-          )
-        `)
-        .eq('gifter_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(5)
+      connection = await mysql.createConnection(dbConfig)
+      
+      const [rows] = await connection.execute(
+        `SELECT o.*, g.name as gift_name, g.price as gift_price
+         FROM gift_orders o
+         JOIN gifts g ON o.gift_id = g.id
+         WHERE o.gifter_id = ?
+         ORDER BY o.created_at DESC
+         LIMIT 5`,
+        [userId]
+      )
 
-      if (error) throw error
-
-      if (data.length === 0) {
+      if ((rows as any[]).length === 0) {
         if (event.replyToken) {
           await replyToLine(event.replyToken, [{
             type: 'text',
@@ -256,8 +268,8 @@ async function handleMessageEvent(event: LineEvent): Promise<void> {
           }])
         }
       } else {
-        const orderTexts = data.map((order: any) => 
-          `📦 ${order.gifts.name}\n💰 ${order.gifts.price}円\n📊 状況: ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString('ja-JP')}`
+        const orderTexts = (rows as any[]).map((order: any) => 
+          `📦 ${order.gift_name}\n💰 ${order.gift_price}円\n📊 状況: ${order.status}\n📅 ${new Date(order.created_at).toLocaleDateString('ja-JP')}`
         ).join('\n\n')
         
         if (event.replyToken) {
@@ -274,6 +286,10 @@ async function handleMessageEvent(event: LineEvent): Promise<void> {
           type: 'text',
           text: '注文状況の取得に失敗しました。',
         }])
+      }
+    } finally {
+      if (connection) {
+        await connection.end()
       }
     }
     return

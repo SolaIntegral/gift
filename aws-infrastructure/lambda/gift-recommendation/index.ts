@@ -1,12 +1,17 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
-import { createClient } from '@supabase/supabase-js'
+import mysql from 'mysql2/promise'
 
 const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' })
 
-// Supabaseクライアント
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// MySQL接続設定
+const dbConfig = {
+  host: process.env.DB_HOST!,
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
+  port: parseInt(process.env.DB_PORT || '3306'),
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+}
 
 interface ConsultationAnswers {
   age: string
@@ -36,7 +41,7 @@ interface ApiResponse<T> {
   timestamp: string
 }
 
-// AI推薦生成
+// AI推薦生成（Amazon Bedrock使用）
 async function generateAIRecommendations(answers: ConsultationAnswers): Promise<string> {
   const prompt = `
     以下のユーザープロフィールに基づいて、最適な健康ギフトを3つ推薦してください：
@@ -57,26 +62,35 @@ async function generateAIRecommendations(answers: ConsultationAnswers): Promise<
     回答は日本語で、親しみやすく分かりやすい表現でお願いします。
   `
 
-  const command = new InvokeModelCommand({
-    modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
-    contentType: 'application/json',
-    body: JSON.stringify({
-      prompt: prompt,
-      max_tokens: 1500,
-      temperature: 0.7,
-      top_p: 0.9,
-    }),
-  })
+  try {
+    const command = new InvokeModelCommand({
+      modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
+      contentType: 'application/json',
+      body: JSON.stringify({
+        prompt: prompt,
+        max_tokens: 1500,
+        temperature: 0.7,
+        top_p: 0.9,
+      }),
+    })
 
-  const response = await bedrock.send(command)
-  const result = JSON.parse(new TextDecoder().decode(response.body))
-  
-  return result.completion
+    const response = await bedrock.send(command)
+    const result = JSON.parse(new TextDecoder().decode(response.body))
+    
+    return result.completion || 'AIからの推薦メッセージを生成できませんでした。'
+  } catch (error) {
+    console.error('Bedrock API error:', error)
+    return 'AI推薦システムが一時的に利用できません。専門スタッフが手動でギフトを選択いたします。'
+  }
 }
 
-// Supabaseからギフト取得
+// RDSからギフト取得
 async function getGiftsFromDatabase(answers: ConsultationAnswers): Promise<Gift[]> {
+  let connection: mysql.Connection | null = null
+  
   try {
+    connection = await mysql.createConnection(dbConfig)
+    
     // 予算に基づく価格範囲を設定
     const budgetRanges: Record<string, { min: number; max: number }> = {
       '5000-10000': { min: 5000, max: 10000 },
@@ -88,52 +102,58 @@ async function getGiftsFromDatabase(answers: ConsultationAnswers): Promise<Gift[
     
     const range = budgetRanges[answers.budget] || { min: 0, max: 999999 }
     
-    const { data, error } = await supabase
-      .from('gifts')
-      .select('*')
-      .eq('status', 'active')
-      .gte('price', range.min)
-      .lte('price', range.max)
-      .order('price', { ascending: true })
-      .limit(10)
+    const [rows] = await connection.execute(
+      `SELECT id, name, description, price, category, partner_id, status, image_url, created_at 
+       FROM gifts 
+       WHERE status = 'active' 
+       AND price >= ? AND price <= ? 
+       ORDER BY price ASC 
+       LIMIT 10`,
+      [range.min, range.max]
+    )
 
-    if (error) throw error
-
-    return data.map(item => ({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      category: item.category,
-      partnerId: item.partner_id,
-      status: item.status,
-      imageUrl: item.image_url,
-      createdAt: item.created_at,
+    return (rows as any[]).map(row => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      price: row.price,
+      category: row.category,
+      partnerId: row.partner_id,
+      status: row.status,
+      imageUrl: row.image_url,
+      createdAt: row.created_at,
     }))
   } catch (error) {
     console.error('Database error:', error)
     return []
+  } finally {
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
 // 相談履歴保存
 async function saveConsultation(userId: string, answers: ConsultationAnswers, recommendations: Gift[]) {
+  let connection: mysql.Connection | null = null
+  
   try {
-    const { data, error } = await supabase
-      .from('consultations')
-      .insert({
-        user_id: userId,
-        answers: answers,
-        recommendations: recommendations
-      })
-      .select()
-      .single()
+    connection = await mysql.createConnection(dbConfig)
+    
+    const [result] = await connection.execute(
+      `INSERT INTO consultations (user_id, answers, recommendations, created_at) 
+       VALUES (?, ?, ?, NOW())`,
+      [userId, JSON.stringify(answers), JSON.stringify(recommendations)]
+    )
 
-    if (error) throw error
-    return data.id
+    return (result as any).insertId
   } catch (error) {
     console.error('Save consultation error:', error)
     throw error
+  } finally {
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
@@ -179,7 +199,7 @@ export const handler = async (event: any): Promise<ApiResponse<{
     return {
       success: true,
       data: {
-        consultationId,
+        consultationId: consultationId.toString(),
         recommendations,
         aiExplanation,
       },

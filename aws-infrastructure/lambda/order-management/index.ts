@@ -1,9 +1,17 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
-import { Client } from 'pg'
+import mysql from 'mysql2/promise'
 
 const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' })
-const secretsManager = new SecretsManagerClient({ region: process.env.AWS_REGION })
+
+// MySQL接続設定
+const dbConfig = {
+  host: process.env.DB_HOST!,
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
+  port: parseInt(process.env.DB_PORT || '3306'),
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+}
 
 // 型定義
 interface GiftOrder {
@@ -41,159 +49,195 @@ interface ApiResponse<T> {
   timestamp: string
 }
 
-// データベース接続
-async function getDbClient() {
-  const secretResponse = await secretsManager.send(
-    new GetSecretValueCommand({
-      SecretId: process.env.DB_SECRET_ARN,
-    })
-  )
-  const dbCredentials = JSON.parse(secretResponse.SecretString || '{}')
-  
-  return new Client({
-    host: dbCredentials.host,
-    port: dbCredentials.port,
-    database: dbCredentials.dbname,
-    user: dbCredentials.username,
-    password: dbCredentials.password,
-    ssl: { rejectUnauthorized: false },
-  })
-}
-
 // 注文作成
 async function createOrder(orderData: CreateOrderRequest): Promise<GiftOrder> {
-  const client = await getDbClient()
-  await client.connect()
+  let connection: mysql.Connection | null = null
   
   try {
+    connection = await mysql.createConnection(dbConfig)
+    
     const giftId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const giftUrl = `${process.env.FRONTEND_URL}/gift/${giftId}`
     
-    const query = `
-      INSERT INTO gift_orders (
+    const [result] = await connection.execute(
+      `INSERT INTO gift_orders (
         id, gifter_id, gift_id, recipient_name, recipient_email, 
         message, gift_url, status, payment_status, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
-      RETURNING *
-    `
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        giftId,
+        orderData.userId,
+        orderData.giftId,
+        orderData.recipientName,
+        orderData.recipientEmail,
+        orderData.message || null,
+        giftUrl,
+        'pending',
+        'pending'
+      ]
+    )
     
-    const values = [
-      giftId,
-      orderData.userId,
-      orderData.giftId,
-      orderData.recipientName,
-      orderData.recipientEmail,
-      orderData.message || null,
+    return {
+      id: giftId,
+      gifterId: orderData.userId,
+      giftId: orderData.giftId,
+      recipientName: orderData.recipientName,
+      recipientEmail: orderData.recipientEmail,
+      message: orderData.message,
       giftUrl,
-      'pending',
-      'pending'
-    ]
-    
-    const result = await client.query(query, values)
-    return result.rows[0]
+      status: 'pending',
+      paymentStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
   } finally {
-    await client.end()
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
 // 注文更新
 async function updateOrder(orderId: string, updates: Partial<GiftOrder>): Promise<GiftOrder> {
-  const client = await getDbClient()
-  await client.connect()
+  let connection: mysql.Connection | null = null
   
   try {
-    const setClauses: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
+    connection = await mysql.createConnection(dbConfig)
+    
+    const updateFields: string[] = []
+    const updateValues: any[] = []
     
     if (updates.status) {
-      setClauses.push(`status = $${paramIndex++}`)
-      values.push(updates.status)
+      updateFields.push('status = ?')
+      updateValues.push(updates.status)
     }
     
     if (updates.paymentStatus) {
-      setClauses.push(`payment_status = $${paramIndex++}`)
-      values.push(updates.paymentStatus)
+      updateFields.push('payment_status = ?')
+      updateValues.push(updates.paymentStatus)
     }
     
-    setClauses.push(`updated_at = NOW()`)
-    values.push(orderId)
+    if (updateFields.length === 0) {
+      throw new Error('更新するフィールドが指定されていません')
+    }
     
-    const query = `
-      UPDATE gift_orders 
-      SET ${setClauses.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-    `
+    updateFields.push('updated_at = NOW()')
+    updateValues.push(orderId)
     
-    const result = await client.query(query, values)
-    return result.rows[0]
+    await connection.execute(
+      `UPDATE gift_orders SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
+    )
+    
+    // 更新後の注文を取得
+    const [rows] = await connection.execute(
+      'SELECT * FROM gift_orders WHERE id = ?',
+      [orderId]
+    )
+    
+    const order = (rows as any[])[0]
+    return {
+      id: order.id,
+      gifterId: order.gifter_id,
+      giftId: order.gift_id,
+      recipientName: order.recipient_name,
+      recipientEmail: order.recipient_email,
+      message: order.message,
+      giftUrl: order.gift_url,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at
+    }
   } finally {
-    await client.end()
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
 // 注文取得
 async function getOrder(orderId: string): Promise<GiftOrder | null> {
-  const client = await getDbClient()
-  await client.connect()
+  let connection: mysql.Connection | null = null
   
   try {
-    const query = `
-      SELECT o.*, g.name as gift_name, g.description as gift_description, g.price as gift_price
-      FROM gift_orders o
-      JOIN gifts g ON o.gift_id = g.id
-      WHERE o.id = $1
-    `
+    connection = await mysql.createConnection(dbConfig)
     
-    const result = await client.query(query, [orderId])
-    return result.rows[0] || null
+    const [rows] = await connection.execute(
+      'SELECT * FROM gift_orders WHERE id = ?',
+      [orderId]
+    )
+    
+    if ((rows as any[]).length === 0) {
+      return null
+    }
+    
+    const order = (rows as any[])[0]
+    return {
+      id: order.id,
+      gifterId: order.gifter_id,
+      giftId: order.gift_id,
+      recipientName: order.recipient_name,
+      recipientEmail: order.recipient_email,
+      message: order.message,
+      giftUrl: order.gift_url,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at
+    }
   } finally {
-    await client.end()
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
 // ユーザーの注文一覧取得
 async function getUserOrders(userId: string): Promise<GiftOrder[]> {
-  const client = await getDbClient()
-  await client.connect()
+  let connection: mysql.Connection | null = null
   
   try {
-    const query = `
-      SELECT o.*, g.name as gift_name, g.description as gift_description, g.price as gift_price
-      FROM gift_orders o
-      JOIN gifts g ON o.gift_id = g.id
-      WHERE o.gifter_id = $1
-      ORDER BY o.created_at DESC
-    `
+    connection = await mysql.createConnection(dbConfig)
     
-    const result = await client.query(query, [userId])
-    return result.rows
+    const [rows] = await connection.execute(
+      'SELECT * FROM gift_orders WHERE gifter_id = ? ORDER BY created_at DESC',
+      [userId]
+    )
+    
+    return (rows as any[]).map(order => ({
+      id: order.id,
+      gifterId: order.gifter_id,
+      giftId: order.gift_id,
+      recipientName: order.recipient_name,
+      recipientEmail: order.recipient_email,
+      message: order.message,
+      giftUrl: order.gift_url,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at
+    }))
   } finally {
-    await client.end()
+    if (connection) {
+      await connection.end()
+    }
   }
 }
 
-// 決済処理（ダミー実装）
+// 決済処理（デモ用）
 async function processPayment(orderId: string, paymentMethod: string): Promise<boolean> {
-  // 実際の実装ではPayPay APIなどを呼び出す
+  // 実際の決済処理は外部サービスを使用
+  // ここではデモ用に成功を返す
   console.log(`Processing payment for order ${orderId} with method ${paymentMethod}`)
   
-  // ダミー決済処理（80%の確率で成功）
-  const success = Math.random() > 0.2
+  // 注文ステータスを更新
+  await updateOrder(orderId, {
+    status: 'paid',
+    paymentStatus: 'paid'
+  })
   
-  if (success) {
-    await updateOrder(orderId, { 
-      status: 'paid', 
-      paymentStatus: 'paid' 
-    })
-  } else {
-    await updateOrder(orderId, { 
-      paymentStatus: 'failed' 
-    })
-  }
-  
-  return success
+  return true
 }
 
 // メインハンドラー
@@ -204,16 +248,10 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
     const { httpMethod, path, body } = event
     const requestBody = body ? JSON.parse(body) : {}
     
-    // 認証チェック（実際の実装ではJWT検証）
-    const userId = event.requestContext?.authorizer?.claims?.sub || 'test-user-id'
-    
     switch (httpMethod) {
       case 'POST':
         if (path.includes('/orders')) {
-          const order = await createOrder({
-            ...requestBody,
-            userId
-          })
+          const order = await createOrder(requestBody)
           return {
             success: true,
             data: order,
@@ -225,7 +263,7 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
       case 'GET':
         if (path.includes('/orders/')) {
           const orderId = path.split('/').pop()
-          const order = await getOrder(orderId)
+          const order = await getOrder(orderId!)
           
           if (!order) {
             return {
@@ -240,7 +278,18 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
             data: order,
             timestamp: new Date().toISOString(),
           }
-        } else if (path.includes('/orders')) {
+        }
+        
+        if (path.includes('/orders')) {
+          const userId = requestBody.userId || event.queryStringParameters?.userId
+          if (!userId) {
+            return {
+              success: false,
+              error: 'ユーザーIDが必要です',
+              timestamp: new Date().toISOString(),
+            }
+          }
+          
           const orders = await getUserOrders(userId)
           return {
             success: true,
@@ -253,7 +302,7 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
       case 'PUT':
         if (path.includes('/orders/')) {
           const orderId = path.split('/').pop()
-          const order = await updateOrder(orderId, requestBody)
+          const order = await updateOrder(orderId!, requestBody)
           
           return {
             success: true,
@@ -269,22 +318,30 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
           const success = await processPayment(orderId, paymentMethod)
           
           return {
-            success: true,
-            data: { success, orderId },
+            success,
+            data: { processed: success },
             timestamp: new Date().toISOString(),
           }
         }
         break
+        
+      default:
+        return {
+          success: false,
+          error: 'サポートされていないHTTPメソッドです',
+          timestamp: new Date().toISOString(),
+        }
     }
     
     return {
       success: false,
-      error: 'Method not allowed',
+      error: '無効なリクエストです',
       timestamp: new Date().toISOString(),
     }
     
   } catch (error) {
     console.error('Error:', error)
+    
     return {
       success: false,
       error: '注文処理に失敗しました',

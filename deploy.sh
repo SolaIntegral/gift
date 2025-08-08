@@ -1,82 +1,139 @@
 #!/bin/bash
 
-echo "🚀 GIFTSアプリのデプロイを開始します..."
+echo "🚀 GIFTSアプリのAWSデプロイを開始します..."
 
-# 1. Supabaseの設定確認
-echo "📋 Supabaseの設定を確認中..."
-if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
-    echo "❌ 環境変数が設定されていません"
-    echo "以下の手順でSupabaseを設定してください："
-    echo "1. https://supabase.com でアカウント作成"
-    echo "2. 新しいプロジェクトを作成"
-    echo "3. Settings → API でURLとキーを取得"
-    echo "4. .env.localファイルを作成"
+# 環境変数の確認
+echo "📋 環境変数を確認中..."
+if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+    echo "❌ AWS認証情報が設定されていません"
+    echo "以下の手順でAWS認証情報を設定してください："
+    echo "1. AWS CLIをインストール: https://aws.amazon.com/cli/"
+    echo "2. aws configure で認証情報を設定"
+    echo "3. または環境変数 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY を設定"
     exit 1
 fi
 
-# 2. Vue.jsアプリのビルド
-echo "🔨 Vue.jsアプリをビルド中..."
-cd vue-gift-app
+# LINE設定の確認
+if [ -z "$LINE_CHANNEL_SECRET" ] || [ -z "$LINE_CHANNEL_ACCESS_TOKEN" ]; then
+    echo "⚠️  LINE設定が不完全です。LINE連携機能が制限されます。"
+    echo "LINE設定を有効にするには以下を設定してください："
+    echo "export LINE_CHANNEL_SECRET=your_line_channel_secret"
+    echo "export LINE_CHANNEL_ACCESS_TOKEN=your_line_channel_access_token"
+fi
+
+# 1. Lambda関数のビルド
+echo "🔨 Lambda関数をビルド中..."
+cd aws-infrastructure
+
+# 各Lambda関数の依存関係をインストール
+echo "📦 ギフト推薦Lambda関数の依存関係をインストール中..."
+cd lambda/gift-recommendation
+npm install
+npm run build
+cd ../..
+
+echo "📦 LINE Webhook Lambda関数の依存関係をインストール中..."
+cd lambda/line-webhook
+npm install
+npm run build
+cd ../..
+
+echo "📦 注文管理Lambda関数の依存関係をインストール中..."
+cd lambda/order-management
+npm install
+npm run build
+cd ../..
+
+# 2. AWS CDKのビルドとデプロイ
+echo "🏗️  AWS CDKをビルド中..."
 npm install
 npm run build
 
+echo "🚀 AWS CDKでデプロイ中..."
+npx cdk deploy --require-approval never
+
 if [ $? -ne 0 ]; then
-    echo "❌ ビルドに失敗しました"
+    echo "❌ AWS CDKデプロイに失敗しました"
     exit 1
 fi
 
-echo "✅ ビルド完了"
+# 3. データベースの初期化
+echo "🗄️  データベースを初期化中..."
+# CDKの出力からデータベースエンドポイントを取得
+DB_ENDPOINT=$(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`DatabaseEndpoint`].OutputValue' --output text)
+DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id AwsInfrastructureStack-GiftAppDatabaseSecret --query 'SecretString' --output text | jq -r '.password')
 
-# 3. デプロイ方法の選択
-echo "🌐 デプロイ方法を選択してください："
-echo "1) Vercel (推奨 - 無料、簡単)"
-echo "2) Netlify (無料、簡単)"
-echo "3) AWS (有料、本格的なインフラ)"
+echo "データベースエンドポイント: $DB_ENDPOINT"
 
-read -p "選択してください (1-3): " choice
+# MySQLクライアントが利用可能かチェック
+if command -v mysql &> /dev/null; then
+    echo "📊 データベーススキーマを適用中..."
+    mysql -h "$DB_ENDPOINT" -u admin -p"$DB_PASSWORD" < database/schema.sql
+    echo "✅ データベース初期化完了"
+else
+    echo "⚠️  MySQLクライアントが見つかりません。手動でデータベースを初期化してください："
+    echo "mysql -h $DB_ENDPOINT -u admin -p'$DB_PASSWORD' < database/schema.sql"
+fi
 
-case $choice in
-    1)
-        echo "🚀 Vercelでデプロイします..."
-        if ! command -v vercel &> /dev/null; then
-            echo "📦 Vercel CLIをインストール中..."
-            npm install -g vercel
-        fi
-        
-        vercel --prod
-        ;;
-    2)
-        echo "🚀 Netlifyでデプロイします..."
-        if ! command -v netlify &> /dev/null; then
-            echo "📦 Netlify CLIをインストール中..."
-            npm install -g netlify-cli
-        fi
-        
-        netlify deploy --prod --dir=dist
-        ;;
-    3)
-        echo "🚀 AWSでデプロイします..."
-        cd ../aws-infrastructure
-        
-        if ! command -v aws &> /dev/null; then
-            echo "❌ AWS CLIがインストールされていません"
-            echo "https://aws.amazon.com/cli/ からインストールしてください"
-            exit 1
-        fi
-        
-        npm install
-        npm run build
-        npx cdk deploy
-        
-        # S3にビルドファイルをアップロード
-        echo "📤 S3にファイルをアップロード中..."
-        aws s3 sync ../vue-gift-app/dist s3://gift-app-website --delete
-        ;;
-    *)
-        echo "❌ 無効な選択です"
-        exit 1
-        ;;
-esac
+# 4. Vue.jsアプリのビルド
+echo "🔨 Vue.jsアプリをビルド中..."
+cd ../vue-gift-app
+npm install
 
+# 環境変数ファイルの作成
+echo "📝 環境変数ファイルを作成中..."
+cat > .env.production << EOF
+VITE_AWS_API_GATEWAY_URL=$(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' --output text)
+VITE_BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
+VITE_APP_NAME=GIFTS
+VITE_APP_VERSION=1.0.0
+EOF
+
+npm run build
+
+if [ $? -ne 0 ]; then
+    echo "❌ Vue.jsアプリのビルドに失敗しました"
+    exit 1
+fi
+
+echo "✅ Vue.jsアプリのビルド完了"
+
+# 5. S3にフロントエンドをデプロイ
+echo "📤 S3にフロントエンドをアップロード中..."
+S3_BUCKET=$(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' --output text)
+aws s3 sync dist/ s3://$S3_BUCKET --delete
+
+if [ $? -ne 0 ]; then
+    echo "❌ S3アップロードに失敗しました"
+    exit 1
+fi
+
+echo "✅ S3アップロード完了"
+
+# 6. CloudFrontキャッシュの無効化
+echo "🔄 CloudFrontキャッシュを無効化中..."
+DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' --output text)
+if [ "$DISTRIBUTION_ID" != "None" ]; then
+    aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+    echo "✅ CloudFrontキャッシュ無効化完了"
+fi
+
+# 7. デプロイ完了情報の表示
+echo ""
 echo "🎉 デプロイ完了！"
-echo "📱 サイトのURLを共有して、世界中の人にアクセスしてもらえます！" 
+echo ""
+echo "📊 デプロイ情報:"
+echo "🌐 フロントエンドURL: $(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text)"
+echo "🔗 API Gateway URL: $(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' --output text)"
+echo "👥 Cognito User Pool ID: $(aws cloudformation describe-stacks --stack-name AwsInfrastructureStack --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text)"
+echo "🗄️  データベースエンドポイント: $DB_ENDPOINT"
+echo ""
+echo "📝 次のステップ:"
+echo "1. フロントエンドURLにアクセスしてアプリを確認"
+echo "2. LINE公式アカウントのWebhook URLを設定: {API_GATEWAY_URL}/line-webhook"
+echo "3. 必要に応じて環境変数を調整"
+echo ""
+echo "🔧 トラブルシューティング:"
+echo "- CloudWatchログでLambda関数のログを確認"
+echo "- AWSコンソールでリソースの状態を確認"
+echo "- 必要に応じて手動でデータベーススキーマを適用" 

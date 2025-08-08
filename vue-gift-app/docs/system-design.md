@@ -19,53 +19,55 @@
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   フロントエンド   │    │   バックエンド     │    │   外部サービス     │
 │                 │    │                 │    │                 │
-│ ・Vue.js 3      │◄──►│ ・Lambda        │◄──►│ ・LINE API      │
-│ ・TypeScript    │    │ ・API Gateway   │    │ ・PayPay API    │
-│ ・Pinia         │    │ ・Aurora DB     │    │ ・医療機関API    │
-│ ・S3 + CloudFront│   │ ・Cognito       │    │                 │
+│ ・Vue.js 3      │◄──►│ ・Supabase      │◄──►│ ・LINE API      │
+│ ・TypeScript    │    │ ・認証・DB・API   │    │ ・PayPay API    │
+│ ・Pinia         │    │ ・リアルタイム    │    │ ・医療機関API    │
+│ ・Vercel        │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ### 技術スタック
 
-#### フロントエンド
+#### フロントエンド ✅ 実装済み
 - **フレームワーク**: Vue.js 3 + Composition API
 - **言語**: TypeScript
 - **状態管理**: Pinia
 - **ルーティング**: Vue Router
 - **UIライブラリ**: カスタムコンポーネント
 - **ビルドツール**: Vite
-- **ホスティング**: AWS S3 + CloudFront
+- **ホスティング**: Vercel（本番環境）
+- **本番URL**: https://vue-gift-app.vercel.app
 
-#### バックエンド
-- **サーバーレス**: AWS Lambda
-- **API**: Amazon API Gateway
-- **認証**: Amazon Cognito
-- **データベース**: Amazon Aurora PostgreSQL
-- **ファイルストレージ**: Amazon S3
-- **AI/ML**: Amazon Bedrock (GENIAC LLM)
+#### バックエンド ✅ 実装済み（Supabase使用）
+- **BaaS**: Supabase
+- **認証**: Supabase Auth
+- **データベース**: Supabase PostgreSQL
+- **リアルタイム**: Supabase Realtime
+- **API**: Supabase REST API
+- **ファイルストレージ**: Supabase Storage
+- **AI/ML**: Amazon Bedrock（将来実装予定）
 
-#### 外部連携
+#### 外部連携 ⚠️ 未実装
 - **メッセージング**: LINE Messaging API
 - **決済**: PayPay API
 - **地図**: Google Maps API
 
 ---
 
-## 🗄️ データベース設計
+## 🗄️ データベース設計 ✅ 実装済み（Supabase）
 
 ### ER図
 ```
-Users (ユーザー)
+Users (ユーザー) ✅ 実装済み
 ├── id (PK)
 ├── email
-├── password_hash
 ├── name
 ├── phone
+├── line_user_id
 ├── created_at
 └── updated_at
 
-Gifts (ギフト)
+Gifts (ギフト) ✅ 実装済み
 ├── id (PK)
 ├── name
 ├── description
@@ -76,7 +78,7 @@ Gifts (ギフト)
 ├── image_url
 └── created_at
 
-GiftOrders (ギフト注文)
+GiftOrders (ギフト注文) ✅ 実装済み
 ├── id (PK)
 ├── gifter_id (FK -> Users)
 ├── gift_id (FK -> Gifts)
@@ -89,14 +91,14 @@ GiftOrders (ギフト注文)
 ├── created_at
 └── updated_at
 
-GiftUsage (ギフト利用)
+GiftUsage (ギフト利用) ⚠️ 未実装
 ├── id (PK)
 ├── order_id (FK -> GiftOrders)
 ├── used_at
 ├── facility_id (FK -> Facilities)
 └── status
 
-Facilities (医療機関)
+Facilities (医療機関) ✅ 実装済み
 ├── id (PK)
 ├── name
 ├── address
@@ -106,14 +108,14 @@ Facilities (医療機関)
 ├── longitude
 └── status
 
-Partners (提携先)
+Partners (提携先) ✅ 実装済み
 ├── id (PK)
 ├── name
 ├── category
 ├── api_key
 └── status
 
-Consultations (相談履歴)
+Consultations (相談履歴) ✅ 実装済み
 ├── id (PK)
 ├── user_id (FK -> Users)
 ├── answers (JSON)
@@ -164,31 +166,32 @@ Consultations (相談履歴)
 
 ---
 
-## 🔐 セキュリティ設計
+## 🔐 セキュリティ設計 ✅ 実装済み（Supabase）
 
 ### 認証・認可
-- **認証方式**: JWT + Cognito
+- **認証方式**: JWT + Supabase Auth
 - **パスワードポリシー**: 8文字以上、大文字・小文字・数字・記号必須
 - **セッション管理**: リフレッシュトークン方式
 - **多要素認証**: オプション（SMS/メール）
+- **Row Level Security (RLS)**: 実装済み
 
-### データ保護
+### データ保護 ✅ 実装済み
 - **暗号化**: 転送時（TLS 1.3）、保存時（AES-256）
 - **個人情報**: GDPR準拠
-- **ログ管理**: CloudWatch Logs
-- **監査**: CloudTrail
+- **ログ管理**: Supabase Logs
+- **監査**: Supabase Audit Logs
 
-### API セキュリティ
+### API セキュリティ ✅ 実装済み
 - **CORS**: 許可ドメイン制限
-- **Rate Limiting**: API Gateway制限
-- **入力検証**: Lambda関数内でのバリデーション
-- **SQL Injection対策**: パラメータ化クエリ
+- **Rate Limiting**: Supabase制限
+- **入力検証**: フロントエンド・バックエンド両方でバリデーション
+- **SQL Injection対策**: Supabaseパラメータ化クエリ
 
 ---
 
-## 🤖 AI機能設計
+## 🤖 AI機能設計 ⚠️ 未実装
 
-### Amazon Bedrock活用
+### Amazon Bedrock活用（将来実装予定）
 - **モデル**: Claude 3 Sonnet
 - **用途**: ギフト推薦、メッセージ生成
 - **プロンプト設計**: 構造化されたテンプレート
@@ -211,9 +214,9 @@ Consultations (相談履歴)
 
 ---
 
-## 📱 LINE連携設計
+## 📱 LINE連携設計 ⚠️ 未実装
 
-### 機能概要
+### 機能概要（将来実装予定）
 - **LINE公式アカウント**: ユーザーとの接点
 - **Webhook**: メッセージ受信・処理
 - **リッチメニュー**: クイックアクセス
@@ -232,9 +235,9 @@ Consultations (相談履歴)
 
 ---
 
-## 💳 決済設計
+## 💳 決済設計 ⚠️ 未実装
 
-### PayPay連携
+### PayPay連携（将来実装予定）
 - **決済方式**: PayPay API
 - **決済フロー**: 事前承認 → 確定
 - **エラーハンドリング**: 決済失敗時の処理
@@ -302,6 +305,35 @@ Consultations (相談履歴)
 - **リージョン間**: マルチリージョン展開
 - **データ複製**: クロスリージョンレプリケーション
 - **フェイルオーバー**: 自動フェイルオーバー
+
+---
+
+## 📊 実装状況サマリー
+
+### ✅ 実装済み機能
+- **フロントエンド**: Vue.js 3 + TypeScript + Vite
+- **認証システム**: Supabase Auth（ログイン・登録・パスワードリセット）
+- **データベース**: Supabase PostgreSQL（全テーブル・RLS設定済み）
+- **API**: Supabase REST API
+- **ホスティング**: Vercel（本番環境）
+- **UI/UX**: レスポンシブデザイン、モダンなUI
+- **ルーティング**: Vue Router（全ページ）
+- **状態管理**: Pinia（認証・ギフト・注文）
+- **セキュリティ**: RLS、CORS、入力検証
+
+### ⚠️ 未実装機能
+- **AI推薦システム**: Amazon Bedrock連携
+- **LINE連携**: LINE Messaging API
+- **決済システム**: PayPay API
+- **ギフト利用管理**: 利用状況追跡
+- **通知システム**: メール・プッシュ通知
+- **分析機能**: ユーザー行動分析
+
+### 🚀 本番環境
+- **URL**: https://vue-gift-app.vercel.app
+- **データベース**: Supabase（無料プラン）
+- **認証**: Supabase Auth
+- **デプロイ**: Vercel（自動デプロイ）
 
 ---
 
