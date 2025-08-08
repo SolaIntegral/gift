@@ -52,6 +52,16 @@ export class AwsInfrastructureStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // Lambda関数用のセキュリティグループ
+    const lambdaSecurityGroup = new ec2.SecurityGroup(this, 'LambdaSecurityGroup', {
+      vpc,
+      description: 'Security group for Lambda functions',
+      allowAllOutbound: true,
+    });
+
+    // RDSのセキュリティグループにLambdaからのアクセスを許可
+    dbInstance.connections.allowFrom(lambdaSecurityGroup, ec2.Port.tcp(3306), 'Allow Lambda to access RDS');
+
     // Cognito User Pool
     const userPool = new cognito.UserPool(this, 'GiftAppUserPool', {
       userPoolName: 'gift-app-users',
@@ -127,6 +137,7 @@ export class AwsInfrastructureStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       },
+      securityGroups: [lambdaSecurityGroup],
       environment: {
         DB_HOST: dbInstance.instanceEndpoint.hostname,
         DB_PORT: dbInstance.instanceEndpoint.port.toString(),
@@ -151,6 +162,7 @@ export class AwsInfrastructureStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       },
+      securityGroups: [lambdaSecurityGroup],
       environment: {
         DB_HOST: dbInstance.instanceEndpoint.hostname,
         DB_PORT: dbInstance.instanceEndpoint.port.toString(),
@@ -178,6 +190,7 @@ export class AwsInfrastructureStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       },
+      securityGroups: [lambdaSecurityGroup],
       environment: {
         DB_HOST: dbInstance.instanceEndpoint.hostname,
         DB_PORT: dbInstance.instanceEndpoint.port.toString(),
@@ -188,6 +201,30 @@ export class AwsInfrastructureStack extends cdk.Stack {
         FRONTEND_URL: 'https://your-domain.com',
       },
       timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    // データベース初期化Lambda関数
+    const databaseInitFunction = new lambda.Function(this, 'DatabaseInitFunction', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/database-init')),
+      role: lambdaRole,
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      securityGroups: [lambdaSecurityGroup],
+      environment: {
+        DB_HOST: dbInstance.instanceEndpoint.hostname,
+        DB_PORT: dbInstance.instanceEndpoint.port.toString(),
+        DB_NAME: 'giftapp',
+        DB_USER: 'admin',
+        DB_PASSWORD: dbInstance.secret!.secretValueFromJson('password').unsafeUnwrap(),
+        DB_SSL: 'true',
+      },
+      timeout: cdk.Duration.seconds(60),
       memorySize: 512,
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
@@ -225,6 +262,13 @@ export class AwsInfrastructureStack extends cdk.Stack {
     const lineWebhookIntegration = new apigateway.LambdaIntegration(lineWebhookFunction);
     const lineWebhookResource = api.root.addResource('line-webhook');
     lineWebhookResource.addMethod('POST', lineWebhookIntegration);
+
+    // データベース初期化API
+    const databaseInitIntegration = new apigateway.LambdaIntegration(databaseInitFunction);
+    const databaseInitResource = api.root.addResource('database-init');
+    databaseInitResource.addMethod('POST', databaseInitIntegration, {
+      authorizationType: apigateway.AuthorizationType.NONE,
+    });
 
     // S3バケット（フロントエンド用）
     const frontendBucket = new s3.Bucket(this, 'GiftAppFrontendBucket', {

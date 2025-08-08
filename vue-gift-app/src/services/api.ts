@@ -10,9 +10,10 @@ import type {
 } from '@/types'
 import { supabase } from './supabase'
 
-// API設定
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-const AWS_API_GATEWAY_URL = import.meta.env.VITE_AWS_API_GATEWAY_URL
+// 環境変数の設定
+const AWS_API_GATEWAY_URL = 'https://jquzcc3vd0.execute-api.us-west-2.amazonaws.com/prod'
+const VITE_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const VITE_SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // 開発環境かどうかを判定
 const isDevelopment = import.meta.env.DEV
@@ -774,7 +775,7 @@ let apiClient: AwsLambdaApiClient | SupabaseApiClient | MockApiClient
 if (AWS_API_GATEWAY_URL) {
   // AWS Lambda APIを使用
   apiClient = new AwsLambdaApiClient()
-} else if (import.meta.env.VITE_SUPABASE_URL) {
+} else if (VITE_SUPABASE_URL) {
   // Supabaseを使用
   apiClient = new SupabaseApiClient()
 } else {
