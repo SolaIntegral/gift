@@ -208,12 +208,25 @@ class AwsLambdaApiClient {
   // ギフト相談開始
   async startConsultation(answers: ConsultationAnswers): Promise<ApiResponse<GiftConsultation>> {
     try {
+      console.log('AWS Lambda API: startConsultation called with:', answers)
+      
+      const requestBody = { 
+        answers,
+        userId: 'test-user' // テスト用の固定ユーザーID
+      }
+      
+      console.log('AWS Lambda API: Request body:', requestBody)
+      console.log('AWS Lambda API: Making request to /consultation')
+      
       const response = await this.makeRequest('/consultation', {
         method: 'POST',
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify(requestBody),
       })
+      
+      console.log('AWS Lambda API: Response received:', response)
       return response
     } catch (error) {
+      console.error('AWS Lambda API: Error in startConsultation:', error)
       throw new ApiError(500, 'CONSULTATION_ERROR', 'ギフト相談の開始に失敗しました')
     }
   }
@@ -772,16 +785,27 @@ class MockApiClient {
 // APIクライアントの選択
 let apiClient: AwsLambdaApiClient | SupabaseApiClient | MockApiClient
 
+console.log('API設定確認:', {
+  AWS_API_GATEWAY_URL,
+  VITE_SUPABASE_URL,
+  VITE_SUPABASE_ANON_KEY
+})
+
 if (AWS_API_GATEWAY_URL) {
   // AWS Lambda APIを使用
+  console.log('AWS Lambda APIクライアントを使用')
   apiClient = new AwsLambdaApiClient()
 } else if (VITE_SUPABASE_URL) {
   // Supabaseを使用
+  console.log('Supabaseクライアントを使用')
   apiClient = new SupabaseApiClient()
 } else {
   // モックデータを使用
+  console.log('モックデータクライアントを使用')
   apiClient = new MockApiClient()
 }
+
+console.log('選択されたAPIクライアント:', apiClient.constructor.name)
 
 // APIエクスポート
 export const giftApi = {

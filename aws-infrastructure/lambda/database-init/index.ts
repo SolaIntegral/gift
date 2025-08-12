@@ -68,14 +68,13 @@ CREATE TABLE IF NOT EXISTS gift_orders (
     FOREIGN KEY (gift_id) REFERENCES gifts(id)
 );
 
--- 相談テーブル
-CREATE TABLE IF NOT EXISTS consultations (
-    id VARCHAR(36) PRIMARY KEY,
+-- 相談テーブル（既存のテーブルを削除して再作成）
+DROP TABLE IF EXISTS consultations;
+CREATE TABLE consultations (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id VARCHAR(36),
-    question TEXT NOT NULL,
     answers JSON,
-    ai_explanation TEXT,
-    status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    recommendations JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -113,6 +112,10 @@ INSERT IGNORE INTO gifts (id, name, description, price, category, partner_id, im
 (UUID(), 'グリーンスムージー', '有機野菜とフルーツを使用したスムージー', 3200, '健康食品', (SELECT id FROM partners LIMIT 1), 'https://example.com/smoothie.jpg', 25),
 (UUID(), '睡眠サポートサプリ', '良質な睡眠をサポートする天然成分', 4200, 'サプリメント', (SELECT id FROM partners LIMIT 1), 'https://example.com/sleep.jpg', 35),
 (UUID(), 'ストレッチボール', '全身のストレッチに使えるマッサージボール', 2200, 'フィットネス用品', (SELECT id FROM partners LIMIT 1), 'https://example.com/ball.jpg', 55);
+
+-- テスト用ユーザーを作成
+INSERT IGNORE INTO users (id, email, name, created_at) VALUES
+('test-user', 'test@example.com', 'テストユーザー', NOW());
 `
 
 export const handler = async (event: any) => {

@@ -34,12 +34,12 @@ export class AwsInfrastructureStack extends cdk.Stack {
       ],
     });
 
-    // RDS MySQL インスタンス（無料枠対応）
+    // RDS MySQL インスタンス（MySQL 8.0対応）
     const dbInstance = new rds.DatabaseInstance(this, 'GiftAppDatabase', {
       engine: rds.DatabaseInstanceEngine.mysql({
-        version: rds.MysqlEngineVersion.VER_5_7_44,
+        version: rds.MysqlEngineVersion.VER_8_0_42,
       }),
-              instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
       vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
@@ -47,7 +47,7 @@ export class AwsInfrastructureStack extends cdk.Stack {
       databaseName: 'giftapp',
       credentials: rds.Credentials.fromGeneratedSecret('admin'),
       backupRetention: cdk.Duration.days(7),
-      storageEncrypted: false, // t2.microは暗号化をサポートしていないため
+      storageEncrypted: true, // MySQL 8.0では暗号化をサポート
       deletionProtection: false,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
@@ -273,16 +273,20 @@ export class AwsInfrastructureStack extends cdk.Stack {
     // S3バケット（フロントエンド用）
     const frontendBucket = new s3.Bucket(this, 'GiftAppFrontendBucket', {
       bucketName: `gift-app-frontend-${this.account}-${this.region}`,
-      publicReadAccess: false,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html',
     });
 
-    // CloudFront Distribution
+    // CloudFront Distribution（S3ウェブサイトエンドポイント使用）
     const distribution = new cloudfront.Distribution(this, 'GiftAppDistribution', {
       defaultBehavior: {
-        origin: new origins.S3Origin(frontendBucket),
+        origin: new origins.HttpOrigin(`${frontendBucket.bucketName}.s3-website-${this.region}.amazonaws.com`, {
+          protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+        }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },

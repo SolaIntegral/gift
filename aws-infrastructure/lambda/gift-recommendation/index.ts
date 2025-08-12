@@ -1,7 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime'
 import mysql from 'mysql2/promise'
 
-const bedrock = new BedrockRuntimeClient({ region: 'us-east-1' })
+const bedrock = new BedrockRuntimeClient({ region: 'us-west-2' })
 
 // MySQL接続設定
 const dbConfig = {
@@ -140,10 +140,15 @@ async function saveConsultation(userId: string, answers: ConsultationAnswers, re
   try {
     connection = await mysql.createConnection(dbConfig)
     
+    // undefined値をnullに変換
+    const safeUserId = userId || null
+    const safeAnswers = answers || null
+    const safeRecommendations = recommendations || null
+    
     const [result] = await connection.execute(
-      `INSERT INTO consultations (user_id, answers, recommendations, created_at) 
-       VALUES (?, ?, ?, NOW())`,
-      [userId, JSON.stringify(answers), JSON.stringify(recommendations)]
+      `INSERT INTO consultations (id, user_id, answers, recommendations, created_at) 
+       VALUES (UUID(), ?, ?, ?, NOW())`,
+      [safeUserId, JSON.stringify(safeAnswers), JSON.stringify(safeRecommendations)]
     )
 
     return (result as any).insertId
@@ -157,11 +162,7 @@ async function saveConsultation(userId: string, answers: ConsultationAnswers, re
   }
 }
 
-export const handler = async (event: any): Promise<ApiResponse<{
-  consultationId: string
-  recommendations: Gift[]
-  aiExplanation: string
-}>> => {
+export const handler = async (event: any): Promise<any> => {
   try {
     console.log('Event:', JSON.stringify(event, null, 2))
     
@@ -170,9 +171,18 @@ export const handler = async (event: any): Promise<ApiResponse<{
     
     if (!answers) {
       return {
-        success: false,
-        error: '相談内容が提供されていません',
-        timestamp: new Date().toISOString(),
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        },
+        body: JSON.stringify({
+          success: false,
+          error: '相談内容が提供されていません',
+          timestamp: new Date().toISOString(),
+        })
       }
     }
     
@@ -181,9 +191,18 @@ export const handler = async (event: any): Promise<ApiResponse<{
     
     if (gifts.length === 0) {
       return {
-        success: false,
-        error: '条件に合うギフトが見つかりませんでした',
-        timestamp: new Date().toISOString(),
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        },
+        body: JSON.stringify({
+          success: false,
+          error: '条件に合うギフトが見つかりませんでした',
+          timestamp: new Date().toISOString(),
+        })
       }
     }
     
@@ -193,26 +212,45 @@ export const handler = async (event: any): Promise<ApiResponse<{
     // 上位3つのギフトを選択
     const recommendations = gifts.slice(0, 3)
     
-    // 相談履歴保存
-    const consultationId = await saveConsultation(userId, answers, recommendations)
+    // 相談履歴保存（userIdが存在しない場合はデフォルト値を設定）
+    const defaultUserId = userId || 'anonymous'
+    const consultationId = await saveConsultation(defaultUserId, answers, recommendations)
     
     return {
-      success: true,
-      data: {
-        consultationId: consultationId.toString(),
-        recommendations,
-        aiExplanation,
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
-      timestamp: new Date().toISOString(),
+      body: JSON.stringify({
+        success: true,
+        data: {
+          consultationId: consultationId.toString(),
+          recommendations,
+          aiExplanation,
+        },
+        timestamp: new Date().toISOString(),
+      })
     }
     
   } catch (error) {
     console.error('Error:', error)
     
     return {
-      success: false,
-      error: 'ギフト推薦の生成に失敗しました',
-      timestamp: new Date().toISOString(),
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: JSON.stringify({
+        success: false,
+        error: 'ギフト推薦の生成に失敗しました',
+        timestamp: new Date().toISOString(),
+      })
     }
   }
 } 
