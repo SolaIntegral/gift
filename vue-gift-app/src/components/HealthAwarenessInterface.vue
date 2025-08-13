@@ -42,22 +42,28 @@
         
         <!-- ナビゲーションボタン -->
         <div class="navigation">
-          <button 
-            @click="previousQuestion" 
+          <BaseButton
+            @click="previousQuestion"
             :disabled="currentQuestion === 0"
-            class="nav-button secondary"
+            variant="outline"
+            size="md"
+            iconLeft="←"
             aria-label="前の質問に戻る"
+            class="nav-button"
           >
-            ← 前の質問
-          </button>
-          <button 
-            @click="nextQuestion" 
+            前の質問
+          </BaseButton>
+          <BaseButton
+            @click="nextQuestion"
             :disabled="!selectedOption"
-            class="nav-button primary large-button"
+            variant="primary"
+            size="md"
+            iconRight="→"
             aria-label="次の質問に進む"
+            class="nav-button"
           >
-            {{ currentQuestion === healthAwarenessQuestions.length - 1 ? '健康プランを作成' : '次の質問' }} →
-          </button>
+            {{ currentQuestion === healthAwarenessQuestions.length - 1 ? '健康プランを作成' : '次の質問' }}
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -198,6 +204,7 @@
 import { onMounted } from 'vue'
 import { useHealthAwareness, healthAwarenessQuestions } from '@/composables/useHealthAwareness'
 import { useAccessibility } from '@/composables/useAccessibility'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const {
   currentQuestion,

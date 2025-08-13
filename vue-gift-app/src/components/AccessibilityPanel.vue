@@ -1,22 +1,30 @@
 <template>
   <div class="accessibility-panel" :class="{ 'panel-open': isOpen }">
     <!-- アクセシビリティボタン -->
-    <button 
-      @click="togglePanel" 
+    <BaseButton
+      @click="togglePanel"
+      variant="outline"
+      size="md"
+      iconLeft="♿"
+      :aria-label="isOpen ? 'アクセシビリティ設定を閉じる' : 'アクセシビリティ設定を開く'"
       class="accessibility-toggle"
-      aria-label="アクセシビリティ設定を開く"
     >
-      <span class="icon">♿</span>
-      <span class="label">アクセシビリティ</span>
-    </button>
+      {{ isOpen ? '閉じる' : 'アクセシビリティ' }}
+    </BaseButton>
 
     <!-- 設定パネル -->
     <div v-if="isOpen" class="accessibility-settings">
       <div class="settings-header">
         <h3>アクセシビリティ設定</h3>
-        <button @click="togglePanel" class="close-button" aria-label="設定を閉じる">
+        <BaseButton
+          @click="togglePanel"
+          variant="ghost"
+          size="sm"
+          aria-label="設定を閉じる"
+          class="close-button"
+        >
           ✕
-        </button>
+        </BaseButton>
       </div>
 
       <div class="settings-content">
@@ -24,30 +32,36 @@
         <div class="setting-group">
           <h4>文字サイズ</h4>
           <div class="font-size-controls">
-            <button 
-              @click="decreaseFontSize" 
-              class="size-button"
+            <BaseButton
+              @click="decreaseFontSize"
+              variant="outline"
+              size="sm"
               :disabled="settings.fontSize <= 12"
               aria-label="文字サイズを小さくする"
+              class="size-button"
             >
               A-
-            </button>
+            </BaseButton>
             <span class="current-size">{{ settings.fontSize }}px</span>
-            <button 
-              @click="increaseFontSize" 
-              class="size-button"
+            <BaseButton
+              @click="increaseFontSize"
+              variant="outline"
+              size="sm"
               :disabled="settings.fontSize >= 24"
               aria-label="文字サイズを大きくする"
+              class="size-button"
             >
               A+
-            </button>
-            <button 
-              @click="resetFontSize" 
-              class="reset-button"
+            </BaseButton>
+            <BaseButton
+              @click="resetFontSize"
+              variant="ghost"
+              size="sm"
               aria-label="文字サイズをリセット"
+              class="reset-button"
             >
               リセット
-            </button>
+            </BaseButton>
           </div>
         </div>
 
@@ -95,13 +109,15 @@
           </label>
           <p class="description">重要な情報を音声で読み上げます</p>
           
-          <button 
+          <BaseButton
             v-if="settings.voiceGuide"
             @click="testVoiceGuide"
-            class="test-voice-button"
+            variant="outline"
+            size="sm"
+            iconLeft="🔊"
           >
             音声ガイドをテスト
-          </button>
+          </BaseButton>
         </div>
 
         <!-- キーボードナビゲーション説明 -->
@@ -122,6 +138,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAccessibility } from '@/composables/useAccessibility'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const isOpen = ref(false)
 const { 

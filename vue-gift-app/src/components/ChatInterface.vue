@@ -3,9 +3,16 @@
     <div class="chat-header">
       <h3>🤖 AI健康ギフト相談</h3>
       <p>自然な会話で最適なギフトを見つけましょう</p>
-      <button @click="resetConversation" class="reset-button" aria-label="会話をリセット">
-        🔄 新しい会話を始める
-      </button>
+      <BaseButton
+        @click="resetConversation"
+        variant="outline"
+        size="sm"
+        iconLeft="🔄"
+        aria-label="会話をリセット"
+        class="reset-button"
+      >
+        新しい会話を始める
+      </BaseButton>
     </div>
     
     <div class="chat-messages" ref="messagesContainer">
@@ -69,30 +76,47 @@
           rows="3"
           aria-label="メッセージを入力"
         ></textarea>
-        <button 
-          @click="sendMessage" 
+        <BaseButton
+          @click="sendMessage"
           :disabled="isLoading || !inputText.trim()"
-          class="send-button large-button"
+          :loading="isLoading"
+          size="lg"
+          iconRight="📤"
           aria-label="メッセージを送信"
+          class="send-button"
         >
-          <span v-if="isLoading">送信中...</span>
-          <span v-else>送信</span>
-        </button>
+          {{ isLoading ? '送信中...' : '送信' }}
+        </BaseButton>
       </div>
       
       <!-- 入力ヒント -->
       <div class="input-hints">
         <p class="hint-text">💡 ヒント: 以下のような内容で話してみてください</p>
         <div class="hint-examples">
-          <button @click="setExampleText('相手の健康が心配で、何かサポートできることがないか考えています')" class="hint-button">
+          <BaseButton
+            @click="setExampleText('相手の健康が心配で、何かサポートできることがないか考えています')"
+            variant="ghost"
+            size="sm"
+            class="hint-button"
+          >
             健康への心配
-          </button>
-          <button @click="setExampleText('いつも支えてくれてありがとう。感謝の気持ちを伝えたいです')" class="hint-button">
+          </BaseButton>
+          <BaseButton
+            @click="setExampleText('いつも支えてくれてありがとう。感謝の気持ちを伝えたいです')"
+            variant="ghost"
+            size="sm"
+            class="hint-button"
+          >
             感謝の気持ち
-          </button>
-          <button @click="setExampleText('大切な人に、健康でいてほしいという想いを伝えたいです')" class="hint-button">
+          </BaseButton>
+          <BaseButton
+            @click="setExampleText('大切な人に、健康でいてほしいという想いを伝えたいです')"
+            variant="ghost"
+            size="sm"
+            class="hint-button"
+          >
             愛情の表現
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -109,9 +133,14 @@
           <h5>{{ recommendation.gift.name }}</h5>
           <p>{{ recommendation.reason }}</p>
           <div class="recommendation-actions">
-            <button @click="selectGift(recommendation.gift)" class="select-button">
+            <BaseButton
+              @click="selectGift(recommendation.gift)"
+              variant="primary"
+              size="sm"
+              class="select-button"
+            >
               選択する
-            </button>
+            </BaseButton>
             <span class="price">¥{{ recommendation.gift.price.toLocaleString() }}</span>
           </div>
         </div>
@@ -124,6 +153,7 @@
 import { ref, nextTick, watch } from 'vue'
 import { useChatInterface } from '@/composables/useChatInterface'
 import { useAccessibility } from '@/composables/useAccessibility'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import type { Gift } from '@/types'
 
 const emit = defineEmits<{
