@@ -129,14 +129,14 @@
         <div 
           v-for="gift in recommendations" 
           :key="gift.id" 
-          class="gift-card"
+          :class="['gift-card', { 'selected': selectedGift?.id === gift.id }]"
           @click="selectGift(gift)"
         >
           <div class="gift-icon">{{ gift.icon || '🎁' }}</div>
           <h4>{{ gift.name }}</h4>
           <p class="gift-description">{{ gift.description }}</p>
           <div class="gift-price">¥{{ gift.price.toLocaleString() }}</div>
-          <div class="gift-reason">{{ gift.reason }}</div>
+          <div class="gift-category">{{ gift.category }}</div>
         </div>
       </div>
 
@@ -289,7 +289,9 @@ const startConsultation = async () => {
 
 // ギフト選択
 const selectGift = (gift: Gift) => {
+  console.log('Gift selected:', gift)
   selectedGift.value = gift
+  console.log('Selected gift updated:', selectedGift.value)
 }
 
 // 注文に進む
@@ -327,10 +329,36 @@ const processPayment = async () => {
     // 決済処理のシミュレーション（3秒待機）
     await new Promise(resolve => setTimeout(resolve, 3000))
     
-    // ギフトURLを生成
-    const generatedGiftId = generateGiftId()
-    const baseUrl = window.location.origin
-    giftUrl.value = `${baseUrl}/gift/${generatedGiftId}`
+    // 実際のAPIを呼び出してギフト注文を作成
+    const orderData = {
+      giftId: selectedGiftForPayment.value.id,
+      recipientName: 'ギフト受取人',
+      recipientEmail: 'recipient@example.com',
+      message: '健康への想いを込めて贈ります',
+      userId: 'test-user'
+    }
+    
+    const response = await fetch('https://jquzcc3vd0.execute-api.us-west-2.amazonaws.com/prod/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData)
+    })
+    
+    if (!response.ok) {
+      throw new Error('ギフト注文の作成に失敗しました')
+    }
+    
+    const result = await response.json()
+    
+    if (result.success && result.data) {
+      // APIから返されたギフトURLを使用
+      giftUrl.value = result.data.giftUrl
+      giftId.value = result.data.id
+    } else {
+      throw new Error('ギフト注文の作成に失敗しました')
+    }
     
     // 決済完了
     paymentCompleted.value = true
@@ -345,6 +373,7 @@ const processPayment = async () => {
   } catch (error) {
     console.error('Payment failed:', error)
     paymentProcessing.value = false
+    alert('決済処理に失敗しました: ' + (error instanceof Error ? error.message : 'Unknown error'))
   }
 }
 
@@ -619,10 +648,14 @@ const resetError = () => {
   margin-bottom: 0.5rem;
 }
 
-.gift-reason {
+.gift-category {
   font-size: 0.9rem;
   color: var(--color-text-secondary);
   font-style: italic;
+  background: var(--color-orange-light);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .ai-explanation {

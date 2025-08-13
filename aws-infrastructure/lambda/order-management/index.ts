@@ -46,6 +46,7 @@ interface ApiResponse<T> {
   success: boolean
   data?: T
   error?: string
+  details?: string
   timestamp: string
 }
 
@@ -56,8 +57,9 @@ async function createOrder(orderData: CreateOrderRequest): Promise<GiftOrder> {
   try {
     connection = await mysql.createConnection(dbConfig)
     
-    const giftId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const giftUrl = `${process.env.FRONTEND_URL}/gift/${giftId}`
+    // 実際のギフトIDを使用してURLを生成
+    const giftUrlId = `gift_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const giftUrl = `https://dyshzc55luf52.cloudfront.net/gift/${giftUrlId}`
     
     const [result] = await connection.execute(
       `INSERT INTO gift_orders (
@@ -65,7 +67,7 @@ async function createOrder(orderData: CreateOrderRequest): Promise<GiftOrder> {
         message, gift_url, status, payment_status, created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
-        giftId,
+        giftUrlId, // 注文IDとしてギフトURLのIDを使用
         orderData.userId,
         orderData.giftId,
         orderData.recipientName,
@@ -78,7 +80,7 @@ async function createOrder(orderData: CreateOrderRequest): Promise<GiftOrder> {
     )
     
     return {
-      id: giftId,
+      id: giftUrlId,
       gifterId: orderData.userId,
       giftId: orderData.giftId,
       recipientName: orderData.recipientName,
@@ -241,7 +243,7 @@ async function processPayment(orderId: string, paymentMethod: string): Promise<b
 }
 
 // メインハンドラー
-export const handler = async (event: any): Promise<ApiResponse<any>> => {
+export const handler = async (event: any): Promise<any> => {
   try {
     console.log('Event:', JSON.stringify(event, null, 2))
     
@@ -253,9 +255,18 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
         if (path.includes('/orders')) {
           const order = await createOrder(requestBody)
           return {
-            success: true,
-            data: order,
-            timestamp: new Date().toISOString(),
+            statusCode: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS'
+            },
+            body: JSON.stringify({
+              success: true,
+              data: order,
+              timestamp: new Date().toISOString(),
+            })
           }
         }
         break
@@ -341,10 +352,12 @@ export const handler = async (event: any): Promise<ApiResponse<any>> => {
     
   } catch (error) {
     console.error('Error:', error)
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     
     return {
       success: false,
       error: '注文処理に失敗しました',
+      details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
     }
   }

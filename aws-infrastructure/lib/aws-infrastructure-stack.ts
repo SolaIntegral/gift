@@ -229,6 +229,30 @@ export class AwsInfrastructureStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
+    // ギフト詳細取得Lambda関数
+    const giftDetailFunction = new lambda.Function(this, 'GiftDetailFunction', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/gift-detail/lambda-package.zip')),
+      role: lambdaRole,
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      securityGroups: [lambdaSecurityGroup],
+      environment: {
+        DB_HOST: dbInstance.instanceEndpoint.hostname,
+        DB_PORT: dbInstance.instanceEndpoint.port.toString(),
+        DB_NAME: 'giftapp',
+        DB_USER: 'admin',
+        DB_PASSWORD: dbInstance.secret!.secretValueFromJson('password').unsafeUnwrap(),
+        DB_SSL: 'true',
+      },
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'GiftAppApi', {
       restApiName: 'Gift App API',
@@ -267,6 +291,14 @@ export class AwsInfrastructureStack extends cdk.Stack {
     const databaseInitIntegration = new apigateway.LambdaIntegration(databaseInitFunction);
     const databaseInitResource = api.root.addResource('database-init');
     databaseInitResource.addMethod('POST', databaseInitIntegration, {
+      authorizationType: apigateway.AuthorizationType.NONE,
+    });
+
+    // ギフト詳細取得API
+    const giftDetailIntegration = new apigateway.LambdaIntegration(giftDetailFunction);
+    const giftResource = api.root.addResource('gift');
+    const giftDetailResource = giftResource.addResource('{giftId}');
+    giftDetailResource.addMethod('GET', giftDetailIntegration, {
       authorizationType: apigateway.AuthorizationType.NONE,
     });
 

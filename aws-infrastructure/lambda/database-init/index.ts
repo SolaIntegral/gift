@@ -111,7 +111,12 @@ INSERT IGNORE INTO gifts (id, name, description, price, category, partner_id, im
 (UUID(), 'レジスタンスバンド', '筋力トレーニング用のゴムバンドセット', 1500, 'フィットネス用品', (SELECT id FROM partners LIMIT 1), 'https://example.com/band.jpg', 80),
 (UUID(), 'グリーンスムージー', '有機野菜とフルーツを使用したスムージー', 3200, '健康食品', (SELECT id FROM partners LIMIT 1), 'https://example.com/smoothie.jpg', 25),
 (UUID(), '睡眠サポートサプリ', '良質な睡眠をサポートする天然成分', 4200, 'サプリメント', (SELECT id FROM partners LIMIT 1), 'https://example.com/sleep.jpg', 35),
-(UUID(), 'ストレッチボール', '全身のストレッチに使えるマッサージボール', 2200, 'フィットネス用品', (SELECT id FROM partners LIMIT 1), 'https://example.com/ball.jpg', 55);
+(UUID(), 'ストレッチボール', '全身のストレッチに使えるマッサージボール', 2200, 'フィットネス用品', (SELECT id FROM partners LIMIT 1), 'https://example.com/ball.jpg', 55),
+(UUID(), '高級フィットネスウォッチ', 'GPS機能付きの高精度フィットネスウォッチ', 15000, 'ウェアラブル', (SELECT id FROM partners LIMIT 1), 'https://example.com/watch.jpg', 20),
+(UUID(), 'パーソナルトレーニング体験', 'プロトレーナーによる個別指導セッション', 18000, 'フィットネスサービス', (SELECT id FROM partners LIMIT 1), 'https://example.com/training.jpg', 15),
+(UUID(), '高級サプリメントセット', 'ビタミン・ミネラル・アミノ酸の総合サプリメント', 12000, 'サプリメント', (SELECT id FROM partners LIMIT 1), 'https://example.com/supplement-set.jpg', 25),
+(UUID(), 'ヨガ・ピラティス体験', '専門インストラクターによるヨガ・ピラティスレッスン', 16000, 'フィットネスサービス', (SELECT id FROM partners LIMIT 1), 'https://example.com/yoga-pilates.jpg', 18),
+(UUID(), '健康診断パック', '詳細な血液検査と健康相談セット', 14000, '健康診断', (SELECT id FROM partners LIMIT 1), 'https://example.com/health-check.jpg', 12);
 
 -- テスト用ユーザーを作成
 INSERT IGNORE INTO users (id, email, name, created_at) VALUES

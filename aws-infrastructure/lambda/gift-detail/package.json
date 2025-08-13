@@ -1,0 +1,17 @@
+{
+  "name": "gift-detail",
+  "version": "1.0.0",
+  "description": "Gift detail retrieval Lambda function",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+} 

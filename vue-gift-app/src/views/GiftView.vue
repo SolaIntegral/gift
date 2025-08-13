@@ -177,17 +177,55 @@ const mockGift = {
 onMounted(async () => {
   try {
     // URLからギフトIDを取得
-    giftId.value = route.params.id as string
+    giftId.value = route.params.giftId as string
     
-    // モックデータを使用（実際のAPIでは、ギフトIDでデータを取得）
-    await new Promise(resolve => setTimeout(resolve, 1000)) // ローディングシミュレーション
+    console.log('Route params:', route.params)
+    console.log('Gift ID from route:', giftId.value)
     
-    if (giftId.value === 'gift_lq1768gcx') {
-      gift.value = mockGift
+    if (!giftId.value) {
+      error.value = 'ギフトIDが指定されていません'
+      return
+    }
+    
+    // 実際のAPIからギフトデータを取得
+    const response = await fetch(`https://jquzcc3vd0.execute-api.us-west-2.amazonaws.com/prod/gift/${giftId.value}`)
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        error.value = '指定されたギフトが見つかりません'
+      } else {
+        error.value = 'ギフトの読み込みに失敗しました'
+      }
+      return
+    }
+    
+    const result = await response.json()
+    
+    if (result.success && result.data) {
+      // APIから取得したデータをギフト形式に変換
+      gift.value = {
+        id: result.data.id,
+        name: result.data.name,
+        description: result.data.description,
+        price: result.data.price,
+        category: result.data.category,
+        senderName: '大切な人', // デフォルト値
+        message: '健康への想いを込めて贈ります', // デフォルト値
+        icon: '🎁',
+        services: [result.data.description],
+        facility: {
+          name: '健康サービスセンター',
+          address: '東京都渋谷区○○○',
+          phone: '03-1234-5678'
+        },
+        createdAt: result.data.createdAt,
+        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1年後
+      }
     } else {
-      error.value = '指定されたギフトが見つかりません'
+      error.value = result.error || 'ギフトの読み込みに失敗しました'
     }
   } catch (err) {
+    console.error('Gift loading error:', err)
     error.value = 'ギフトの読み込みに失敗しました'
   } finally {
     loading.value = false
