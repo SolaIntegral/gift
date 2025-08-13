@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { onMounted } from 'vue'
 import AccessibilityPanel from '@/components/AccessibilityPanel.vue'
+import LLMStatusPanel from '@/components/LLMStatusPanel.vue'
 
 const authStore = useAuthStore()
 
@@ -19,6 +20,9 @@ onMounted(() => {
     
     <!-- アクセシビリティパネル -->
     <AccessibilityPanel />
+    
+    <!-- LLM状態パネル -->
+    <LLMStatusPanel />
     
     <main id="main-content">
       <RouterView />

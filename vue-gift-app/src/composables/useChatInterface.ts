@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
-import type { Gift } from '@/types'
+import type { Gift, EmotionAnalysis, GiftRecommendation } from '@/types'
+import { getLLMService, generateHealthGiftPrompt } from '@/services/llm'
 
 export interface ChatMessage {
   id: string
@@ -9,18 +10,6 @@ export interface ChatMessage {
   emotion?: string
   intent?: string
   giftRecommendation?: GiftRecommendation
-}
-
-export interface GiftRecommendation {
-  gift: Gift
-  reason: string
-  confidence: number
-}
-
-export interface EmotionAnalysis {
-  emotion: string
-  confidence: number
-  keyPhrases: string[]
 }
 
 export const useChatInterface = () => {
@@ -39,14 +28,28 @@ export const useChatInterface = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
-  // 感情分析（簡易版）
-  const analyzeEmotion = (text: string): EmotionAnalysis => {
+  // LLMサービスを取得
+  const llmService = getLLMService()
+
+  // 感情分析（Kotoba LLM使用）
+  const analyzeEmotion = async (text: string): Promise<EmotionAnalysis> => {
+    try {
+      return await llmService.analyzeEmotion(text)
+    } catch (error) {
+      console.error('Emotion analysis error:', error)
+      // フォールバック: 簡易的な感情分析
+      return fallbackEmotionAnalysis(text)
+    }
+  }
+
+  // フォールバック感情分析
+  const fallbackEmotionAnalysis = (text: string): EmotionAnalysis => {
     const positiveWords = ['ありがとう', '感謝', '嬉しい', '幸せ', '愛', '大切', '素晴らしい', '最高']
     const negativeWords = ['心配', '不安', '悲しい', '困る', '大変', '辛い', '苦しい']
     const concernWords = ['健康', '体調', '病気', '疲れ', 'ストレス', '運動', '食事']
     
     const lowerText = text.toLowerCase()
-    let emotion = 'neutral'
+    let emotion: 'positive' | 'negative' | 'neutral' | 'concerned' = 'neutral'
     let confidence = 0.5
     
     const positiveCount = positiveWords.filter(word => lowerText.includes(word)).length
@@ -59,6 +62,9 @@ export const useChatInterface = () => {
     } else if (negativeCount > positiveCount) {
       emotion = 'negative'
       confidence = Math.min(0.9, 0.5 + (negativeCount * 0.1))
+    } else if (concernCount > 0) {
+      emotion = 'concerned'
+      confidence = Math.min(0.8, 0.5 + (concernCount * 0.1))
     }
     
     const keyPhrases = [...new Set([
@@ -95,86 +101,51 @@ export const useChatInterface = () => {
 
   // AI応答生成
   const generateAIResponse = async (userMessage: string, conversation: ChatMessage[]): Promise<ChatMessage> => {
-    // 感情分析
-    const emotionAnalysis = analyzeEmotion(userMessage)
-    const intent = extractIntent(userMessage, emotionAnalysis.emotion, emotionAnalysis.keyPhrases)
-    
-    // プロンプト生成
-    const prompt = generateEmotionBasedPrompt(conversation, emotionAnalysis, intent)
-    
     try {
-      // AWS Lambda APIを呼び出し
-      const response = await fetch('https://jquzcc3vd0.execute-api.us-west-2.amazonaws.com/prod/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          conversation: conversationHistory.value,
-          emotion: emotionAnalysis.emotion,
-          intent: intent,
-          keyPhrases: emotionAnalysis.keyPhrases
-        })
-      })
+      // 感情分析（非同期）
+      const emotionAnalysis = await analyzeEmotion(userMessage)
+      const intent = extractIntent(userMessage, emotionAnalysis.emotion, emotionAnalysis.keyPhrases)
       
-      if (!response.ok) {
-        throw new Error('AI応答の生成に失敗しました')
-      }
+      // プロンプト生成
+      const prompt = generateHealthGiftPrompt(conversationHistory.value, emotionAnalysis, intent)
       
-      const result = await response.json()
+      // LLMサービスを使用して応答生成
+      const llmResponse = await llmService.generateResponse(prompt)
       
       return {
         id: generateId(),
-        text: result.response || '申し訳ございません。現在AIシステムが一時的に利用できません。',
+        text: llmResponse.text || '申し訳ございません。現在AIシステムが一時的に利用できません。',
         sender: 'ai',
         timestamp: new Date(),
         emotion: emotionAnalysis.emotion,
         intent: intent,
-        giftRecommendation: result.recommendations?.[0]
+        giftRecommendation: llmResponse.recommendations?.[0]
       }
     } catch (error) {
       console.error('AI response error:', error)
       
-      // フォールバック応答
+      // フォールバック: 簡易的な感情分析と応答
+      const fallbackEmotion = fallbackEmotionAnalysis(userMessage)
+      const intent = extractIntent(userMessage, fallbackEmotion.emotion, fallbackEmotion.keyPhrases)
+      
       return {
         id: generateId(),
-        text: generateFallbackResponse(emotionAnalysis.emotion, intent),
+        text: generateFallbackResponse(fallbackEmotion.emotion, intent),
         sender: 'ai',
         timestamp: new Date(),
-        emotion: emotionAnalysis.emotion,
+        emotion: fallbackEmotion.emotion,
         intent: intent
       }
     }
   }
 
-  // 感情ベースのプロンプト生成
+  // 感情ベースのプロンプト生成（フォールバック用）
   const generateEmotionBasedPrompt = (conversation: ChatMessage[], emotionAnalysis: EmotionAnalysis, intent: string) => {
-    return `
-あなたは健康ギフトの専門アドバイザーです。ユーザーの感情と意図を分析し、最適な健康ギフトを推薦してください。
-
-会話履歴:
-${conversation.map(msg => `${msg.sender}: ${msg.text}`).join('\n')}
-
-分析結果:
-- 感情: ${emotionAnalysis.emotion}
-- 意図: ${intent}
-- キーフレーズ: ${emotionAnalysis.keyPhrases.join(', ')}
-
-分析項目:
-1. 相手への感情（愛情、感謝、心配、励ましなど）
-2. 相手に望む変化（健康向上、ストレス軽減、活力向上など）
-3. 関係性（家族、友人、恋人、同僚など）
-4. 予算感（高級、中級、手頃など）
-
-以下の形式で回答してください：
-1. 感情理解の確認
-2. 推薦ギフト（3つ）
-3. 各ギフトの推薦理由
-4. 相手へのメッセージ提案
-
-回答は親しみやすく、共感的な口調でお願いします。
-`
+    return generateHealthGiftPrompt(
+      conversation.map(msg => `${msg.sender}: ${msg.text}`).join('\n'),
+      emotionAnalysis,
+      intent
+    )
   }
 
   // フォールバック応答生成

@@ -186,6 +186,19 @@ export interface PaymentIntent {
   createdAt: string
 }
 
+// LLM関連の型定義
+export interface EmotionAnalysis {
+  emotion: 'positive' | 'negative' | 'neutral' | 'concerned'
+  confidence: number
+  keyPhrases: string[]
+}
+
+export interface GiftRecommendation {
+  gift: Gift
+  reason: string
+  confidence: number
+}
+
 // エラー型定義
 export interface AppError {
   code: string
