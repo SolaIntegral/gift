@@ -94,6 +94,19 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (order_id) REFERENCES gift_orders(id)
 );
 
+-- チャットセッションテーブル
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    session_type ENUM('line_chat', 'web_chat', 'health_awareness') NOT NULL,
+    messages JSON NOT NULL,
+    emotion_analysis JSON,
+    gift_recommendations JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- 初期データ挿入
 INSERT IGNORE INTO partners (id, name, description, logo_url, website_url) VALUES
 (UUID(), '健康食品専門店', '高品質な健康食品を提供する専門店', 'https://example.com/logo1.png', 'https://example.com'),

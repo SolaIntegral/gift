@@ -1,0 +1,18 @@
+{
+  "name": "line-chat-lambda",
+  "version": "1.0.0",
+  "description": "LINE Chat Lambda Function for Health Gift Consultation",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "package": "npm run build && zip -r lambda-package.zip dist/ node_modules/"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "mysql2": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+} 

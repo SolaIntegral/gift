@@ -19,6 +19,14 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/enhanced-consultation',
+    name: 'EnhancedConsultation',
+    component: () => import('@/components/EnhancedGiftConsultation.vue'),
+    meta: {
+      title: 'AI健康ギフト相談 - GIFTS'
+    }
+  },
+  {
     path: '/gifts',
     name: 'Gifts',
     component: () => import('@/views/GiftsView.vue'),

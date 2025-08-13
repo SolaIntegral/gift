@@ -302,6 +302,38 @@ export class AwsInfrastructureStack extends cdk.Stack {
       authorizationType: apigateway.AuthorizationType.NONE,
     });
 
+    // LINEチャットLambda関数
+    const lineChatFunction = new lambda.Function(this, 'LineChatFunction', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/line-chat/lambda-package.zip')),
+      role: lambdaRole,
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      securityGroups: [lambdaSecurityGroup],
+      environment: {
+        DB_HOST: dbInstance.instanceEndpoint.hostname,
+        DB_PORT: dbInstance.instanceEndpoint.port.toString(),
+        DB_NAME: 'giftapp',
+        DB_USER: 'admin',
+        DB_PASSWORD: dbInstance.secret!.secretValueFromJson('password').unsafeUnwrap(),
+        DB_SSL: 'true',
+        LINE_CHANNEL_ACCESS_TOKEN: 'YOUR_LINE_CHANNEL_ACCESS_TOKEN', // 後で更新
+      },
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 512,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    // LINEチャットAPI
+    const lineChatIntegration = new apigateway.LambdaIntegration(lineChatFunction);
+    const lineChatResource = api.root.addResource('line-chat');
+    lineChatResource.addMethod('POST', lineChatIntegration, {
+      authorizationType: apigateway.AuthorizationType.NONE,
+    });
+
     // S3バケット（フロントエンド用）
     const frontendBucket = new s3.Bucket(this, 'GiftAppFrontendBucket', {
       bucketName: `gift-app-frontend-${this.account}-${this.region}`,

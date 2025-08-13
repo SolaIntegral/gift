@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { onMounted } from 'vue'
+import AccessibilityPanel from '@/components/AccessibilityPanel.vue'
 
 const authStore = useAuthStore()
 
@@ -13,7 +14,15 @@ onMounted(() => {
 
 <template>
   <div id="app">
-    <RouterView />
+    <!-- スキップリンク -->
+    <a href="#main-content" class="skip-link">メインコンテンツにスキップ</a>
+    
+    <!-- アクセシビリティパネル -->
+    <AccessibilityPanel />
+    
+    <main id="main-content">
+      <RouterView />
+    </main>
   </div>
 </template>
 
