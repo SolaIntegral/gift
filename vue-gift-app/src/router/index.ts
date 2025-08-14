@@ -85,14 +85,15 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true
     }
   },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('@/views/AboutView.vue'),
-    meta: {
-      title: 'サービスについて - GIFTS'
-    }
-  },
+  // AboutViewは削除されたため、一時的にコメントアウト
+  // {
+  //   path: '/about',
+  //   name: 'About',
+  //   component: () => import('@/views/AboutView.vue'),
+  //   meta: {
+  //     title: 'サービスについて - GIFTS'
+  //   }
+  // },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

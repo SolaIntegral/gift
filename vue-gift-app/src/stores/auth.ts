@@ -1,7 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/services/supabase'
-import type { User } from '@supabase/supabase-js'
+// import { supabase } from '@/services/supabase' // 一時的に無効化
+// import type { User } from '@supabase/supabase-js' // 一時的に無効化
+
+// 一時的なユーザー型定義
+interface User {
+  id: string
+  email: string
+  name?: string
+}
 
 export const useAuthStore = defineStore('auth', () => {
   // 状態
@@ -13,19 +20,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value)
   const isGuest = computed(() => !user.value)
 
-  // 初期化
+  // 初期化（一時的に無効化）
   const initialize = async () => {
     try {
       loading.value = true
-      
-      // 現在のセッションを取得
-      const { data: { session } } = await supabase.auth.getSession()
-      user.value = session?.user ?? null
-
-      // 認証状態の変更を監視
-      supabase.auth.onAuthStateChange((event, session) => {
-        user.value = session?.user ?? null
-      })
+      console.log('Auth store initialized (temporarily disabled)')
+      // TODO: Supabase統合を再実装
     } catch (err) {
       console.error('Auth initialization error:', err)
       error.value = '認証の初期化に失敗しました'
@@ -34,40 +34,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // サインアップ
+  // サインアップ（一時的に無効化）
   const signUp = async (email: string, password: string, name: string) => {
     try {
       loading.value = true
       error.value = null
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name
-          }
-        }
-      })
-
-      if (signUpError) throw signUpError
-
-      if (data.user) {
-        // ユーザープロフィールを作成
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: data.user.email!,
-            name: name
-          })
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError)
-        }
-      }
-
-      return { success: true, data }
+      console.log('Sign up temporarily disabled')
+      return { success: false, error: '認証機能は一時的に無効化されています' }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サインアップに失敗しました'
       error.value = errorMessage
@@ -77,21 +50,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // サインイン
+  // サインイン（一時的に無効化）
   const signIn = async (email: string, password: string) => {
     try {
       loading.value = true
       error.value = null
-
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (signInError) throw signInError
-
-      user.value = data.user
-      return { success: true, data }
+      console.log('Sign in temporarily disabled')
+      return { success: false, error: '認証機能は一時的に無効化されています' }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サインインに失敗しました'
       error.value = errorMessage
@@ -101,16 +66,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // サインアウト
+  // サインアウト（一時的に無効化）
   const signOut = async () => {
     try {
       loading.value = true
       error.value = null
-
-      const { error: signOutError } = await supabase.auth.signOut()
-      if (signOutError) throw signOutError
-
-      user.value = null
+      console.log('Sign out temporarily disabled')
       return { success: true }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'サインアウトに失敗しました'
@@ -121,19 +82,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // パスワードリセット
+  // パスワードリセット（一時的に無効化）
   const resetPassword = async (email: string) => {
     try {
       loading.value = true
       error.value = null
-
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      })
-
-      if (resetError) throw resetError
-
-      return { success: true }
+      console.log('Password reset temporarily disabled')
+      return { success: false, error: '認証機能は一時的に無効化されています' }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'パスワードリセットに失敗しました'
       error.value = errorMessage
@@ -143,19 +98,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // パスワード更新
+  // パスワード更新（一時的に無効化）
   const updatePassword = async (newPassword: string) => {
     try {
       loading.value = true
       error.value = null
-
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword
-      })
-
-      if (updateError) throw updateError
-
-      return { success: true }
+      console.log('Password update temporarily disabled')
+      return { success: false, error: '認証機能は一時的に無効化されています' }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'パスワード更新に失敗しました'
       error.value = errorMessage
@@ -165,24 +114,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // プロフィール更新
+  // プロフィール更新（一時的に無効化）
   const updateProfile = async (updates: { name?: string; phone?: string }) => {
     try {
       loading.value = true
       error.value = null
-
-      if (!user.value) {
-        throw new Error('ユーザーが認証されていません')
-      }
-
-      const { error: updateError } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', user.value.id)
-
-      if (updateError) throw updateError
-
-      return { success: true }
+      console.log('Profile update temporarily disabled')
+      return { success: false, error: '認証機能は一時的に無効化されています' }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'プロフィール更新に失敗しました'
       error.value = errorMessage

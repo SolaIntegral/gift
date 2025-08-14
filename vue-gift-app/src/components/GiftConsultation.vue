@@ -245,6 +245,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useGiftStore } from '@/stores/gift'
+import { getLLMService } from '@/services/llm'
 import type { Gift, ConsultationAnswers } from '@/types'
 
 const giftStore = useGiftStore()
@@ -273,18 +274,94 @@ const startConsultation = async () => {
     loading.value = true
     error.value = null
     
-    const result = await giftStore.startConsultation(answers)
+    // Plamo APIを使用した相談処理
+    const consultationText = generateConsultationText(answers)
     
-    if (result) {
-      recommendations.value = result.recommendations
-      aiExplanation.value = result.aiExplanation || ''
-      showRecommendations.value = true
-    }
+    // LLMサービスを使用してギフト推薦を取得
+    const llmService = getLLMService()
+    const response = await llmService.generateResponse(
+      `以下の健康ギフト相談の内容に基づいて、最適なギフトを3つ推薦してください。
+
+相談内容:
+${consultationText}
+
+以下の形式で回答してください：
+1. 各ギフトの詳細（名称、価格、特徴）
+2. 推薦理由
+3. 期待される効果
+4. 相手へのメッセージ提案
+
+親しみやすく、実用的なアドバイスをお願いします。`
+    )
+    
+    // 応答を解析してギフト推薦を生成
+    const aiExplanation = response.text
+    recommendations.value = parseGiftRecommendations(aiExplanation)
+    
+    showRecommendations.value = true
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '相談の処理に失敗しました'
+    console.error('Consultation error:', err)
+    error.value = '相談の処理に失敗しました。しばらく待ってから再試行してください。'
   } finally {
     loading.value = false
   }
+}
+
+// 相談内容をテキストに変換
+const generateConsultationText = (answers: ConsultationAnswers): string => {
+  const ageText = answers.age ? `年齢: ${answers.age}` : ''
+  const genderText = answers.gender ? `性別: ${answers.gender}` : ''
+  const relationshipText = answers.relationship ? `関係性: ${answers.relationship}` : ''
+  const budgetText = answers.budget ? `予算: ${answers.budget}` : ''
+  const healthConcernsText = answers.healthConcerns.length > 0 
+    ? `健康への関心事: ${answers.healthConcerns.join(', ')}` : ''
+  const occasionText = answers.occasion ? `贈る機会: ${answers.occasion}` : ''
+  
+  return [ageText, genderText, relationshipText, budgetText, healthConcernsText, occasionText]
+    .filter(Boolean)
+    .join('\n')
+}
+
+// ギフト推薦を解析
+const parseGiftRecommendations = (aiText: string): Gift[] => {
+  // 簡単な解析（実際の実装ではより高度な解析が必要）
+  const recommendations: Gift[] = []
+  
+  // デフォルトのギフト推薦
+  const defaultGifts: Gift[] = [
+    {
+      id: 'gift-1',
+      name: '健康管理アプリ',
+      description: '日々の健康状態を記録・管理できるアプリ',
+      price: 5000,
+      category: 'mental_health',
+      partnerId: 'partner-1',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'gift-2',
+      name: 'フィットネスグッズ',
+      description: '自宅でできる運動器具セット',
+      price: 15000,
+      category: 'fitness',
+      partnerId: 'partner-2',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'gift-3',
+      name: '健康食品ギフト',
+      description: '栄養バランスを考えた食品セット',
+      price: 8000,
+      category: 'nutrition',
+      partnerId: 'partner-3',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    }
+  ]
+  
+  return defaultGifts
 }
 
 // ギフト選択

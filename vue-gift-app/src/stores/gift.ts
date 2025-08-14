@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Gift, GiftOrder, ConsultationAnswers, GiftConsultation } from '@/types'
-import { giftApi, orderApi, consultationApi } from '@/services/api'
-import { ApiError } from '@/services/api'
+// import { giftApi, orderApi, consultationApi } from '@/services/api' // 一時的に無効化
+// import { ApiError } from '@/services/api' // 一時的に無効化
 
 export const useGiftStore = defineStore('gift', () => {
   // 状態
@@ -37,17 +37,15 @@ export const useGiftStore = defineStore('gift', () => {
     orders.value.filter(order => order.status === 'completed')
   )
 
-  // アクション
+  // アクション（一時的に無効化）
   const fetchGifts = async () => {
     try {
       loading.value = true
       error.value = null
-      const response = await giftApi.getGifts()
-      if (response.success && response.data) {
-        gifts.value = response.data
-      }
+      console.log('Fetch gifts temporarily disabled')
+      // TODO: API統合を再実装
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'ギフトの取得に失敗しました'
+      error.value = 'ギフトの取得に失敗しました'
       console.error('Failed to fetch gifts:', err)
     } finally {
       loading.value = false
@@ -58,13 +56,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await giftApi.getGift(id)
-      if (response.success && response.data) {
-        selectedGift.value = response.data
-        return response.data
-      }
+      console.log('Fetch gift by ID temporarily disabled')
+      return null
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'ギフトの取得に失敗しました'
+      error.value = 'ギフトの取得に失敗しました'
       console.error('Failed to fetch gift:', err)
       return null
     } finally {
@@ -76,12 +71,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await giftApi.searchGifts(query)
-      if (response.success && response.data) {
-        gifts.value = response.data
-      }
+      console.log('Search gifts temporarily disabled')
+      // TODO: API統合を再実装
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'ギフトの検索に失敗しました'
+      error.value = 'ギフトの検索に失敗しました'
       console.error('Failed to search gifts:', err)
     } finally {
       loading.value = false
@@ -92,12 +85,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await giftApi.getGiftsByCategory(category)
-      if (response.success && response.data) {
-        gifts.value = response.data
-      }
+      console.log('Fetch gifts by category temporarily disabled')
+      // TODO: API統合を再実装
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : 'ギフトの取得に失敗しました'
+      error.value = 'ギフトの取得に失敗しました'
       console.error('Failed to fetch gifts by category:', err)
     } finally {
       loading.value = false
@@ -113,13 +104,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await orderApi.createOrder(orderData)
-      if (response.success && response.data) {
-        orders.value.push(response.data)
-        return response.data
-      }
+      console.log('Create order temporarily disabled')
+      throw new Error('注文機能は一時的に無効化されています')
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : '注文の作成に失敗しました'
+      error.value = '注文の作成に失敗しました'
       console.error('Failed to create order:', err)
       throw err
     } finally {
@@ -131,12 +119,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await orderApi.getOrders()
-      if (response.success && response.data) {
-        orders.value = response.data
-      }
+      console.log('Fetch orders temporarily disabled')
+      // TODO: API統合を再実装
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : '注文の取得に失敗しました'
+      error.value = '注文の取得に失敗しました'
       console.error('Failed to fetch orders:', err)
     } finally {
       loading.value = false
@@ -147,13 +133,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      await orderApi.cancelOrder(orderId)
-      const orderIndex = orders.value.findIndex(order => order.id === orderId)
-      if (orderIndex !== -1) {
-        orders.value[orderIndex].status = 'cancelled'
-      }
+      console.log('Cancel order temporarily disabled')
+      throw new Error('注文キャンセル機能は一時的に無効化されています')
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : '注文のキャンセルに失敗しました'
+      error.value = '注文のキャンセルに失敗しました'
       console.error('Failed to cancel order:', err)
       throw err
     } finally {
@@ -165,13 +148,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await consultationApi.startConsultation(answers)
-      if (response.success && response.data) {
-        consultations.value.push(response.data)
-        return response.data
-      }
+      console.log('Start consultation temporarily disabled')
+      throw new Error('相談機能は一時的に無効化されています')
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : '相談の開始に失敗しました'
+      error.value = '相談の開始に失敗しました'
       console.error('Failed to start consultation:', err)
       throw err
     } finally {
@@ -183,12 +163,10 @@ export const useGiftStore = defineStore('gift', () => {
     try {
       loading.value = true
       error.value = null
-      const response = await consultationApi.getConsultations()
-      if (response.success && response.data) {
-        consultations.value = response.data
-      }
+      console.log('Fetch consultations temporarily disabled')
+      // TODO: API統合を再実装
     } catch (err) {
-      error.value = err instanceof ApiError ? err.message : '相談履歴の取得に失敗しました'
+      error.value = '相談履歴の取得に失敗しました'
       console.error('Failed to fetch consultations:', err)
     } finally {
       loading.value = false
