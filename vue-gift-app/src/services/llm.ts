@@ -30,8 +30,8 @@ export interface LLMError {
   details?: any
 }
 
-// Kotoba LLM API クライアント
-export class KotobaLLMClient {
+// Plamo API クライアント
+export class PlamoAPIClient {
   private config: LLMConfig
 
   constructor(config: LLMConfig) {
@@ -42,6 +42,12 @@ export class KotobaLLMClient {
     try {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), this.config.timeout)
+
+      console.log('Plamo API request:', {
+        url: `${this.config.baseUrl}/v1/chat/completions`,
+        model: this.config.model,
+        prompt: prompt.substring(0, 100) + '...'
+      })
 
       const response = await fetch(`${this.config.baseUrl}/v1/chat/completions`, {
         method: 'POST',
@@ -70,19 +76,30 @@ export class KotobaLLMClient {
 
       clearTimeout(timeoutId)
 
+      console.log('Plamo API response status:', response.status)
+
       if (!response.ok) {
-        throw new Error(`Kotoba LLM API error: ${response.status} ${response.statusText}`)
+        const errorText = await response.text()
+        console.error('Plamo API error response:', errorText)
+        throw new Error(`Plamo API error: ${response.status} ${response.statusText} - ${errorText}`)
       }
 
       const data = await response.json()
+      console.log('Plamo API success response:', data)
       
       return {
         text: data.choices[0]?.message?.content || '応答を生成できませんでした。',
         usage: data.usage
       }
     } catch (error) {
-      console.error('Kotoba LLM error:', error)
-      throw new LLMServiceError('KOTOBA_API_ERROR', 'Kotoba LLM API呼び出しに失敗しました', error)
+      console.error('Plamo API error details:', error)
+      
+      // タイムアウトエラーの詳細ログ
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Plamo API timeout - request took longer than', this.config.timeout, 'ms')
+      }
+      
+      throw new LLMServiceError('PLAMO_API_ERROR', 'Plamo API呼び出しに失敗しました', error)
     }
   }
 
@@ -99,12 +116,29 @@ export class KotobaLLMClient {
   "confidence": 0.0-1.0,
   "keyPhrases": ["キーフレーズ1", "キーフレーズ2"]
 }
+
+JSONのみを返してください。マークダウンやコードブロックは使用しないでください。
 `
 
       const response = await this.generateResponse(prompt)
       
       try {
-        const analysis = JSON.parse(response.text)
+        // レスポンスからJSON部分を抽出
+        let jsonText = response.text.trim()
+        
+        // マークダウンのコードブロックを除去
+        if (jsonText.startsWith('```json')) {
+          jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+        } else if (jsonText.startsWith('```')) {
+          jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+        }
+        
+        // 先頭と末尾の空白を除去
+        jsonText = jsonText.trim()
+        
+        console.log('Extracted JSON text:', jsonText)
+        
+        const analysis = JSON.parse(jsonText)
         return {
           emotion: analysis.emotion || 'neutral',
           confidence: analysis.confidence || 0.5,
@@ -112,6 +146,7 @@ export class KotobaLLMClient {
         }
       } catch (parseError) {
         console.warn('Emotion analysis JSON parse error:', parseError)
+        console.warn('Raw response text:', response.text)
         return this.fallbackEmotionAnalysis(text)
       }
     } catch (error) {
@@ -127,7 +162,7 @@ export class KotobaLLMClient {
     const concernWords = ['健康', '体調', '病気', '疲れ', 'ストレス', '運動', '食事']
     
     const lowerText = text.toLowerCase()
-    let emotion = 'neutral'
+    let emotion: 'positive' | 'negative' | 'neutral' | 'concerned' = 'neutral'
     let confidence = 0.5
     
     const positiveCount = positiveWords.filter(word => lowerText.includes(word)).length
@@ -213,53 +248,41 @@ export class LLMServiceError extends Error {
 
 // 統合LLMサービス
 export class LLMService {
-  private primaryClient: KotobaLLMClient
+  private primaryClient: PlamoAPIClient
   private fallbackClient: AmazonBedrockClient
   private isPrimaryAvailable: boolean = true
   private errorCount: number = 0
   private readonly MAX_ERRORS = 3
 
   constructor(
-    kotobaConfig: LLMConfig,
+    plamoConfig: LLMConfig,
     bedrockConfig: LLMConfig
   ) {
-    this.primaryClient = new KotobaLLMClient(kotobaConfig)
+    this.primaryClient = new PlamoAPIClient(plamoConfig)
     this.fallbackClient = new AmazonBedrockClient(bedrockConfig)
   }
 
   async generateResponse(prompt: string): Promise<LLMResponse> {
-    if (this.isPrimaryAvailable) {
-      try {
-        const response = await this.primaryClient.generateResponse(prompt)
-        this.errorCount = 0 // 成功したらエラーカウントをリセット
-        return response
-      } catch (error) {
-        console.warn('Primary LLM failed, falling back to Amazon Bedrock:', error)
-        this.errorCount++
-        
-        if (this.errorCount >= this.MAX_ERRORS) {
-          this.isPrimaryAvailable = false
-          console.warn('Primary LLM disabled due to repeated errors')
-        }
-        
-        return await this.fallbackClient.generateResponse(prompt)
-      }
-    } else {
-      // プライマリが無効な場合は直接フォールバックを使用
-      return await this.fallbackClient.generateResponse(prompt)
+    // 一時的にPlamo APIのみを使用（フォールバック無効化）
+    try {
+      console.log('Using Plamo API directly (fallback disabled for testing)')
+      const response = await this.primaryClient.generateResponse(prompt)
+      this.errorCount = 0 // 成功したらエラーカウントをリセット
+      return response
+    } catch (error) {
+      console.error('Plamo API failed completely:', error)
+      throw error // フォールバックせずにエラーを投げる
     }
   }
 
   async analyzeEmotion(text: string): Promise<EmotionAnalysis> {
-    if (this.isPrimaryAvailable) {
-      try {
-        return await this.primaryClient.analyzeEmotion(text)
-      } catch (error) {
-        console.warn('Primary emotion analysis failed, using fallback:', error)
-        return this.primaryClient.fallbackEmotionAnalysis(text)
-      }
-    } else {
-      return this.primaryClient.fallbackEmotionAnalysis(text)
+    // 一時的にPlamo APIのみを使用（フォールバック無効化）
+    try {
+      console.log('Using Plamo API for emotion analysis (fallback disabled for testing)')
+      return await this.primaryClient.analyzeEmotion(text)
+    } catch (error) {
+      console.error('Plamo API emotion analysis failed completely:', error)
+      throw error // フォールバックせずにエラーを投げる
     }
   }
 
@@ -280,13 +303,13 @@ export class LLMService {
 }
 
 // 設定のデフォルト値
-export const DEFAULT_KOTOBA_CONFIG: LLMConfig = {
-  apiKey: import.meta.env.VITE_KOTOBA_API_KEY || '',
-  baseUrl: import.meta.env.VITE_KOTOBA_BASE_URL || 'https://api.kotoba.ai',
-  model: import.meta.env.VITE_KOTOBA_MODEL || 'kotoba-1.0',
+export const DEFAULT_PLAMO_CONFIG: LLMConfig = {
+  apiKey: import.meta.env.VITE_PLAMO_API_KEY || '',
+  baseUrl: import.meta.env.VITE_PLAMO_BASE_URL || 'https://platform.preferredai.jp/api/completion',
+  model: import.meta.env.VITE_PLAMO_MODEL || 'plamo-2.0-prime',
   maxTokens: 1000,
   temperature: 0.7,
-  timeout: 30000
+  timeout: 60000  // 60秒に延長
 }
 
 export const DEFAULT_BEDROCK_CONFIG: LLMConfig = {
@@ -303,7 +326,7 @@ let llmServiceInstance: LLMService | null = null
 
 export const getLLMService = (): LLMService => {
   if (!llmServiceInstance) {
-    llmServiceInstance = new LLMService(DEFAULT_KOTOBA_CONFIG, DEFAULT_BEDROCK_CONFIG)
+    llmServiceInstance = new LLMService(DEFAULT_PLAMO_CONFIG, DEFAULT_BEDROCK_CONFIG)
   }
   return llmServiceInstance
 }

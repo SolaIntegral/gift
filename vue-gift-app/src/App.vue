@@ -4,8 +4,12 @@ import { useAuthStore } from '@/stores/auth'
 import { onMounted } from 'vue'
 import AccessibilityPanel from '@/components/AccessibilityPanel.vue'
 import LLMStatusPanel from '@/components/LLMStatusPanel.vue'
+import PlamoAPITest from '@/components/PlamoAPITest.vue'
 
 const authStore = useAuthStore()
+
+// 開発環境判定
+const isDevelopment = import.meta.env.DEV
 
 onMounted(() => {
   // 認証状態の初期化
@@ -21,10 +25,13 @@ onMounted(() => {
     <!-- アクセシビリティパネル -->
     <AccessibilityPanel />
     
-    <!-- LLM状態パネル -->
-    <LLMStatusPanel />
-    
-    <main id="main-content">
+            <!-- LLM状態パネル -->
+        <LLMStatusPanel />
+        
+        <!-- Plamo API テストパネル（開発用） -->
+        <PlamoAPITest v-if="isDevelopment" />
+        
+        <main id="main-content">
       <RouterView />
     </main>
   </div>

@@ -20,7 +20,7 @@
           <span class="status-icon" :class="statusIconClass">
             {{ statusIcon }}
           </span>
-          Kotoba LLM（国産AI）
+          Plamo API（国産AI）
         </div>
         <div class="status-details">
           <span class="status-text" :class="statusTextClass">
