@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
+  // トップページ
   {
     path: '/',
     name: 'Home',
@@ -10,30 +11,8 @@ const routes: RouteRecordRaw[] = [
       title: 'GIFTS - 健康ギフト提案・購入プラットフォーム'
     }
   },
-  {
-    path: '/consultation',
-    name: 'Consultation',
-    component: () => import('@/views/ConsultationView.vue'),
-    meta: {
-      title: 'ギフト相談 - GIFTS'
-    }
-  },
-  {
-    path: '/enhanced-consultation',
-    name: 'EnhancedConsultation',
-    component: () => import('@/components/EnhancedGiftConsultation.vue'),
-    meta: {
-      title: 'AI健康ギフト相談 - GIFTS'
-    }
-  },
-  {
-    path: '/wellness-journey',
-    name: 'WellnessJourney',
-    component: () => import('@/components/WellnessJourney.vue'),
-    meta: {
-      title: 'ウェルネス・ジャーニー - GIFTS'
-    }
-  },
+
+  // GIFTER（ギフトを贈る人）の画面フロー
   {
     path: '/gifts',
     name: 'Gifts',
@@ -43,31 +22,85 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/order/:giftId',
-    name: 'Order',
-    component: () => import('@/views/OrderView.vue'),
-    meta: {
-      title: '注文 - GIFTS',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/orders',
-    name: 'Orders',
-    component: () => import('@/views/OrdersView.vue'),
-    meta: {
-      title: '注文履歴 - GIFTS',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/gift/:giftId',
-    name: 'GiftView',
-    component: () => import('@/views/GiftView.vue'),
+    path: '/gifts/:id',
+    name: 'GiftDetail',
+    component: () => import('@/views/GiftDetailView.vue'),
     meta: {
       title: 'ギフト詳細 - GIFTS'
     }
   },
+  {
+    path: '/purchase/:id',
+    name: 'Purchase',
+    component: () => import('@/views/PurchaseView.vue'),
+    meta: {
+      title: 'ギフト購入 - GIFTS'
+    }
+  },
+  {
+    path: '/complete',
+    name: 'Complete',
+    component: () => import('@/views/CompleteView.vue'),
+    meta: {
+      title: '購入完了 - GIFTS'
+    }
+  },
+  {
+    path: '/my-page',
+    name: 'MyPage',
+    component: () => import('@/views/MyPageView.vue'),
+    meta: {
+      title: 'マイページ - GIFTS',
+      requiresAuth: true
+    }
+  },
+
+  // SELECTER（ギフトを受け取った人）の画面フロー
+  {
+    path: '/gift/:uniqueId',
+    name: 'GiftReceive',
+    component: () => import('@/views/GiftReceiveView.vue'),
+    meta: {
+      title: 'ギフト受け取り - GIFTS'
+    }
+  },
+  {
+    path: '/booking/:uniqueId',
+    name: 'Booking',
+    component: () => import('@/views/BookingView.vue'),
+    meta: {
+      title: '利用予約 - GIFTS'
+    }
+  },
+  {
+    path: '/booking/complete',
+    name: 'BookingComplete',
+    component: () => import('@/views/BookingCompleteView.vue'),
+    meta: {
+      title: '予約完了 - GIFTS'
+    }
+  },
+  {
+    path: '/journey-log',
+    name: 'JourneyLog',
+    component: () => import('@/views/JourneyLogView.vue'),
+    meta: {
+      title: 'ウェルネス・ジャーニー記録 - GIFTS',
+      requiresAuth: true
+    }
+  },
+
+  // ウェルネス・ジャーニー（モーダルまたは画面遷移）
+  {
+    path: '/wellness-journey',
+    name: 'WellnessJourney',
+    component: () => import('@/components/WellnessJourney.vue'),
+    meta: {
+      title: 'ウェルネス・ジャーニー - GIFTS'
+    }
+  },
+
+  // 認証関連
   {
     path: '/login',
     name: 'Login',
@@ -93,15 +126,8 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true
     }
   },
-  // AboutViewは削除されたため、一時的にコメントアウト
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   component: () => import('@/views/AboutView.vue'),
-  //   meta: {
-  //     title: 'サービスについて - GIFTS'
-  //   }
-  // },
+
+  // 404ページ
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
