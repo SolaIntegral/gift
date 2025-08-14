@@ -98,33 +98,6 @@ const routes: RouteRecordRaw[] = [
     }
   },
 
-  // 認証関連
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/LoginView.vue'),
-    meta: {
-      title: 'ログイン - GIFTS'
-    }
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: () => import('@/views/RegisterView.vue'),
-    meta: {
-      title: '新規登録 - GIFTS'
-    }
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/ProfileView.vue'),
-    meta: {
-      title: 'プロフィール - GIFTS',
-      requiresAuth: true
-    }
-  },
-
   // 404ページ
   {
     path: '/:pathMatch(.*)*',
@@ -148,20 +121,11 @@ const router = createRouter({
   }
 })
 
-// ナビゲーションガード
+// ナビゲーションガード（認証チェックなし）
 router.beforeEach((to, from, next) => {
   // ページタイトルの設定
   if (to.meta.title) {
     document.title = to.meta.title as string
-  }
-
-  // 認証が必要なページのチェック（プロフィールページのみ）
-  if (to.meta.requiresAuth) {
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      next({ name: 'Login', query: { redirect: to.fullPath } })
-      return
-    }
   }
 
   next()
