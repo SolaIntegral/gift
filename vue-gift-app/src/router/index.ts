@@ -50,8 +50,7 @@ const routes: RouteRecordRaw[] = [
     name: 'MyPage',
     component: () => import('@/views/MyPageView.vue'),
     meta: {
-      title: 'マイページ - GIFTS',
-      requiresAuth: true
+      title: 'マイページ - GIFTS'
     }
   },
 
@@ -85,8 +84,7 @@ const routes: RouteRecordRaw[] = [
     name: 'JourneyLog',
     component: () => import('@/views/JourneyLogView.vue'),
     meta: {
-      title: 'ウェルネス・ジャーニー記録 - GIFTS',
-      requiresAuth: true
+      title: 'ウェルネス・ジャーニー記録 - GIFTS'
     }
   },
 
@@ -157,7 +155,7 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title as string
   }
 
-  // 認証が必要なページのチェック
+  // 認証が必要なページのチェック（プロフィールページのみ）
   if (to.meta.requiresAuth) {
     const token = localStorage.getItem('accessToken')
     if (!token) {
