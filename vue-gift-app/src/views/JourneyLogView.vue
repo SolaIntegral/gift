@@ -7,12 +7,207 @@
         <p>あなたの健康への想いと成長の記録を振り返りましょう</p>
       </div>
 
-      <!-- ログイン状態 -->
-      <div v-if="!isLoggedIn" class="login-section">
-        <div class="login-card">
-          <h3>🔐 ログインが必要です</h3>
-          <p>ウェルネス・ジャーニーの記録を確認するには、ログインしてください</p>
-          
+      <!-- ユーザー情報 -->
+      <div class="user-info">
+        <div class="user-card">
+          <div class="user-avatar">
+            <span class="avatar-icon">🌟</span>
+          </div>
+          <div class="user-details">
+            <h3>ゲストユーザー</h3>
+            <p class="user-email">ログインするとより便利に</p>
+            <p class="journey-stats">
+              開始日: {{ formatDate(userInfo.journeyStartDate) }} | 
+              記録数: {{ journeyRecords.length }}件
+            </p>
+          </div>
+          <div class="user-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ journeyRecords.length }}</span>
+              <span class="stat-label">記録数</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ completedJourneys.length }}</span>
+              <span class="stat-label">完了</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 登録促進バナー -->
+      <div class="registration-banner">
+        <div class="banner-content">
+          <div class="banner-icon">🌟</div>
+          <div class="banner-text">
+            <h3>ログインするともっと便利に！</h3>
+            <p>ジャーニー記録の永続化、進捗管理、通知設定などが利用できます</p>
+          </div>
+          <div class="banner-actions">
+            <BaseButton
+              @click="showLoginModal = true"
+              size="lg"
+              class="login-btn"
+            >
+              📱 ログイン・登録
+            </BaseButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- 最新のウェルネス宣言 -->
+      <div v-if="latestWellnessDeclaration" class="latest-declaration">
+        <h3>🌟 最新のウェルネス宣言</h3>
+        <div class="declaration-card">
+          <div class="declaration-content">
+            <h4>"{{ latestWellnessDeclaration.title }}"</h4>
+            <p class="declaration-text">{{ latestWellnessDeclaration.content }}</p>
+            <div class="declaration-date">
+              作成日: {{ formatDate(latestWellnessDeclaration.createdAt) }}
+            </div>
+          </div>
+          <div class="declaration-image">
+            <div class="image-placeholder">
+              <span class="image-icon">🖼️</span>
+              <p>ウェルネス宣言画像</p>
+            </div>
+            <div class="image-actions">
+              <BaseButton
+                @click="downloadImage(latestWellnessDeclaration)"
+                variant="outline"
+                size="sm"
+                class="download-btn"
+              >
+                📥 ダウンロード
+              </BaseButton>
+              <BaseButton
+                @click="shareImage(latestWellnessDeclaration)"
+                variant="outline"
+                size="sm"
+                class="share-btn"
+              >
+                📤 共有
+              </BaseButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ジャーニー記録一覧 -->
+      <div class="journey-records">
+        <div class="section-header">
+          <h3>📖 ジャーニー記録一覧</h3>
+          <div class="filter-options">
+            <select v-model="categoryFilter" class="filter-select">
+              <option value="">全てのカテゴリ</option>
+              <option value="future">未来と夢</option>
+              <option value="relationships">大切な人</option>
+              <option value="past">過去と現在</option>
+              <option value="health">健康への接続</option>
+            </select>
+          </div>
+        </div>
+
+        <div v-if="filteredRecords.length > 0" class="records-grid">
+          <div 
+            v-for="record in filteredRecords" 
+            :key="record.id"
+            class="record-item"
+            :class="record.status"
+          >
+            <div class="record-header">
+              <div class="record-icon">{{ getCategoryIcon(record.category) }}</div>
+              <div class="record-status" :class="record.status">
+                {{ getStatusLabel(record.status) }}
+              </div>
+            </div>
+            
+            <div class="record-content">
+              <h4 class="record-title">{{ record.title }}</h4>
+              <p class="record-description">{{ record.description }}</p>
+              
+              <div class="record-details">
+                <div class="detail-row">
+                  <span class="label">カテゴリ:</span>
+                  <span class="value">{{ getCategoryLabel(record.category) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">開始日:</span>
+                  <span class="value">{{ formatDate(record.startDate) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">質問数:</span>
+                  <span class="value">{{ record.questionCount }}問</span>
+                </div>
+              </div>
+
+              <div class="record-actions">
+                <BaseButton
+                  @click="viewRecordDetails(record)"
+                  variant="outline"
+                  size="sm"
+                  class="view-btn"
+                >
+                  詳細を見る
+                </BaseButton>
+                
+                <BaseButton
+                  v-if="record.status === 'in_progress'"
+                  @click="continueJourney(record)"
+                  size="sm"
+                  class="continue-btn"
+                >
+                  続きを始める
+                </BaseButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 記録がない場合 -->
+        <div v-else class="no-records">
+          <div class="no-records-icon">📚</div>
+          <h4>まだウェルネス・ジャーニーを始めていません</h4>
+          <p>自分自身の健康と未来について考えてみませんか？</p>
+          <BaseButton
+            @click="startNewJourney"
+            size="lg"
+            class="start-journey-btn"
+          >
+            🌟 新しいジャーニーを始める
+          </BaseButton>
+        </div>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="action-buttons">
+        <BaseButton
+          @click="startNewJourney"
+          size="lg"
+          class="new-journey-btn"
+        >
+          🌟 新しいジャーニーを始める
+        </BaseButton>
+        
+        <BaseButton
+          @click="showLoginModal = true"
+          variant="outline"
+          size="lg"
+          class="register-btn"
+        >
+          📝 アカウントを作成
+        </BaseButton>
+      </div>
+    </div>
+
+    <!-- ログインモーダル -->
+    <div v-if="showLoginModal" class="login-modal-overlay" @click="showLoginModal = false">
+      <div class="login-modal" @click.stop>
+        <div class="modal-header">
+          <h3>🔐 ログイン・登録</h3>
+          <button @click="showLoginModal = false" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-content">
           <div class="login-options">
             <BaseButton
               @click="loginWithLine"
@@ -31,180 +226,17 @@
               📧 メールでログイン
             </BaseButton>
           </div>
-        </div>
-      </div>
-
-      <!-- ログイン済みの場合 -->
-      <div v-else class="user-content">
-        <!-- ユーザー情報 -->
-        <div class="user-info">
-          <div class="user-card">
-            <div class="user-avatar">
-              <span class="avatar-icon">🌟</span>
-            </div>
-            <div class="user-details">
-              <h3>{{ userInfo.name }}</h3>
-              <p class="user-email">{{ userInfo.email }}</p>
-              <p class="journey-stats">
-                開始日: {{ formatDate(userInfo.journeyStartDate) }} | 
-                記録数: {{ journeyRecords.length }}件
-              </p>
-            </div>
-            <div class="user-stats">
-              <div class="stat-item">
-                <span class="stat-number">{{ journeyRecords.length }}</span>
-                <span class="stat-label">記録数</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">{{ completedJourneys.length }}</span>
-                <span class="stat-label">完了</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 最新のウェルネス宣言 -->
-        <div v-if="latestWellnessDeclaration" class="latest-declaration">
-          <h3>🌟 最新のウェルネス宣言</h3>
-          <div class="declaration-card">
-            <div class="declaration-content">
-              <h4>"{{ latestWellnessDeclaration.title }}"</h4>
-              <p class="declaration-text">{{ latestWellnessDeclaration.content }}</p>
-              <div class="declaration-date">
-                作成日: {{ formatDate(latestWellnessDeclaration.createdAt) }}
-              </div>
-            </div>
-            <div class="declaration-image">
-              <div class="image-placeholder">
-                <span class="image-icon">🖼️</span>
-                <p>ウェルネス宣言画像</p>
-              </div>
-              <div class="image-actions">
-                <BaseButton
-                  @click="downloadImage(latestWellnessDeclaration)"
-                  variant="outline"
-                  size="sm"
-                  class="download-btn"
-                >
-                  📥 ダウンロード
-                </BaseButton>
-                <BaseButton
-                  @click="shareImage(latestWellnessDeclaration)"
-                  variant="outline"
-                  size="sm"
-                  class="share-btn"
-                >
-                  📤 共有
-                </BaseButton>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ジャーニー記録一覧 -->
-        <div class="journey-records">
-          <div class="section-header">
-            <h3>📖 ジャーニー記録一覧</h3>
-            <div class="filter-options">
-              <select v-model="categoryFilter" class="filter-select">
-                <option value="">全てのカテゴリ</option>
-                <option value="future">未来と夢</option>
-                <option value="relationships">大切な人</option>
-                <option value="past">過去と現在</option>
-                <option value="health">健康への接続</option>
-              </select>
-            </div>
-          </div>
-
-          <div v-if="filteredRecords.length > 0" class="records-grid">
-            <div 
-              v-for="record in filteredRecords" 
-              :key="record.id"
-              class="record-item"
-              :class="record.status"
-            >
-              <div class="record-header">
-                <div class="record-icon">{{ getCategoryIcon(record.category) }}</div>
-                <div class="record-status" :class="record.status">
-                  {{ getStatusLabel(record.status) }}
-                </div>
-              </div>
-              
-              <div class="record-content">
-                <h4 class="record-title">{{ record.title }}</h4>
-                <p class="record-description">{{ record.description }}</p>
-                
-                <div class="record-details">
-                  <div class="detail-row">
-                    <span class="label">カテゴリ:</span>
-                    <span class="value">{{ getCategoryLabel(record.category) }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="label">開始日:</span>
-                    <span class="value">{{ formatDate(record.startDate) }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="label">質問数:</span>
-                    <span class="value">{{ record.questionCount }}問</span>
-                  </div>
-                </div>
-
-                <div class="record-actions">
-                  <BaseButton
-                    @click="viewRecordDetails(record)"
-                    variant="outline"
-                    size="sm"
-                    class="view-btn"
-                  >
-                    詳細を見る
-                  </BaseButton>
-                  
-                  <BaseButton
-                    v-if="record.status === 'in_progress'"
-                    @click="continueJourney(record)"
-                    size="sm"
-                    class="continue-btn"
-                  >
-                    続きを始める
-                  </BaseButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 記録がない場合 -->
-          <div v-else class="no-records">
-            <div class="no-records-icon">📚</div>
-            <h4>まだウェルネス・ジャーニーを始めていません</h4>
-            <p>自分自身の健康と未来について考えてみませんか？</p>
-            <BaseButton
-              @click="startNewJourney"
-              size="lg"
-              class="start-journey-btn"
-            >
-              🌟 新しいジャーニーを始める
-            </BaseButton>
-          </div>
-        </div>
-
-        <!-- アクションボタン -->
-        <div class="action-buttons">
-          <BaseButton
-            @click="startNewJourney"
-            size="lg"
-            class="new-journey-btn"
-          >
-            🌟 新しいジャーニーを始める
-          </BaseButton>
           
-          <BaseButton
-            @click="logout"
-            variant="outline"
-            size="lg"
-            class="logout-btn"
-          >
-            🚪 ログアウト
-          </BaseButton>
+          <div class="login-benefits">
+            <h4>ログインすると以下のことができます：</h4>
+            <ul>
+              <li>ジャーニー記録の永続化</li>
+              <li>進捗管理と通知</li>
+              <li>ウェルネス宣言の保存</li>
+              <li>継続的な健康管理サポート</li>
+              <li>記録のエクスポート</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -218,7 +250,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 
-const isLoggedIn = ref(false)
+const showLoginModal = ref(false)
 const categoryFilter = ref('')
 
 // ユーザー情報
@@ -308,13 +340,13 @@ const formatDate = (dateString: string): string => {
 }
 
 const loginWithLine = () => {
-  isLoggedIn.value = true
   alert('LINEログインが完了しました（デモ）')
+  showLoginModal.value = false
 }
 
 const loginWithEmail = () => {
-  isLoggedIn.value = true
   alert('メールログインが完了しました（デモ）')
+  showLoginModal.value = false
 }
 
 const viewRecordDetails = (record: any) => {
@@ -337,13 +369,16 @@ const shareImage = (declaration: any) => {
   alert('画像を共有しました（デモ）')
 }
 
-const logout = () => {
-  isLoggedIn.value = false
-  alert('ログアウトしました')
-}
-
 onMounted(() => {
-  isLoggedIn.value = true
+  // ローカルストレージからジャーニー記録を取得（実際の実装）
+  const savedRecords = localStorage.getItem('journeyRecords')
+  if (savedRecords) {
+    try {
+      journeyRecords.value = JSON.parse(savedRecords)
+    } catch (error) {
+      console.error('記録の読み込みに失敗しました:', error)
+    }
+  }
 })
 </script>
 
@@ -374,56 +409,6 @@ onMounted(() => {
 .page-header p {
   font-size: 1.2rem;
   color: #7f8c8d;
-}
-
-.login-section {
-  margin-bottom: 3rem;
-}
-
-.login-card {
-  background: white;
-  border-radius: 20px;
-  padding: 3rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.login-card h3 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-}
-
-.login-card p {
-  color: #7f8c8d;
-  margin-bottom: 2rem;
-}
-
-.login-options {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.line-login-btn {
-  background: #00c300;
-  border: none;
-  color: white;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-}
-
-.email-login-btn {
-  border: 2px solid #667eea;
-  color: #667eea;
-  background: white;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
 }
 
 .user-info {
@@ -489,6 +474,46 @@ onMounted(() => {
 .stat-label {
   color: #7f8c8d;
   font-size: 0.9rem;
+}
+
+/* 登録促進バナー */
+.registration-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  color: white;
+}
+
+.banner-content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+.banner-icon {
+  font-size: 3rem;
+}
+
+.banner-text h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.banner-text p {
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.login-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
 }
 
 .latest-declaration {
@@ -741,18 +766,130 @@ onMounted(() => {
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
-.logout-btn {
-  border: 2px solid #e74c3c;
-  color: #e74c3c;
+.register-btn {
+  border: 2px solid #667eea;
+  color: #667eea;
   background: white;
   font-size: 1.2rem;
   padding: 1rem 3rem;
   border-radius: 50px;
 }
 
-.logout-btn:hover {
-  background: #e74c3c;
+.register-btn:hover {
+  background: #667eea;
   color: white;
+}
+
+/* ログインモーダル */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modal-header h3 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #2c3e50;
+}
+
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.line-login-btn {
+  background: #00c300;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.email-login-btn {
+  border: 2px solid #667eea;
+  color: #667eea;
+  background: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.login-benefits {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+.login-benefits h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.login-benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.login-benefits li {
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.login-benefits li::before {
+  content: '✓';
+  color: #667eea;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
@@ -770,6 +907,12 @@ onMounted(() => {
     justify-content: center;
   }
   
+  .banner-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1rem;
+  }
+  
   .declaration-card {
     grid-template-columns: 1fr;
     text-align: center;
@@ -785,10 +928,6 @@ onMounted(() => {
   }
   
   .action-buttons {
-    flex-direction: column;
-  }
-  
-  .login-options {
     flex-direction: column;
   }
 }

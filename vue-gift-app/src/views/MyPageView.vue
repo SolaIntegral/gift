@@ -7,12 +7,209 @@
         <p>あなたが贈った健康ギフトの履歴を確認できます</p>
       </div>
 
-      <!-- ログイン状態 -->
-      <div v-if="!isLoggedIn" class="login-section">
-        <div class="login-card">
-          <h3>🔐 ログインが必要です</h3>
-          <p>ギフト履歴を確認するには、ログインしてください</p>
-          
+      <!-- ユーザー情報 -->
+      <div class="user-info">
+        <div class="user-card">
+          <div class="user-avatar">
+            <span class="avatar-icon">👤</span>
+          </div>
+          <div class="user-details">
+            <h3>ゲストユーザー</h3>
+            <p class="user-email">ログインするとより便利に</p>
+            <p class="member-since">ログインすると履歴が保存されます</p>
+          </div>
+          <div class="user-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ giftHistory.length }}</span>
+              <span class="stat-label">贈ったギフト</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ activeGifts.length }}</span>
+              <span class="stat-label">有効なギフト</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 登録促進バナー -->
+      <div class="registration-banner">
+        <div class="banner-content">
+          <div class="banner-icon">🌟</div>
+          <div class="banner-text">
+            <h3>ログインするともっと便利に！</h3>
+            <p>ギフト履歴の保存、お気に入り機能、通知設定などが利用できます</p>
+          </div>
+          <div class="banner-actions">
+            <BaseButton
+              @click="showLoginModal = true"
+              size="lg"
+              class="login-btn"
+            >
+              📱 ログイン・登録
+            </BaseButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- ギフト履歴 -->
+      <div class="gift-history">
+        <div class="section-header">
+          <h3>🎁 贈ったギフトの履歴</h3>
+          <div class="filter-options">
+            <select v-model="statusFilter" class="filter-select">
+              <option value="">全てのステータス</option>
+              <option value="active">有効</option>
+              <option value="used">利用済み</option>
+              <option value="expired">期限切れ</option>
+            </select>
+          </div>
+        </div>
+
+        <div v-if="filteredGifts.length > 0" class="gifts-grid">
+          <div 
+            v-for="gift in filteredGifts" 
+            :key="gift.id"
+            class="gift-item"
+          >
+            <div class="gift-header">
+              <div class="gift-icon">{{ getGiftIcon(gift.category) }}</div>
+              <div class="gift-status" :class="gift.status">
+                {{ getStatusLabel(gift.status) }}
+              </div>
+            </div>
+            
+            <div class="gift-content">
+              <h4 class="gift-name">{{ gift.name }}</h4>
+              <p class="gift-description">{{ gift.description }}</p>
+              
+              <div class="gift-details">
+                <div class="detail-row">
+                  <span class="label">贈った相手:</span>
+                  <span class="value">{{ gift.recipientName }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">贈った日:</span>
+                  <span class="value">{{ formatDate(gift.giftedDate) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">有効期限:</span>
+                  <span class="value">{{ formatDate(gift.expiryDate) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">価格:</span>
+                  <span class="value price">¥{{ gift.price.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <div class="gift-message">
+                <h5>メッセージ:</h5>
+                <p>"{{ gift.message }}"</p>
+              </div>
+
+              <div class="gift-actions">
+                <BaseButton
+                  @click="viewGiftDetails(gift)"
+                  variant="outline"
+                  size="sm"
+                  class="view-btn"
+                >
+                  詳細を見る
+                </BaseButton>
+                
+                <BaseButton
+                  @click="resendGift(gift)"
+                  variant="outline"
+                  size="sm"
+                  class="resend-btn"
+                >
+                  再送信
+                </BaseButton>
+                
+                <BaseButton
+                  @click="checkUsageStatus(gift)"
+                  :variant="gift.status === 'active' ? 'primary' : 'outline'"
+                  size="sm"
+                  class="status-btn"
+                >
+                  {{ gift.status === 'active' ? '利用状況確認' : '利用済み' }}
+                </BaseButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ギフトがない場合 -->
+        <div v-else class="no-gifts">
+          <div class="no-gifts-icon">🎁</div>
+          <h4>まだギフトを贈っていません</h4>
+          <p>大切な人への健康ギフトを贈ってみませんか？</p>
+          <BaseButton
+            @click="goToGifts"
+            size="lg"
+            class="browse-gifts-btn"
+          >
+            🎁 ギフトを探す
+          </BaseButton>
+        </div>
+      </div>
+
+      <!-- お気に入りギフト -->
+      <div class="favorite-gifts">
+        <h3>❤️ お気に入りのギフト</h3>
+        <div v-if="favoriteGifts.length > 0" class="favorites-grid">
+          <div 
+            v-for="gift in favoriteGifts" 
+            :key="gift.id"
+            class="favorite-item"
+          >
+            <div class="favorite-icon">{{ getGiftIcon(gift.category) }}</div>
+            <h4>{{ gift.name }}</h4>
+            <p class="favorite-price">¥{{ gift.price.toLocaleString() }}</p>
+            <BaseButton
+              @click="buyFavoriteGift(gift)"
+              size="sm"
+              class="buy-favorite-btn"
+            >
+              購入する
+            </BaseButton>
+          </div>
+        </div>
+        <div v-else class="no-favorites">
+          <p>お気に入りのギフトはまだありません</p>
+          <p>気に入ったギフトを❤️ボタンでお気に入りに追加できます</p>
+        </div>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="action-buttons">
+        <BaseButton
+          @click="goToGifts"
+          size="lg"
+          class="new-gift-btn"
+        >
+          🎁 新しいギフトを贈る
+        </BaseButton>
+        
+        <BaseButton
+          @click="showLoginModal = true"
+          variant="outline"
+          size="lg"
+          class="register-btn"
+        >
+          📝 アカウントを作成
+        </BaseButton>
+      </div>
+    </div>
+
+    <!-- ログインモーダル -->
+    <div v-if="showLoginModal" class="login-modal-overlay" @click="showLoginModal = false">
+      <div class="login-modal" @click.stop>
+        <div class="modal-header">
+          <h3>🔐 ログイン・登録</h3>
+          <button @click="showLoginModal = false" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-content">
           <div class="login-options">
             <BaseButton
               @click="loginWithLine"
@@ -35,188 +232,13 @@
           <div class="login-benefits">
             <h4>ログインすると以下のことができます：</h4>
             <ul>
-              <li>贈ったギフトの履歴確認</li>
-              <li>ギフトの利用状況チェック</li>
+              <li>ギフト履歴の永続化</li>
               <li>お気に入りギフトの保存</li>
+              <li>利用状況の通知</li>
               <li>新しいギフトの購入</li>
+              <li>ギフトの再送信</li>
             </ul>
           </div>
-        </div>
-      </div>
-
-      <!-- ログイン済みの場合 -->
-      <div v-else class="user-content">
-        <!-- ユーザー情報 -->
-        <div class="user-info">
-          <div class="user-card">
-            <div class="user-avatar">
-              <span class="avatar-icon">👤</span>
-            </div>
-            <div class="user-details">
-              <h3>{{ userInfo.name }}</h3>
-              <p class="user-email">{{ userInfo.email }}</p>
-              <p class="member-since">会員登録日: {{ formatDate(userInfo.memberSince) }}</p>
-            </div>
-            <div class="user-stats">
-              <div class="stat-item">
-                <span class="stat-number">{{ giftHistory.length }}</span>
-                <span class="stat-label">贈ったギフト</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">{{ activeGifts.length }}</span>
-                <span class="stat-label">有効なギフト</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ギフト履歴 -->
-        <div class="gift-history">
-          <div class="section-header">
-            <h3>🎁 贈ったギフトの履歴</h3>
-            <div class="filter-options">
-              <select v-model="statusFilter" class="filter-select">
-                <option value="">全てのステータス</option>
-                <option value="active">有効</option>
-                <option value="used">利用済み</option>
-                <option value="expired">期限切れ</option>
-              </select>
-            </div>
-          </div>
-
-          <div v-if="filteredGifts.length > 0" class="gifts-grid">
-            <div 
-              v-for="gift in filteredGifts" 
-              :key="gift.id"
-              class="gift-item"
-            >
-              <div class="gift-header">
-                <div class="gift-icon">{{ getGiftIcon(gift.category) }}</div>
-                <div class="gift-status" :class="gift.status">
-                  {{ getStatusLabel(gift.status) }}
-                </div>
-              </div>
-              
-              <div class="gift-content">
-                <h4 class="gift-name">{{ gift.name }}</h4>
-                <p class="gift-description">{{ gift.description }}</p>
-                
-                <div class="gift-details">
-                  <div class="detail-row">
-                    <span class="label">贈った相手:</span>
-                    <span class="value">{{ gift.recipientName }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="label">贈った日:</span>
-                    <span class="value">{{ formatDate(gift.giftedDate) }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="label">有効期限:</span>
-                    <span class="value">{{ formatDate(gift.expiryDate) }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="label">価格:</span>
-                    <span class="value price">¥{{ gift.price.toLocaleString() }}</span>
-                  </div>
-                </div>
-
-                <div class="gift-message">
-                  <h5>メッセージ:</h5>
-                  <p>"{{ gift.message }}"</p>
-                </div>
-
-                <div class="gift-actions">
-                  <BaseButton
-                    @click="viewGiftDetails(gift)"
-                    variant="outline"
-                    size="sm"
-                    class="view-btn"
-                  >
-                    詳細を見る
-                  </BaseButton>
-                  
-                  <BaseButton
-                    @click="resendGift(gift)"
-                    variant="outline"
-                    size="sm"
-                    class="resend-btn"
-                  >
-                    再送信
-                  </BaseButton>
-                  
-                  <BaseButton
-                    @click="checkUsageStatus(gift)"
-                    :variant="gift.status === 'active' ? 'primary' : 'outline'"
-                    size="sm"
-                    class="status-btn"
-                  >
-                    {{ gift.status === 'active' ? '利用状況確認' : '利用済み' }}
-                  </BaseButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ギフトがない場合 -->
-          <div v-else class="no-gifts">
-            <div class="no-gifts-icon">🎁</div>
-            <h4>まだギフトを贈っていません</h4>
-            <p>大切な人への健康ギフトを贈ってみませんか？</p>
-            <BaseButton
-              @click="goToGifts"
-              size="lg"
-              class="browse-gifts-btn"
-            >
-              🎁 ギフトを探す
-            </BaseButton>
-          </div>
-        </div>
-
-        <!-- お気に入りギフト -->
-        <div class="favorite-gifts">
-          <h3>❤️ お気に入りのギフト</h3>
-          <div v-if="favoriteGifts.length > 0" class="favorites-grid">
-            <div 
-              v-for="gift in favoriteGifts" 
-              :key="gift.id"
-              class="favorite-item"
-            >
-              <div class="favorite-icon">{{ getGiftIcon(gift.category) }}</div>
-              <h4>{{ gift.name }}</h4>
-              <p class="favorite-price">¥{{ gift.price.toLocaleString() }}</p>
-              <BaseButton
-                @click="buyFavoriteGift(gift)"
-                size="sm"
-                class="buy-favorite-btn"
-              >
-                購入する
-              </BaseButton>
-            </div>
-          </div>
-          <div v-else class="no-favorites">
-            <p>お気に入りのギフトはまだありません</p>
-            <p>気に入ったギフトを❤️ボタンでお気に入りに追加できます</p>
-          </div>
-        </div>
-
-        <!-- アクションボタン -->
-        <div class="action-buttons">
-          <BaseButton
-            @click="goToGifts"
-            size="lg"
-            class="new-gift-btn"
-          >
-            🎁 新しいギフトを贈る
-          </BaseButton>
-          
-          <BaseButton
-            @click="logout"
-            variant="outline"
-            size="lg"
-            class="logout-btn"
-          >
-            🚪 ログアウト
-          </BaseButton>
         </div>
       </div>
     </div>
@@ -230,17 +252,10 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 
-const isLoggedIn = ref(false)
+const showLoginModal = ref(false)
 const statusFilter = ref('')
 
-// ユーザー情報
-const userInfo = ref({
-  name: '田中 太郎',
-  email: 'taro@example.com',
-  memberSince: '2024-01-01'
-})
-
-// ギフト履歴（実際の実装ではAPIから取得）
+// ギフト履歴（実際の実装ではローカルストレージやセッションから取得）
 const giftHistory = ref([
   {
     id: 'gift-1',
@@ -339,14 +354,14 @@ const formatDate = (dateString: string): string => {
 
 const loginWithLine = () => {
   // 実際の実装ではLINEログイン処理
-  isLoggedIn.value = true
   alert('LINEログインが完了しました（デモ）')
+  showLoginModal.value = false
 }
 
 const loginWithEmail = () => {
   // 実際の実装ではメールログイン処理
-  isLoggedIn.value = true
   alert('メールログインが完了しました（デモ）')
+  showLoginModal.value = false
 }
 
 const viewGiftDetails = (gift: any) => {
@@ -376,14 +391,16 @@ const goToGifts = () => {
   router.push('/gifts')
 }
 
-const logout = () => {
-  isLoggedIn.value = false
-  alert('ログアウトしました')
-}
-
 onMounted(() => {
-  // デモ用にログイン済み状態にする
-  isLoggedIn.value = true
+  // ローカルストレージからギフト履歴を取得（実際の実装）
+  const savedHistory = localStorage.getItem('giftHistory')
+  if (savedHistory) {
+    try {
+      giftHistory.value = JSON.parse(savedHistory)
+    } catch (error) {
+      console.error('履歴の読み込みに失敗しました:', error)
+    }
+  }
 })
 </script>
 
@@ -415,92 +432,6 @@ onMounted(() => {
 .page-header p {
   font-size: 1.2rem;
   color: #7f8c8d;
-}
-
-/* ログインセクション */
-.login-section {
-  margin-bottom: 3rem;
-}
-
-.login-card {
-  background: white;
-  border-radius: 20px;
-  padding: 3rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.login-card h3 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-}
-
-.login-card p {
-  color: #7f8c8d;
-  margin-bottom: 2rem;
-}
-
-.login-options {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
-.line-login-btn {
-  background: #00c300;
-  border: none;
-  color: white;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  box-shadow: 0 5px 15px rgba(0, 195, 0, 0.3);
-}
-
-.email-login-btn {
-  border: 2px solid #667eea;
-  color: #667eea;
-  background: white;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-}
-
-.login-benefits {
-  text-align: left;
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 15px;
-}
-
-.login-benefits h4 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.login-benefits ul {
-  list-style: none;
-  padding: 0;
-}
-
-.login-benefits li {
-  color: #7f8c8d;
-  margin-bottom: 0.5rem;
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-.login-benefits li::before {
-  content: '✓';
-  color: #667eea;
-  position: absolute;
-  left: 0;
-  font-weight: bold;
 }
 
 /* ユーザー情報 */
@@ -567,6 +498,46 @@ onMounted(() => {
 .stat-label {
   color: #7f8c8d;
   font-size: 0.9rem;
+}
+
+/* 登録促進バナー */
+.registration-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  color: white;
+}
+
+.banner-content {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+.banner-icon {
+  font-size: 3rem;
+}
+
+.banner-text h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.banner-text p {
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.login-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
 }
 
 /* ギフト履歴 */
@@ -845,18 +816,130 @@ onMounted(() => {
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
-.logout-btn {
-  border: 2px solid #e74c3c;
-  color: #e74c3c;
+.register-btn {
+  border: 2px solid #667eea;
+  color: #667eea;
   background: white;
   font-size: 1.2rem;
   padding: 1rem 3rem;
   border-radius: 50px;
 }
 
-.logout-btn:hover {
-  background: #e74c3c;
+.register-btn:hover {
+  background: #667eea;
   color: white;
+}
+
+/* ログインモーダル */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modal-header h3 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #2c3e50;
+}
+
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.line-login-btn {
+  background: #00c300;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.email-login-btn {
+  border: 2px solid #667eea;
+  color: #667eea;
+  background: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.login-benefits {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+.login-benefits h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.login-benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.login-benefits li {
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.login-benefits li::before {
+  content: '✓';
+  color: #667eea;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
 }
 
 /* レスポンシブデザイン */
@@ -875,6 +958,12 @@ onMounted(() => {
     justify-content: center;
   }
   
+  .banner-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1rem;
+  }
+  
   .section-header {
     flex-direction: column;
     align-items: stretch;
@@ -885,10 +974,6 @@ onMounted(() => {
   }
   
   .action-buttons {
-    flex-direction: column;
-  }
-  
-  .login-options {
     flex-direction: column;
   }
 }

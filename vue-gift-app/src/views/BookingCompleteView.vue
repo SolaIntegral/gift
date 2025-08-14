@@ -1,128 +1,144 @@
 <template>
   <div class="booking-complete">
     <div class="container">
-      <!-- 完了ヘッダー -->
-      <div class="complete-header">
-        <div class="success-icon">✅</div>
-        <h1>予約完了！</h1>
-        <p>健康ギフトの利用予約が完了しました</p>
+      <!-- 完了メッセージ -->
+      <div class="completion-message">
+        <div class="success-icon">🎉</div>
+        <h1>予約が完了しました！</h1>
+        <p>健康ギフトの利用予約が正常に完了しました</p>
       </div>
 
       <!-- 予約詳細 -->
       <div class="booking-details">
-        <div class="detail-card">
-          <h3>📋 予約内容</h3>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="label">予約番号</span>
-              <span class="value">{{ bookingData.bookingNumber }}</span>
+        <h2>📋 予約詳細</h2>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="label">予約番号</span>
+            <span class="value">{{ bookingNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">ギフト名</span>
+            <span class="value">{{ giftName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">利用予定日</span>
+            <span class="value">{{ formatDate(bookingDate) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">利用時間</span>
+            <span class="value">{{ bookingTime }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">施設名</span>
+            <span class="value">{{ facilityName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">住所</span>
+            <span class="value">{{ facilityAddress }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 利用手順 -->
+      <div class="usage-steps">
+        <h2>📝 利用手順</h2>
+        <div class="steps-grid">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>予約確認</h3>
+              <p>この画面の予約詳細を確認してください</p>
             </div>
-            <div class="detail-item">
-              <span class="label">利用施設</span>
-              <span class="value">{{ bookingData.facilityName }}</span>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>施設到着</h3>
+              <p>予約日時に施設にお越しください</p>
             </div>
-            <div class="detail-item">
-              <span class="label">利用日時</span>
-              <span class="value">{{ bookingData.date }} {{ bookingData.time }}</span>
+          </div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>受付</h3>
+              <p>受付で予約番号をお伝えください</p>
             </div>
-            <div class="detail-item">
-              <span class="label">予約者</span>
-              <span class="value">{{ bookingData.customerName }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">連絡先</span>
-              <span class="value">{{ bookingData.customerEmail }}</span>
+          </div>
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>サービス利用</h3>
+              <p>健康ギフトのサービスをお楽しみください</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 利用時の注意事項 -->
-      <div class="important-info">
-        <h3>⚠️ 利用時の注意事項</h3>
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-icon">🕐</div>
-            <div class="info-content">
-              <h4>時間厳守</h4>
-              <p>予約時間の10分前にはお越しください</p>
-            </div>
+      <!-- 注意事項 -->
+      <div class="important-notices">
+        <h2>⚠️ ご利用時の注意事項</h2>
+        <div class="notices-list">
+          <div class="notice-item">
+            <span class="notice-icon">📅</span>
+            <span>予約日の前日までにキャンセルをご連絡ください</span>
           </div>
-          <div class="info-item">
-            <div class="info-icon">🆔</div>
-            <div class="info-content">
-              <h4>身分証明書</h4>
-              <p>運転免許証やマイナンバーカードをご持参ください</p>
-            </div>
+          <div class="notice-item">
+            <span class="notice-icon">🕐</span>
+            <span>予約時間の15分前にお越しください</span>
           </div>
-          <div class="info-item">
-            <div class="info-icon">💊</div>
-            <div class="info-content">
-              <h4>服薬情報</h4>
-              <p>現在服用中の薬がある場合は、お知らせください</p>
-            </div>
+          <div class="notice-item">
+            <span class="notice-icon">📱</span>
+            <span>予約番号を忘れた場合は、お電話でお問い合わせください</span>
           </div>
-          <div class="info-item">
-            <div class="info-icon">🚫</div>
-            <div class="info-content">
-              <h4>食事制限</h4>
-              <p>検査前の食事制限がある場合は、事前にご確認ください</p>
-            </div>
+          <div class="notice-item">
+            <span class="notice-icon">🏥</span>
+            <span>体調が悪い場合は、無理をせずにご連絡ください</span>
           </div>
         </div>
       </div>
 
-      <!-- 持ち物チェックリスト -->
-      <div class="checklist">
-        <h3>📝 持ち物チェックリスト</h3>
-        <div class="checklist-items">
-          <label class="checklist-item" v-for="item in checklistItems" :key="item.id">
-            <input type="checkbox" v-model="item.checked" class="checklist-checkbox">
-            <span class="checkmark"></span>
-            <span class="item-text">{{ item.text }}</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 施設へのアクセス -->
-      <div class="facility-access">
-        <h3>📍 施設へのアクセス</h3>
-        <div class="access-info">
-          <div class="access-detail">
-            <h4>{{ bookingData.facilityName }}</h4>
-            <p class="address">{{ bookingData.facilityAddress }}</p>
-            <div class="access-methods">
-              <div class="access-method">
-                <span class="method-icon">🚇</span>
-                <span class="method-text">{{ bookingData.accessByTrain }}</span>
+      <!-- 登録促進セクション -->
+      <div class="registration-promotion">
+        <div class="promotion-content">
+          <div class="promotion-icon">🌟</div>
+          <div class="promotion-text">
+            <h3>アカウントを作成すると、もっと便利に！</h3>
+            <p>ギフトの利用履歴や今後の予約管理が簡単になります</p>
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <span class="benefit-icon">📊</span>
+                <span>利用履歴の管理</span>
               </div>
-              <div class="access-method">
-                <span class="method-icon">🚌</span>
-                <span class="method-text">{{ bookingData.accessByBus }}</span>
+              <div class="benefit-item">
+                <span class="benefit-icon">🔔</span>
+                <span>予約日のリマインダー</span>
               </div>
-              <div class="access-method">
-                <span class="method-icon">🚗</span>
-                <span class="method-text">{{ bookingData.accessByCar }}</span>
+              <div class="benefit-item">
+                <span class="benefit-icon">💝</span>
+                <span>新しいギフトの購入</span>
+              </div>
+              <div class="benefit-item">
+                <span class="benefit-icon">📱</span>
+                <span>LINE通知の設定</span>
               </div>
             </div>
           </div>
-          <div class="map-placeholder">
-            <div class="map-icon">🗺️</div>
-            <p>地図が表示されます</p>
-            <small>実際の実装ではGoogle Maps等を埋め込み</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- キャンセル・変更について -->
-      <div class="cancellation-info">
-        <h3>🔄 キャンセル・変更について</h3>
-        <div class="cancellation-content">
-          <p>予約の変更・キャンセルは利用日の3日前まで可能です。</p>
-          <p>緊急の場合は、施設まで直接お電話でご連絡ください。</p>
-          <div class="contact-info">
-            <span class="contact-icon">📞</span>
-            <span>{{ bookingData.facilityPhone }}</span>
+          <div class="promotion-actions">
+            <BaseButton
+              @click="showLoginModal = true"
+              size="lg"
+              class="register-btn"
+            >
+              📝 アカウントを作成
+            </BaseButton>
+            <BaseButton
+              @click="skipRegistration"
+              variant="outline"
+              size="lg"
+              class="skip-btn"
+            >
+              後で作成
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -130,44 +146,61 @@
       <!-- アクションボタン -->
       <div class="action-buttons">
         <BaseButton
-          @click="addToCalendar"
+          @click="downloadBookingDetails"
+          variant="outline"
           size="lg"
-          class="calendar-btn"
+          class="download-btn"
         >
-          📅 カレンダーに追加
+          📥 予約詳細をダウンロード
         </BaseButton>
         
         <BaseButton
-          @click="startWellnessJourney"
-          variant="outline"
+          @click="goToHome"
           size="lg"
-          class="wellness-btn"
+          class="home-btn"
         >
-          🌟 ウェルネス・ジャーニーを始める
-        </BaseButton>
-        
-        <BaseButton
-          @click="goToJourneyLog"
-          variant="outline"
-          size="lg"
-          class="journey-btn"
-        >
-          📚 ジャーニーログを見る
+          🏠 ホームに戻る
         </BaseButton>
       </div>
+    </div>
 
-      <!-- サポート情報 -->
-      <div class="support-info">
-        <h3>❓ ご不明な点がございましたら</h3>
-        <p>お客様サポートまでお気軽にお問い合わせください</p>
-        <div class="support-contacts">
-          <div class="contact-item">
-            <span class="contact-icon">📧</span>
-            <span>support@gifts.example.com</span>
+    <!-- ログインモーダル -->
+    <div v-if="showLoginModal" class="login-modal-overlay" @click="showLoginModal = false">
+      <div class="login-modal" @click.stop>
+        <div class="modal-header">
+          <h3>🔐 アカウント作成・ログイン</h3>
+          <button @click="showLoginModal = false" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-content">
+          <div class="login-options">
+            <BaseButton
+              @click="loginWithLine"
+              size="lg"
+              class="line-login-btn"
+            >
+              📱 LINEでログイン
+            </BaseButton>
+            
+            <BaseButton
+              @click="loginWithEmail"
+              variant="outline"
+              size="lg"
+              class="email-login-btn"
+            >
+              📧 メールでログイン
+            </BaseButton>
           </div>
-          <div class="contact-item">
-            <span class="contact-icon">📞</span>
-            <span>0120-XXX-XXX（平日 9:00-18:00）</span>
+          
+          <div class="login-benefits">
+            <h4>アカウント作成のメリット：</h4>
+            <ul>
+              <li>予約履歴の永続化</li>
+              <li>リマインダー通知</li>
+              <li>新しいギフトの購入</li>
+              <li>健康管理の継続サポート</li>
+              <li>ギフトの再購入</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -177,55 +210,85 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
+const route = useRoute()
 
-// 予約データ（実際の実装ではAPIから取得）
-const bookingData = ref({
-  bookingNumber: 'BK' + Date.now().toString().slice(-8),
-  facilityName: '東京健康診断センター',
-  facilityAddress: '東京都渋谷区渋谷1-1-1',
-  date: '2025年1月15日',
-  time: '10:00',
-  customerName: '田中 花子',
-  customerEmail: 'hanako@example.com',
-  facilityPhone: '03-1234-5678',
-  accessByTrain: '渋谷駅から徒歩5分',
-  accessByBus: '渋谷駅前バス停から徒歩3分',
-  accessByCar: '駐車場あり（要予約）'
-})
+const showLoginModal = ref(false)
 
-// チェックリスト
-const checklistItems = ref([
-  { id: 1, text: '身分証明書（運転免許証・マイナンバーカード等）', checked: false },
-  { id: 2, text: '健康保険証', checked: false },
-  { id: 3, text: '現在服用中の薬のリスト', checked: false },
-  { id: 4, text: '前回の検査結果（ある場合）', checked: false },
-  { id: 5, text: '予約確認書（この画面を印刷）', checked: false },
-  { id: 6, text: '現金またはクレジットカード', checked: false }
-])
+// 予約情報（実際の実装ではAPIから取得）
+const bookingNumber = ref('BK-2024-001')
+const giftName = ref('総合健康診断パック')
+const bookingDate = ref('2025-01-15')
+const bookingTime = ref('10:00')
+const facilityName = ref('健康診断センター 新宿店')
+const facilityAddress = ref('東京都新宿区西新宿2-8-1')
 
-// カレンダーに追加
-const addToCalendar = () => {
-  // 実際の実装では、カレンダーアプリに予約を追加
-  alert('カレンダーに予約を追加しました！')
+// メソッド
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long'
+  })
 }
 
-// ウェルネス・ジャーニーを始める
-const startWellnessJourney = () => {
-  router.push('/wellness-journey')
+const showLoginModal = () => {
+  showLoginModal.value = true
 }
 
-// ジャーニーログに移動
-const goToJourneyLog = () => {
-  router.push('/journey-log')
+const loginWithLine = () => {
+  // 実際の実装ではLINEログイン処理
+  alert('LINEログインが完了しました（デモ）')
+  showLoginModal.value = false
+}
+
+const loginWithEmail = () => {
+  // 実際の実装ではメールログイン処理
+  alert('メールログインが完了しました（デモ）')
+  showLoginModal.value = false
+}
+
+const skipRegistration = () => {
+  alert('アカウント作成をスキップしました。いつでも作成できます。')
+}
+
+const downloadBookingDetails = () => {
+  // 予約詳細をダウンロード
+  const data = {
+    bookingNumber: bookingNumber.value,
+    giftName: giftName.value,
+    bookingDate: bookingDate.value,
+    bookingTime: bookingTime.value,
+    facilityName: facilityName.value,
+    facilityAddress: facilityAddress.value
+  }
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `booking-${bookingNumber.value}.json`
+  link.click()
+}
+
+const goToHome = () => {
+  router.push('/')
 }
 
 onMounted(() => {
-  // ページタイトルを設定
-  document.title = '予約完了 - GIFTS'
+  // URLパラメータから予約情報を取得（実際の実装）
+  const urlParams = new URLSearchParams(window.location.search)
+  const giftId = urlParams.get('giftId')
+  
+  if (giftId) {
+    // ギフトIDに基づいて予約情報を取得
+    console.log('ギフトID:', giftId)
+  }
 })
 </script>
 
@@ -242,8 +305,8 @@ onMounted(() => {
   padding: 0 1rem;
 }
 
-/* 完了ヘッダー */
-.complete-header {
+/* 完了メッセージ */
+.completion-message {
   text-align: center;
   margin-bottom: 3rem;
 }
@@ -251,52 +314,36 @@ onMounted(() => {
 .success-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  animation: bounce 1s ease-in-out;
 }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
-.complete-header h1 {
+.completion-message h1 {
+  color: #2c3e50;
   font-size: 2.5rem;
-  color: #27ae60;
   margin-bottom: 1rem;
 }
 
-.complete-header p {
-  font-size: 1.2rem;
+.completion-message p {
   color: #7f8c8d;
+  font-size: 1.2rem;
 }
 
 /* 予約詳細 */
 .booking-details {
-  margin-bottom: 3rem;
-}
-
-.detail-card {
   background: white;
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 3rem;
 }
 
-.detail-card h3 {
+.booking-details h2 {
   color: #2c3e50;
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
   text-align: center;
 }
 
-.detail-grid {
+.details-grid {
   display: grid;
   gap: 1rem;
 }
@@ -311,17 +358,17 @@ onMounted(() => {
 }
 
 .detail-item .label {
+  color: #7f8c8d;
   font-weight: 600;
-  color: #2c3e50;
 }
 
 .detail-item .value {
-  color: #667eea;
-  font-weight: 600;
+  color: #2c3e50;
+  font-weight: 500;
 }
 
-/* 重要情報 */
-.important-info {
+/* 利用手順 */
+.usage-steps {
   background: white;
   border-radius: 20px;
   padding: 2rem;
@@ -329,221 +376,166 @@ onMounted(() => {
   margin-bottom: 3rem;
 }
 
-.important-info h3 {
-  color: #e74c3c;
+.usage-steps h2 {
+  color: #2c3e50;
   margin-bottom: 2rem;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   text-align: center;
 }
 
-.info-grid {
+.steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
-.info-item {
+.step-item {
   display: flex;
+  gap: 1.5rem;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 10px;
 }
 
-.info-icon {
-  font-size: 1.5rem;
+.step-number {
+  background: #667eea;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
   flex-shrink: 0;
 }
 
-.info-content h4 {
+.step-content h3 {
   color: #2c3e50;
   margin-bottom: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
-.info-content p {
+.step-content p {
   color: #7f8c8d;
-  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* 注意事項 */
+.important-notices {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 3rem;
+}
+
+.important-notices h2 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.notices-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.notice-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: #fff3cd;
+  border-radius: 10px;
+  border-left: 4px solid #ffc107;
+}
+
+.notice-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.notice-item span:last-child {
+  color: #856404;
   line-height: 1.4;
 }
 
-/* チェックリスト */
-.checklist {
-  background: white;
+/* 登録促進セクション */
+.registration-promotion {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   margin-bottom: 3rem;
+  color: white;
 }
 
-.checklist h3 {
-  color: #2c3e50;
-  margin-bottom: 2rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.checklist-items {
+.promotion-content {
   display: grid;
-  gap: 1rem;
-}
-
-.checklist-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.checklist-item:hover {
-  background: #e9ecef;
-}
-
-.checklist-checkbox {
-  display: none;
-}
-
-.checkmark {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #667eea;
-  border-radius: 4px;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.checklist-checkbox:checked + .checkmark::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #667eea;
-  font-weight: bold;
-}
-
-.item-text {
-  color: #2c3e50;
-  font-size: 0.95rem;
-}
-
-/* 施設アクセス */
-.facility-access {
-  background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 3rem;
-}
-
-.facility-access h3 {
-  color: #2c3e50;
-  margin-bottom: 2rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.access-info {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: 2rem;
-  align-items: start;
+  align-items: center;
 }
 
-.access-detail h4 {
-  color: #2c3e50;
+.promotion-icon {
+  font-size: 3rem;
+}
+
+.promotion-text h3 {
   margin-bottom: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
-.address {
-  color: #7f8c8d;
+.promotion-text p {
+  opacity: 0.9;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
-.access-methods {
+.benefits-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.benefit-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.benefit-icon {
+  font-size: 1.1rem;
+}
+
+.promotion-actions {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.access-method {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.method-icon {
-  font-size: 1.2rem;
-}
-
-.method-text {
-  color: #2c3e50;
-  font-size: 0.9rem;
-}
-
-.map-placeholder {
-  background: #f8f9fa;
-  border: 2px dashed #bdc3c7;
-  border-radius: 15px;
-  padding: 2rem;
-  text-align: center;
-  color: #7f8c8d;
-}
-
-.map-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.map-placeholder small {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-}
-
-/* キャンセル情報 */
-.cancellation-info {
+.register-btn {
   background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-bottom: 3rem;
-}
-
-.cancellation-info h3 {
-  color: #f39c12;
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  text-align: center;
-}
-
-.cancellation-content p {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
-
-.contact-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 10px;
   color: #667eea;
+  border: none;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
   font-weight: 600;
 }
 
-.contact-icon {
-  font-size: 1.2rem;
+.skip-btn {
+  border: 2px solid white;
+  color: white;
+  background: transparent;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+}
+
+.skip-btn:hover {
+  background: white;
+  color: #667eea;
 }
 
 /* アクションボタン */
@@ -552,88 +544,157 @@ onMounted(() => {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 3rem;
 }
 
-.calendar-btn {
-  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  padding: 1rem 3rem;
-  border-radius: 50px;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
-}
-
-.calendar-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-}
-
-.wellness-btn,
-.journey-btn {
+.download-btn {
   border: 2px solid #667eea;
   color: #667eea;
   background: white;
-  font-size: 1.2rem;
-  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
   border-radius: 50px;
-  transition: all 0.3s ease;
 }
 
-.wellness-btn:hover,
-.journey-btn:hover {
+.home-btn {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.download-btn:hover {
   background: #667eea;
   color: white;
 }
 
-/* サポート情報 */
-.support-info {
+/* ログインモーダル */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
   background: white;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.support-info h3 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-}
-
-.support-info p {
-  color: #7f8c8d;
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
 }
 
-.support-contacts {
+.modal-header h3 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #2c3e50;
+}
+
+.login-options {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-items: center;
+  margin-bottom: 2rem;
 }
 
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.line-login-btn {
+  background: #00c300;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.email-login-btn {
+  border: 2px solid #667eea;
+  color: #667eea;
+  background: white;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+}
+
+.login-benefits {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+.login-benefits h4 {
   color: #2c3e50;
-  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
 }
 
-.contact-icon {
-  font-size: 1.2rem;
+.login-benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.login-benefits li {
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.login-benefits li::before {
+  content: '✓';
+  color: #667eea;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
 }
 
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
-  .complete-header h1 {
+  .completion-message h1 {
     font-size: 2rem;
   }
   
-  .access-info {
+  .promotion-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .benefits-list {
     grid-template-columns: 1fr;
   }
   
@@ -641,8 +702,16 @@ onMounted(() => {
     flex-direction: column;
   }
   
-  .info-grid {
-    grid-template-columns: 1fr;
+  .step-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
   }
 }
 </style> 
