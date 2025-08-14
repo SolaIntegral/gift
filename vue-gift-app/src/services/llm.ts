@@ -263,26 +263,87 @@ export class LLMService {
   }
 
   async generateResponse(prompt: string): Promise<LLMResponse> {
-    // 一時的にPlamo APIのみを使用（フォールバック無効化）
+    // Plamo APIを試行
+    if (this.isPrimaryAvailable) {
+      try {
+        console.log('Using Plamo API as primary LLM')
+        const response = await this.primaryClient.generateResponse(prompt)
+        this.errorCount = 0 // 成功したらエラーカウントをリセット
+        return response
+      } catch (error) {
+        console.error('Plamo API failed, attempting fallback:', error)
+        this.errorCount++
+        
+        // エラーが一定回数以上発生した場合、プライマリLLMを無効化
+        if (this.errorCount >= this.MAX_ERRORS) {
+          this.isPrimaryAvailable = false
+          console.warn('Plamo API disabled due to repeated errors, switching to fallback')
+        }
+      }
+    }
+    
+    // フォールバック: Amazon Bedrock
     try {
-      console.log('Using Plamo API directly (fallback disabled for testing)')
-      const response = await this.primaryClient.generateResponse(prompt)
-      this.errorCount = 0 // 成功したらエラーカウントをリセット
+      console.log('Using Amazon Bedrock as fallback LLM')
+      const response = await this.fallbackClient.generateResponse(prompt)
       return response
     } catch (error) {
-      console.error('Plamo API failed completely:', error)
-      throw error // フォールバックせずにエラーを投げる
+      console.error('Both primary and fallback LLMs failed:', error)
+      throw new LLMServiceError('ALL_LLMS_FAILED', '全てのLLMサービスが利用できません', error)
     }
   }
 
   async analyzeEmotion(text: string): Promise<EmotionAnalysis> {
-    // 一時的にPlamo APIのみを使用（フォールバック無効化）
+    // Plamo APIを試行
+    if (this.isPrimaryAvailable) {
+      try {
+        console.log('Using Plamo API for emotion analysis')
+        return await this.primaryClient.analyzeEmotion(text)
+      } catch (error) {
+        console.error('Plamo API emotion analysis failed, using fallback:', error)
+        this.errorCount++
+        
+        // エラーが一定回数以上発生した場合、プライマリLLMを無効化
+        if (this.errorCount >= this.MAX_ERRORS) {
+          this.isPrimaryAvailable = false
+          console.warn('Plamo API disabled due to repeated errors, switching to fallback')
+        }
+      }
+    }
+    
+    // フォールバック: Amazon Bedrock
     try {
-      console.log('Using Plamo API for emotion analysis (fallback disabled for testing)')
-      return await this.primaryClient.analyzeEmotion(text)
+      console.log('Using Amazon Bedrock for emotion analysis fallback')
+      // Amazon Bedrockの感情分析は簡易版を使用
+      return this.fallbackEmotionAnalysis(text)
     } catch (error) {
-      console.error('Plamo API emotion analysis failed completely:', error)
-      throw error // フォールバックせずにエラーを投げる
+      console.error('Both primary and fallback emotion analysis failed:', error)
+      // 最終的なフォールバック
+      return this.fallbackEmotionAnalysis(text)
+    }
+  }
+  
+  // フォールバック用の感情分析（簡易版）
+  private fallbackEmotionAnalysis(text: string): EmotionAnalysis {
+    const lowerText = text.toLowerCase()
+    let emotion: 'positive' | 'negative' | 'neutral' | 'concerned' = 'neutral'
+    let confidence = 0.5
+
+    if (lowerText.includes('ありがとう') || lowerText.includes('嬉しい') || lowerText.includes('最高')) {
+      emotion = 'positive'
+      confidence = 0.8
+    } else if (lowerText.includes('心配') || lowerText.includes('不安') || lowerText.includes('困った')) {
+      emotion = 'concerned'
+      confidence = 0.7
+    } else if (lowerText.includes('悲しい') || lowerText.includes('怒り') || lowerText.includes('最悪')) {
+      emotion = 'negative'
+      confidence = 0.8
+    }
+
+    return {
+      emotion,
+      confidence,
+      keyPhrases: []
     }
   }
 
@@ -309,7 +370,7 @@ export const DEFAULT_PLAMO_CONFIG: LLMConfig = {
   model: import.meta.env.VITE_PLAMO_MODEL || 'plamo-2.0-prime',
   maxTokens: 1000,
   temperature: 0.7,
-  timeout: 60000  // 60秒に延長
+  timeout: 180000  // 180秒 (3分)に延長
 }
 
 export const DEFAULT_BEDROCK_CONFIG: LLMConfig = {
@@ -338,28 +399,17 @@ export const generateHealthGiftPrompt = (
   intent: string
 ): string => {
   return `
-あなたは健康ギフトの専門アドバイザーです。ユーザーの感情と意図を理解し、最適な健康ギフトを推薦してください。
+健康ギフトの専門アドバイザーとして、以下の情報に基づいて最適なギフトを3つ推薦してください。
 
-会話履歴:
-${conversation}
+相談内容: ${conversation}
 
-分析結果:
-- 感情: ${emotionAnalysis.emotion}
-- 意図: ${intent}
-- キーフレーズ: ${emotionAnalysis.keyPhrases.join(', ')}
+感情分析: ${emotionAnalysis.emotion} (信頼度: ${emotionAnalysis.confidence})
 
-分析項目:
-1. 相手への感情（愛情、感謝、心配、励ましなど）
-2. 相手に望む変化（健康向上、ストレス軽減、活力向上など）
-3. 関係性（家族、友人、恋人、同僚など）
-4. 予算感（高級、中級、手頃など）
+以下の形式で簡潔に回答してください：
+1. 推薦ギフト3つ（名称、価格、特徴）
+2. 各ギフトの推薦理由
+3. 相手へのメッセージ提案
 
-以下の形式で回答してください：
-1. 感情理解の確認（共感的な応答）
-2. 推薦ギフト（3つ、具体的な商品名と価格）
-3. 各ギフトの推薦理由（感情に基づく）
-4. 相手へのメッセージ提案
-
-回答は親しみやすく、共感的な口調でお願いします。
+親しみやすく、実用的なアドバイスをお願いします。
 `
 } 
