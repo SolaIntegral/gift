@@ -24,7 +24,10 @@ const goToCategory = (category: string) => {
           <router-link to="/consultation" class="btn btn-primary">
             🎁 ギフト相談を始める
           </router-link>
-          <router-link to="/gifts" class="btn btn-secondary">
+          <router-link to="/wellness-journey" class="btn btn-secondary">
+            🌟 ウェルネス・ジャーニー
+          </router-link>
+          <router-link to="/gifts" class="btn btn-outline">
             📋 ギフト一覧を見る
           </router-link>
         </div>

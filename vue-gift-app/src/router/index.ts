@@ -27,6 +27,14 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/wellness-journey',
+    name: 'WellnessJourney',
+    component: () => import('@/components/WellnessJourney.vue'),
+    meta: {
+      title: 'ウェルネス・ジャーニー - GIFTS'
+    }
+  },
+  {
     path: '/gifts',
     name: 'Gifts',
     component: () => import('@/views/GiftsView.vue'),
